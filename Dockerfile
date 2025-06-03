@@ -29,7 +29,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Collect static files
-RUN python manage.py collectstatic --noinput
+# RUN python manage.py collectstatic --noinput
 
 # Create user to run the application
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
