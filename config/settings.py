@@ -92,10 +92,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'fahanie_cares_dev',
+        'NAME': 'postgres',
         'USER': 'postgres',
-        'PASSWORD': '12345678',
-        'HOST': '127.0.0.1',
+        'PASSWORD': 'dHcFLqQT9xSS6Kl8ceZJ4WFbVV9QPLFGEovDg4oM8kQbR7xsEsmvxJFSMfM2y6Nf',
+        'HOST': 'cs4s80kcs4488ssow8sgw8k0',
         'PORT': '5432',
         'OPTIONS': {'options': '-c search_path=public'},
     }
