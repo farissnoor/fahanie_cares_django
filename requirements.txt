@@ -67,4 +67,4 @@ django-elasticsearch-dsl==8.0
 reportlab
 guardian
 django-guardian
-simple_history
+django-simple-history
