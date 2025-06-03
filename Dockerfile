@@ -29,7 +29,7 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Create user to run the application
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app && chmod -R 777 /app
 USER appuser
 
 # Run the application
