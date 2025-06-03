@@ -29,11 +29,11 @@ RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
 # Create user to run the application
-# RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app && chmod -R 777 /app
-# USER appuser
-RUN chmod -R 777 /app
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app && chmod -R 777 /app
+USER appuser
+# RUN chmod -R 777 /app
 
 # Run the application
-# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
 
 EXPOSE 8000
