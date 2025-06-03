@@ -32,4 +32,7 @@ RUN pip install -r requirements.txt
 RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
+# Run the application
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "3", "config.wsgi:application"]
+
 EXPOSE 8000
