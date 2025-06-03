@@ -1,0 +1,104 @@
+{% comment %}
+Card Component - Atomic Design Level: Molecule
+
+Usage Examples:
+{% include 'components/molecules/card.html' with title='Service Title' description='Service description' image_placeholder='Service Image' %}
+{% include 'components/molecules/card.html' with title='Program Title' badge_text='Active' badge_variant='success' %}
+
+Parameters:
+- title: Card title (required)
+- description: Card description (optional)
+- image_placeholder: Placeholder text for image area (optional)
+- image_url: Actual image URL (optional)
+- badge_text: Badge text (optional)
+- badge_variant: Badge color variant (optional, default: 'primary')
+- hover_animations: Enable hover animations (optional, default: true)
+- href: Make entire card clickable (optional)
+- cta_text: Call-to-action button text (optional)
+- cta_href: Call-to-action button link (optional)
+- cta_variant: CTA button variant (optional, default: 'primary')
+- icon: Icon class for top of card (optional)
+- extra_classes: Additional CSS classes (optional)
+- alpine_data: Alpine.js x-data attribute (optional)
+{% endcomment %}
+
+<div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden {% if hover_animations %}hover-lift focus-ring transition-all duration-300{% endif %} {{ extra_classes }}" 
+     {% if alpine_data %}x-data="{{ alpine_data }}"{% elif hover_animations %}x-data="hoverAnimation()"{% endif %}
+     {% if href %}tabindex="0"{% endif %}>
+     
+    {% comment %} Image section {% endcomment %}
+    {% if image_placeholder or image_url %}
+    <div class="{% if image_url %}bg-cover bg-center{% else %}bg-gray-200 flex items-center justify-center{% endif %} h-48 relative overflow-hidden"
+         {% if image_url %}style="background-image: url('{{ image_url }}')"{% endif %}>
+        
+        {% if not image_url %}
+            <span class="text-gray-400">{{ image_placeholder|default:'Image' }}</span>
+        {% endif %}
+        
+        {% comment %} Hover overlay for animations {% endcomment %}
+        {% if hover_animations %}
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300"
+             :class="{ 'opacity-100': isHovered }"
+             @mouseenter="mouseenter()"
+             @mouseleave="mouseleave()"></div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% comment %} Card content {% endcomment %}
+    <div class="p-6">
+        {% comment %} Icon and badge row {% endcomment %}
+        {% if icon or badge_text %}
+        <div class="flex items-center justify-between mb-4">
+            {% if icon %}
+            <div class="bg-primary-100 p-3 rounded-full w-14 h-14 flex items-center justify-center transition-transform duration-300"
+                 {% if hover_animations %}:class="{ 'scale-110': isHovered }"{% endif %}>
+                <i class="{{ icon }} text-primary-600 text-xl"></i>
+            </div>
+            {% endif %}
+            
+            {% if badge_text %}
+            <div class="{% if not icon %}w-full flex justify-end{% endif %}">
+                {% include 'components/atoms/badge.html' with variant=badge_variant|default:'primary' text=badge_text %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {% comment %} Title {% endcomment %}
+        {% if title %}
+        <h3 class="text-xl font-semibold text-slate-800 mb-2">{{ title }}</h3>
+        {% endif %}
+        
+        {% comment %} Description {% endcomment %}
+        {% if description %}
+        <p class="text-gray-600 mb-4">{{ description }}</p>
+        {% endif %}
+        
+        {% comment %} Custom content slot {% endcomment %}
+        {% if card_content %}
+            {{ card_content|safe }}
+        {% endif %}
+        
+        {% comment %} Call-to-action buttons {% endcomment %}
+        {% if cta_text or href %}
+        <div class="{% if cta_text and href %}flex justify-between items-center{% else %}flex{% endif %} mt-4">
+            {% if href and not cta_text %}
+                {% include 'components/atoms/button.html' with variant='ghost' text='View Details' href=href icon='fas fa-arrow-right' %}
+            {% endif %}
+            
+            {% if cta_text %}
+                {% if cta_href %}
+                    <a href="{% url cta_href %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base {% if cta_variant == 'outline' %}border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500{% else %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% endif %}">
+                        {{ cta_text }}
+                    </a>
+                {% else %}
+                    <button class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base {% if cta_variant == 'outline' %}border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500{% else %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% endif %}">
+                        {{ cta_text }}
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>

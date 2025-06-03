@@ -1,0 +1,176 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Program Activity History - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Program Activity History</h1>
+        <p class="text-gray-600">Track all changes and activities across ministry programs</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Filter History</h2>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+                <label for="program" class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                <select name="program" id="program" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">All Programs</option>
+                    {% for program in programs %}
+                        <option value="{{ program.id }}" {% if current_filters.program == program.id|stringformat:'s' %}selected{% endif %}>
+                            {{ program.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="action" class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                <select name="action" id="action" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">All Actions</option>
+                    {% for action in actions %}
+                        <option value="{{ action }}" {% if current_filters.action == action %}selected{% endif %}>
+                            {{ action|title }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="user" class="block text-sm font-medium text-gray-700 mb-1">User</label>
+                <select name="user" id="user" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <option value="">All Users</option>
+                    {% for user in users %}
+                        <option value="{{ user.changed_by__id }}" {% if current_filters.user == user.changed_by__id|stringformat:'s' %}selected{% endif %}>
+                            {{ user.changed_by__first_name }} {{ user.changed_by__last_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="w-full bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition duration-200">
+                    <i class="fas fa-filter mr-2"></i>
+                    Apply Filters
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- History Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Activity Log</h2>
+        </div>
+        
+        {% if history_page.object_list %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date & Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Program</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Changes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for record in history_page.object_list %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ record.changed_at|date:"M d, Y" }}<br>
+                                <span class="text-gray-500">{{ record.changed_at|time:"g:i A" }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ record.program.name }}</div>
+                                <div class="text-sm text-gray-500">{{ record.program.ministry.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if record.action == 'created' %}bg-green-100 text-green-800{% endif %}
+                                    {% if record.action == 'updated' %}bg-blue-100 text-blue-800{% endif %}
+                                    {% if record.action == 'deleted' %}bg-red-100 text-red-800{% endif %}
+                                    {% if record.action == 'approved' %}bg-purple-100 text-purple-800{% endif %}
+                                    {% if record.action == 'suspended' %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ record.action|title }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {{ record.changed_by.get_full_name|default:record.changed_by.username }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {% if record.changes %}
+                                    <div class="max-w-xs">
+                                        {% for field, change in record.changes.items %}
+                                            <div class="text-xs">
+                                                <span class="font-medium">{{ field|title }}:</span>
+                                                {% if change.old %}{{ change.old }} → {% endif %}{{ change.new }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                {% if record.reason %}
+                                    <div class="text-xs text-gray-500 mt-1">{{ record.reason }}</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if history_page.has_other_pages %}
+            <div class="px-6 py-4 border-t border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-700">
+                        Showing {{ history_page.start_index }} to {{ history_page.end_index }} of {{ history_page.paginator.count }} results
+                    </div>
+                    <div class="flex space-x-2">
+                        {% if history_page.has_previous %}
+                            <a href="?page={{ history_page.previous_page_number }}{% if request.GET.program %}&program={{ request.GET.program }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" 
+                               class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+                                Previous
+                            </a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2 text-sm text-gray-700">
+                            Page {{ history_page.number }} of {{ history_page.paginator.num_pages }}
+                        </span>
+                        
+                        {% if history_page.has_next %}
+                            <a href="?page={{ history_page.next_page_number }}{% if request.GET.program %}&program={{ request.GET.program }}{% endif %}{% if request.GET.action %}&action={{ request.GET.action }}{% endif %}{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" 
+                               class="px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition">
+                                Next
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% else %}
+            <div class="px-6 py-8 text-center">
+                <i class="fas fa-history text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No History Found</h3>
+                <p class="text-gray-500">No program activity history matches your current filters.</p>
+                {% if current_filters.program or current_filters.action or current_filters.user %}
+                    <a href="{% url 'program_history' %}" class="inline-block mt-4 text-primary-600 hover:text-primary-800">
+                        Clear all filters
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Back to Admin -->
+    <div class="mt-6">
+        <a href="{% url 'admin_dashboard' %}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition duration-200">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Back to Admin Dashboard
+        </a>
+    </div>
+</div>
+{% endblock %}

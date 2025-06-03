@@ -1,0 +1,584 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Constituent Analytics | #FahanieCares{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Constituent Analytics</h1>
+                    <p class="text-lg text-white/90">Insights and data analysis of your constituent base</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="{% url 'staff_constituent_dashboard' %}" class="bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_constituent_dashboard' %}" class="hover:text-primary-600 transition">Constituents</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Analytics</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Key Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-1">Total Constituents</h3>
+                    <p class="text-3xl font-bold text-primary-600">{{ total_constituents }}</p>
+                </div>
+                <div class="text-primary-500 text-3xl">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-1">Registered Voters</h3>
+                    <p class="text-3xl font-bold text-green-600">{{ total_voters }}</p>
+                    <p class="text-sm text-gray-500">
+                        {% if total_constituents > 0 %}
+                        {{ total_voters|floatformat:0 }}% of constituents
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="text-green-500 text-3xl">
+                    <i class="fas fa-vote-yea"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-1">Volunteers</h3>
+                    <p class="text-3xl font-bold text-blue-600">{{ total_volunteers }}</p>
+                    <p class="text-sm text-gray-500">
+                        {% if total_constituents > 0 %}
+                        {{ total_volunteers|floatformat:0 }}% of constituents
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="text-blue-500 text-3xl">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Engagement Distribution -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Engagement Distribution</h3>
+            <div class="h-64">
+                <canvas id="engagementChart"></canvas>
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-2 text-sm">
+                <div class="flex justify-between items-center p-2 bg-primary-50 rounded">
+                    <span>High (7-10)</span>
+                    <span class="font-medium">{{ engagement_distribution.high }}</span>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-primary-50 rounded">
+                    <span>Medium (4-6)</span>
+                    <span class="font-medium">{{ engagement_distribution.medium }}</span>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-primary-50 rounded">
+                    <span>Low (1-3)</span>
+                    <span class="font-medium">{{ engagement_distribution.low }}</span>
+                </div>
+                <div class="flex justify-between items-center p-2 bg-primary-50 rounded">
+                    <span>Inactive (0)</span>
+                    <span class="font-medium">{{ engagement_distribution.inactive }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Growth Over Time -->
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <h3 class="text-lg font-medium text-gray-800 mb-4">Growth Over Time</h3>
+            <div class="h-64">
+                <canvas id="growthChart"></canvas>
+            </div>
+            <div class="mt-4 text-center text-sm text-gray-500">
+                <p>Constituent growth over the past 12 months</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Demographics Section -->
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100 mb-6">
+        <h3 class="text-lg font-medium text-gray-800 mb-4">Demographics</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Gender Distribution -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Gender Distribution</h4>
+                <div class="h-48">
+                    <canvas id="genderChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <ul class="space-y-2 text-sm">
+                        {% for gender in gender_distribution %}
+                        <li class="flex justify-between items-center">
+                            <span>
+                                {% if gender.gender == 'male' %}
+                                Male
+                                {% elif gender.gender == 'female' %}
+                                Female
+                                {% elif gender.gender == 'other' %}
+                                Other
+                                {% elif gender.gender == 'prefer_not_to_say' %}
+                                Prefer not to say
+                                {% else %}
+                                {{ gender.gender }}
+                                {% endif %}
+                            </span>
+                            <span class="font-medium">{{ gender.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="text-gray-500 italic">No gender data available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Education Level -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Education Level</h4>
+                <div class="h-48">
+                    <canvas id="educationChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <ul class="space-y-2 text-sm">
+                        {% for education in education_distribution %}
+                        <li class="flex justify-between items-center">
+                            <span>
+                                {% if education.education_level == 'elementary' %}
+                                Elementary School
+                                {% elif education.education_level == 'high_school' %}
+                                High School
+                                {% elif education.education_level == 'vocational' %}
+                                Vocational School
+                                {% elif education.education_level == 'college' %}
+                                College
+                                {% elif education.education_level == 'graduate' %}
+                                Graduate School
+                                {% else %}
+                                {{ education.education_level }}
+                                {% endif %}
+                            </span>
+                            <span class="font-medium">{{ education.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="text-gray-500 italic">No education data available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Occupation Type -->
+            <div>
+                <h4 class="text-sm font-medium text-gray-700 mb-3">Occupation Type</h4>
+                <div class="h-48">
+                    <canvas id="occupationChart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <ul class="space-y-2 text-sm">
+                        {% for occupation in occupation_distribution %}
+                        <li class="flex justify-between items-center">
+                            <span>
+                                {% if occupation.occupation_type == 'private_sector' %}
+                                Private Sector
+                                {% elif occupation.occupation_type == 'public_sector' %}
+                                Public Sector
+                                {% elif occupation.occupation_type == 'self_employed' %}
+                                Self-employed
+                                {% elif occupation.occupation_type == 'student' %}
+                                Student
+                                {% elif occupation.occupation_type == 'unemployed' %}
+                                Unemployed
+                                {% elif occupation.occupation_type == 'retired' %}
+                                Retired
+                                {% elif occupation.occupation_type == 'homemaker' %}
+                                Homemaker
+                                {% else %}
+                                {{ occupation.occupation_type }}
+                                {% endif %}
+                            </span>
+                            <span class="font-medium">{{ occupation.count }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="text-gray-500 italic">No occupation data available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Recommendations -->
+    <div class="bg-primary-50 p-6 rounded-lg shadow-sm border border-primary-100 mb-6">
+        <h3 class="text-lg font-medium text-primary-800 mb-4">Recommendations</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Engagement Recommendations -->
+            <div class="bg-white p-4 rounded-lg border border-primary-100">
+                <h4 class="font-medium text-gray-800 mb-3">Engagement Strategy</h4>
+                <ul class="space-y-2 text-sm">
+                    {% if engagement_distribution.high > 0 %}
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-green-500 mt-1 mr-2"></i>
+                        <span>Focus on retaining your {{ engagement_distribution.high }} highly engaged constituents through regular communication and appreciation.</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if engagement_distribution.low > 0 or engagement_distribution.inactive > 0 %}
+                    <li class="flex items-start">
+                        <i class="fas fa-exclamation-circle text-orange-500 mt-1 mr-2"></i>
+                        <span>Develop a re-engagement strategy for {{ engagement_distribution.low|add:engagement_distribution.inactive }} low or inactive constituents.</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if avg_engagement < 5 %}
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-circle-up text-blue-500 mt-1 mr-2"></i>
+                        <span>Work on increasing your overall engagement score from {{ avg_engagement|floatformat:1 }} through more personalized outreach.</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+            
+            <!-- Growth Recommendations -->
+            <div class="bg-white p-4 rounded-lg border border-primary-100">
+                <h4 class="font-medium text-gray-800 mb-3">Growth Opportunities</h4>
+                <ul class="space-y-2 text-sm">
+                    {% if total_volunteers < total_constituents|divisibleby:10 %}
+                    <li class="flex items-start">
+                        <i class="fas fa-user-plus text-blue-500 mt-1 mr-2"></i>
+                        <span>Increase your volunteer base by reaching out to engaged non-volunteers.</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if total_voters < total_constituents %}
+                    <li class="flex items-start">
+                        <i class="fas fa-vote-yea text-green-500 mt-1 mr-2"></i>
+                        <span>Consider a voter registration campaign targeting the {{ total_constituents|add:"-total_voters" }} non-registered constituents.</span>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="flex items-start">
+                        <i class="fas fa-users-cog text-purple-500 mt-1 mr-2"></i>
+                        <span>Create targeted groups based on demographics to improve personalized communication.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set common chart options
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748b';
+        
+        // Color schemes
+        const primaryColors = [
+            'rgba(34, 197, 94, 0.8)',  // primary-500
+            'rgba(22, 163, 74, 0.8)',  // primary-600
+            'rgba(21, 128, 61, 0.8)',  // primary-700
+            'rgba(22, 101, 52, 0.8)'   // primary-800
+        ];
+        
+        const secondaryColors = [
+            'rgba(220, 252, 231, 0.7)', // primary-100
+            'rgba(187, 247, 208, 0.7)', // primary-200
+            'rgba(134, 239, 172, 0.7)', // primary-300
+            'rgba(74, 222, 128, 0.7)',  // primary-400
+            'rgba(34, 197, 94, 0.7)',   // primary-500
+            'rgba(22, 163, 74, 0.7)',   // primary-600
+            'rgba(21, 128, 61, 0.7)',   // primary-700
+            'rgba(22, 101, 52, 0.7)'    // primary-800
+        ];
+
+        // Engagement Distribution Chart
+        new Chart(document.getElementById('engagementChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['High (7-10)', 'Medium (4-6)', 'Low (1-3)', 'Inactive (0)'],
+                datasets: [{
+                    data: [
+                        {{ engagement_distribution.high }},
+                        {{ engagement_distribution.medium }},
+                        {{ engagement_distribution.low }},
+                        {{ engagement_distribution.inactive }}
+                    ],
+                    backgroundColor: primaryColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((context.raw / total) * 100);
+                                return `${context.label}: ${context.raw} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Growth Over Time Chart
+        new Chart(document.getElementById('growthChart'), {
+            type: 'line',
+            data: {
+                labels: [
+                    {% for data in growth_data %}
+                    '{{ data.period }}',
+                    {% endfor %}
+                ],
+                datasets: [{
+                    label: 'New Constituents',
+                    data: [
+                        {% for data in growth_data %}
+                        {{ data.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                    borderColor: 'rgba(34, 197, 94, 1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Gender Distribution Chart
+        new Chart(document.getElementById('genderChart'), {
+            type: 'pie',
+            data: {
+                labels: [
+                    {% for gender in gender_distribution %}
+                    {% if gender.gender == 'male' %}
+                    'Male',
+                    {% elif gender.gender == 'female' %}
+                    'Female',
+                    {% elif gender.gender == 'other' %}
+                    'Other',
+                    {% elif gender.gender == 'prefer_not_to_say' %}
+                    'Prefer not to say',
+                    {% else %}
+                    '{{ gender.gender }}',
+                    {% endif %}
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for gender in gender_distribution %}
+                        {{ gender.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: secondaryColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            boxWidth: 12,
+                            font: {
+                                size: 10
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Education Level Chart
+        new Chart(document.getElementById('educationChart'), {
+            type: 'bar',
+            data: {
+                labels: [
+                    {% for education in education_distribution %}
+                    {% if education.education_level == 'elementary' %}
+                    'Elementary',
+                    {% elif education.education_level == 'high_school' %}
+                    'High School',
+                    {% elif education.education_level == 'vocational' %}
+                    'Vocational',
+                    {% elif education.education_level == 'college' %}
+                    'College',
+                    {% elif education.education_level == 'graduate' %}
+                    'Graduate',
+                    {% else %}
+                    '{{ education.education_level }}',
+                    {% endif %}
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for education in education_distribution %}
+                        {{ education.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: secondaryColors[4],
+                    borderColor: secondaryColors[5],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 10
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Occupation Type Chart
+        new Chart(document.getElementById('occupationChart'), {
+            type: 'bar',
+            data: {
+                labels: [
+                    {% for occupation in occupation_distribution %}
+                    {% if occupation.occupation_type == 'private_sector' %}
+                    'Private',
+                    {% elif occupation.occupation_type == 'public_sector' %}
+                    'Public',
+                    {% elif occupation.occupation_type == 'self_employed' %}
+                    'Self-employed',
+                    {% elif occupation.occupation_type == 'student' %}
+                    'Student',
+                    {% elif occupation.occupation_type == 'unemployed' %}
+                    'Unemployed',
+                    {% elif occupation.occupation_type == 'retired' %}
+                    'Retired',
+                    {% elif occupation.occupation_type == 'homemaker' %}
+                    'Homemaker',
+                    {% else %}
+                    '{{ occupation.occupation_type }}',
+                    {% endif %}
+                    {% endfor %}
+                ],
+                datasets: [{
+                    data: [
+                        {% for occupation in occupation_distribution %}
+                        {{ occupation.count }},
+                        {% endfor %}
+                    ],
+                    backgroundColor: secondaryColors[4],
+                    borderColor: secondaryColors[5],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 9
+                            }
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Staff Pages -->
+{% endblock %}

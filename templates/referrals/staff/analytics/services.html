@@ -1,0 +1,327 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Service Analytics - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3">Service Analytics</h1>
+            <p class="text-lg text-white/90">Monitor service usage and trends</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_dashboard' %}" class="hover:text-primary-600 transition">Staff Dashboard</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_analytics_dashboard' %}" class="hover:text-primary-600 transition">Analytics</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Services</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mb-12">
+    <!-- Analytics Navigation -->
+    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 mb-6">
+        <div class="flex flex-wrap items-center justify-between">
+            <div class="flex space-x-4 mb-4 md:mb-0">
+                <a href="{% url 'staff_analytics_dashboard' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-chart-pie mr-2"></i> Overview
+                </a>
+                <a href="{% url 'staff_analytics_services' %}" class="px-4 py-2 rounded-md bg-primary-600 text-white font-medium">
+                    <i class="fas fa-hand-holding-heart mr-2"></i> Services
+                </a>
+                <a href="{% url 'staff_analytics_performance' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-user-clock mr-2"></i> Performance
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'staff_dashboard' %}" class="text-primary-600 hover:text-primary-800 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Total Services</div>
+            <div class="text-3xl font-bold text-gray-800">{{ total_services }}</div>
+            <div class="mt-2 text-sm">
+                <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> {{ active_services }} active</span>
+                <span class="mx-2 text-gray-300">|</span>
+                <span class="text-gray-500"><i class="fas fa-times-circle mr-1"></i> {{ total_services|subtract:active_services }} inactive</span>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Unused Services</div>
+            <div class="text-3xl font-bold text-gray-800">{{ unused_services|length }}</div>
+            <div class="mt-2 text-sm text-yellow-600">
+                <i class="fas fa-exclamation-triangle mr-1"></i> Services with no referrals
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Most Popular Service</div>
+            <div class="text-xl font-bold text-gray-800">
+                {% if top_services %}
+                    {{ top_services.0.name }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="mt-2 text-sm text-blue-600">
+                {% if top_services %}
+                    <i class="fas fa-star mr-1"></i> {{ top_services.0.referral_count }} referrals
+                {% else %}
+                    No data available
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Agency Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referrals by Agency</h2>
+            <div class="h-64">
+                <canvas id="agencyChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Category Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referrals by Service Category</h2>
+            <div class="h-64">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Services -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Top Requested Services</h2>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rank
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Service
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Agency
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Referrals
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for service in top_services %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+                            #{{ forloop.counter }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ service.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ service.agency__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ service.category__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2 max-w-[100px]">
+                                    {% with percent=service.referral_count|percent_of_max:top_services %}
+                                    <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{ percent }}%"></div>
+                                    {% endwith %}
+                                </div>
+                                <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    {{ service.referral_count }}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-sm text-gray-500 text-center">
+                            No services data available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Unused Services -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Unused Services</h2>
+        
+        {% if unused_services %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Service
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Agency
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for service in unused_services %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ service.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ service.agency__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ service.category__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-primary-600 hover:text-primary-800">
+                                <i class="fas fa-eye mr-1"></i> View Service
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-gray-50 rounded-md p-4 text-center">
+            <p class="text-gray-500">All services have been used for referrals.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Agency Chart
+        const agencyCanvas = document.getElementById('agencyChart');
+        const agencyLabels = [
+            {% for agency in agency_data %}
+                '{{ agency.name }}',
+            {% endfor %}
+        ];
+        const agencyValues = [
+            {% for agency in agency_data %}
+                {{ agency.referral_count }},
+            {% endfor %}
+        ];
+        
+        const agencyData = {
+            labels: agencyLabels,
+            datasets: [{
+                label: 'Referrals by Agency',
+                data: agencyValues,
+                backgroundColor: [
+                    'rgba(79, 70, 229, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                ]
+            }]
+        };
+        
+        new Chart(agencyCanvas, {
+            type: 'pie',
+            data: agencyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+        
+        // Category Chart
+        const categoryCanvas = document.getElementById('categoryChart');
+        const categoryLabels = [
+            {% for category in category_data %}
+                '{{ category.name }}',
+            {% endfor %}
+        ];
+        const categoryValues = [
+            {% for category in category_data %}
+                {{ category.referral_count }},
+            {% endfor %}
+        ];
+        
+        const categoryData = {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'Referrals by Category',
+                data: categoryValues,
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(79, 70, 229, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                ]
+            }]
+        };
+        
+        new Chart(categoryCanvas, {
+            type: 'doughnut',
+            data: categoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

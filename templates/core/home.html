@@ -1,0 +1,290 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}#FahanieCares - Bringing Bangsamoro Public Service Closer to You{% endblock %}
+
+{% block extra_head %}
+<!-- Include component styles and behaviors -->
+{% include 'components/design-system/color_palette.html' %}
+{% include 'components/behaviors/common_behaviors.html' %}
+{% include 'components/animations/scroll_animations.html' %}
+{% endblock %}
+
+{% block hero %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden" style="background: var(--gradient-hero);">
+    <div class="container mx-auto px-4 py-16 md:py-24">
+        <div class="grid md:grid-cols-2 gap-8 items-center">
+            <div>
+                <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white">#FahanieCares: Bringing Bangsamoro Public Service Closer to You</h1>
+                <p class="text-lg mb-8 text-white/90">MP Atty. Sittie Fahanie S. Uy-Oyod's initiative to improve access to government services and community support for the Bangsamoro.</p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="{% url 'register' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-3 text-lg bg-white text-primary-700 hover:bg-slate-50 focus:ring-primary-500">Register for Assistance</a>
+                    <a href="{% url 'programs' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-3 text-lg border-2 border-white text-white hover:bg-white/10 focus:ring-white">Learn More</a>
+                </div>
+            </div>
+            <div class="hidden md:block relative" x-data="{ activeSlide: 0, images: ['hero.jpg', 'hero1.jpg', 'hero2.jpg', 'hero3.jpg'], interval: null }" x-init="interval = setInterval(() => { activeSlide = (activeSlide + 1) % images.length; }, 3000);">
+                <div class="relative w-full h-96 rounded-xl overflow-hidden shadow-2xl">
+                    <template x-for="(image, index) in images" :key="index">
+                        <img :src="'{% static 'images/' %}' + image" 
+                             :alt="'Hero Image ' + index" 
+                             class="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out"
+                             :class="{ 'opacity-100': activeSlide === index, 'opacity-0': activeSlide !== index }">
+                    </template>
+                </div>
+                <div class="absolute -inset-1 bg-gradient-to-r from-primary-400 to-primary-600 rounded-xl blur opacity-25"></div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+    <!-- Services Section -->
+    <section class="py-16 bg-gradient-subtle rounded-xl shadow-sm mb-12 border border-primary-100">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Our Services</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Access government services, request assistance, and participate in community programs through our digital platform.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8" x-data="staggerAnimation({staggerDelay: 150})">
+                <!-- Service Card 1: Join #FahanieCares -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover-lift focus-ring transition-all duration-300" 
+                     x-data="hoverAnimation()" tabindex="0">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-primary-100 p-3 rounded-full w-14 h-14 flex items-center justify-center transition-transform duration-300"
+                                 :class="{ 'scale-110': isHovered }">
+                                <i class="fas fa-users text-primary-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">Join #FahanieCares</h3>
+                        <p class="text-gray-600 mb-4">Register as a member to access all #FahanieCares programs and services. Membership is free and open to all constituents.</p>
+                        <div class="flex mt-4">
+                            <a href="{% url 'register' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500">
+                                Register Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Card 2: Explore Programs -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover-lift focus-ring transition-all duration-300" 
+                     x-data="hoverAnimation()" tabindex="0">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-primary-100 p-3 rounded-full w-14 h-14 flex items-center justify-center transition-transform duration-300"
+                                 :class="{ 'scale-110': isHovered }">
+                                <i class="fas fa-clipboard-list text-primary-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">Explore #FahanieCares Programs</h3>
+                        <p class="text-gray-600 mb-4">Discover and access programs and services directly provided by #FahanieCares to address community needs.</p>
+                        <div class="flex mt-4">
+                            <a href="{% url 'programs' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500">
+                                View Programs
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Service Card 3: Bangsamoro Ministries PPAS -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover-lift focus-ring transition-all duration-300" 
+                     x-data="hoverAnimation()" tabindex="0">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="bg-primary-100 p-3 rounded-full w-14 h-14 flex items-center justify-center transition-transform duration-300"
+                                 :class="{ 'scale-110': isHovered }">
+                                <i class="fas fa-landmark text-primary-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">Bangsamoro Ministries PPAS</h3>
+                        <p class="text-gray-600 mb-4">Explore the Programs, Projects, Activities, and Services (PPAS) offered by Bangsamoro Ministries.</p>
+                        <div class="flex flex-col gap-2 mt-4">
+                            <a href="{% url 'ministries_ppas' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500">
+                                <i class="fas fa-landmark mr-2"></i>
+                                Discover PPAS
+                            </a>
+                            <a href="{% url 'category_list' %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500">
+                                <i class="fas fa-hand-point-right mr-2"></i>
+                                Request Referral
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Announcements Section -->
+    <section class="py-16 bg-white rounded-xl shadow-sm mb-12 border border-slate-200">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-slate-800 mb-2">Latest Updates</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto">Stay informed about the latest activities, programs, and parliamentary updates from MP Uy-Oyod.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-3 gap-8" x-data="staggerAnimation({staggerDelay: 200})">
+                {% for announcement in announcements %}
+                <!-- Announcement {{ forloop.counter }} -->
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 animate-fade-in-up hover-lift focus-ring" 
+                     tabindex="0"
+                     x-data="hoverAnimation()">
+                    <div class="h-48 bg-gray-200 relative overflow-hidden">
+                        {% if announcement.image %}
+                        <img src="{% static 'images/' %}{{ announcement.image }}" alt="{{ announcement.title }}" class="w-full h-full object-cover">
+                        {% else %}
+                        <span class="text-gray-400 flex items-center justify-center w-full h-full">Announcement Image</span>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 transition-opacity duration-300"
+                             :class="{ 'opacity-100': isHovered }"
+                             @mouseenter="mouseenter()"
+                             @mouseleave="mouseleave()"></div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center mb-3">
+                            {% if announcement.category == 'News' %}
+                                {% include 'components/atoms/badge.html' with variant='info' text=announcement.category %}
+                            {% elif announcement.category == 'Event' %}
+                                {% include 'components/atoms/badge.html' with variant='warning' text=announcement.category %}
+                            {% elif announcement.category == 'Parliament' %}
+                                {% include 'components/atoms/badge.html' with variant='success' text=announcement.category %}
+                            {% else %}
+                                {% include 'components/atoms/badge.html' with variant='primary' text=announcement.category %}
+                            {% endif %}
+                            <span class="text-gray-500 text-sm ml-auto">{{ announcement.date }}</span>
+                        </div>
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">{{ announcement.title }}</h3>
+                        <p class="text-slate-600 mb-4">{{ announcement.excerpt }}</p>
+                        <a href="#" class="inline-flex items-center text-primary-600 hover:text-primary-800 font-medium transition-all duration-300 group">
+                            Read More
+                            <i class="fas fa-arrow-right ml-2 transition-transform duration-300 group-hover:translate-x-1"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="text-center mt-10">
+                <a href="#" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-6 py-3 text-lg border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500">View All Updates</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Stats Section -->
+    <section class="py-16 text-white rounded-xl relative overflow-hidden" style="background: var(--gradient-hero);">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-2">#FahanieCares Impact</h2>
+                <p class="text-white/80 max-w-2xl mx-auto">Together, we're making a difference in our communities through dedicated service and support.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8" x-data="staggerAnimation({staggerDelay: 100})">
+                <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: {{ impact_stats.constituents_served|default:0 }}, duration: 2500})">
+                    <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                    <p class="text-white/80">Constituents Served</p>
+                </div>
+                
+                <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: {{ impact_stats.active_chapters|default:0 }}, duration: 2000})">
+                    <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                    <p class="text-white/80">Active Chapters</p>
+                </div>
+                
+                <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: {{ impact_stats.referrals_processed|default:0 }}, duration: 2800})">
+                    <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                    <p class="text-white/80">Referrals Processed</p>
+                </div>
+                
+                <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: {{ impact_stats.community_programs|default:0 }}, duration: 2200})">
+                    <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                    <p class="text-white/80">Community Programs</p>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block cta %}
+<!-- CTA Section with Contact Form -->
+<section class="py-16 bg-primary-600 text-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">Ready to Get Involved?</h2>
+            <p class="text-white/80 max-w-2xl mx-auto">Join #FahanieCares today and be part of our mission to bring public service closer to every constituent.</p>
+        </div>
+        
+        <div class="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto md:items-stretch">
+            <div class="flex-1 flex flex-col">
+                {% include 'components/forms/unified_contact_form.html' with title="Contact Us" subtitle="" form=contact_form message=message message_type=message_type %}
+            </div>
+            
+            <div class="flex-1 bg-white/10 backdrop-blur rounded-lg p-6 flex flex-col">
+                <h3 class="text-2xl font-semibold mb-6">Ways to Get Involved</h3>
+                
+                <div class="space-y-6">
+                    <div class="flex items-start">
+                        <div class="bg-white/20 p-2 rounded-full mr-4">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-medium mb-1">Register as a Member</h4>
+                            <p class="text-white/80 mb-2">Join our growing network of members to access exclusive services and programs.</p>
+                            <div class="w-48">
+                                {% include 'components/atoms/button.html' with variant='inverse' text='Register Now' href='/accounts/register/' %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="bg-white/20 p-2 rounded-full mr-4">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-medium mb-1">Volunteer with a Chapter</h4>
+                            <p class="text-white/80 mb-2">Join a local chapter to help deliver programs directly to your community.</p>
+                            <div class="w-48">
+                                {% include 'components/atoms/button.html' with variant='inverse' text='Find Chapters' href='/chapters/' %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="bg-white/20 p-2 rounded-full mr-4">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-medium mb-1">Partner with Us</h4>
+                            <p class="text-white/80 mb-2">Collaborate with #FahanieCares to expand our reach and impact in the community.</p>
+                            <div class="w-48">
+                                {% include 'components/atoms/button.html' with variant='inverse' text='Become a Partner' href='/partner/' %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="bg-white/20 p-2 rounded-full mr-4">
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-medium mb-1">Donate Now</h4>
+                            <p class="text-white/80 mb-2">Support our programs and initiatives to help us serve more Bangsamoro communities.</p>
+                            <div class="w-48">
+                                {% include 'components/atoms/button.html' with variant='inverse' text='Make a Donation' href='/donate/' %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,346 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Referral {{ referral.reference_number }} - #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Referral Details</h1>
+            <p class="text-xl text-white/90">Reference Number: {{ referral.reference_number }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'referral_list' %}" class="hover:text-primary-600 transition">My Referrals</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">{{ referral.reference_number }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Referral Overview -->
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+                <div class="flex justify-between items-start mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Referral Overview</h2>
+                    <div class="{% if referral.status == 'completed' %}bg-green-100 text-green-800{% elif referral.status == 'denied' %}bg-red-100 text-red-800{% elif referral.status == 'draft' %}bg-gray-100 text-gray-800{% elif referral.status == 'submitted' %}bg-blue-100 text-blue-800{% elif referral.status == 'processing' or referral.status == 'reviewing' or referral.status == 'referred' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %} text-sm font-medium px-3 py-1 rounded-full">
+                        {{ referral.get_status_display }}
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-slate-800 mb-2">{{ referral.service.name }}</h3>
+                    <p class="text-gray-500 text-sm mb-4">{{ referral.service.agency.name }}</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <p class="text-sm text-gray-600">Submitted On:</p>
+                            <p class="font-medium">{{ referral.submitted_at|default:"Not submitted yet" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Last Updated:</p>
+                            <p class="font-medium">{{ referral.updated_at }}</p>
+                        </div>
+                        {% if referral.assigned_to %}
+                        <div>
+                            <p class="text-sm text-gray-600">Assigned To:</p>
+                            <p class="font-medium">{{ referral.assigned_to.get_full_name }}</p>
+                        </div>
+                        {% endif %}
+                        {% if referral.agency_reference %}
+                        <div>
+                            <p class="text-sm text-gray-600">Agency Reference:</p>
+                            <p class="font-medium">{{ referral.agency_reference }}</p>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="text-sm text-gray-600">Priority:</p>
+                            <p class="font-medium {% if referral.priority == 'high' or referral.priority == 'urgent' %}text-red-600{% endif %}">
+                                {{ referral.get_priority_display }}
+                            </p>
+                        </div>
+                        {% if referral.follow_up_date %}
+                        <div>
+                            <p class="text-sm text-gray-600">Follow-up Date:</p>
+                            <p class="font-medium">{{ referral.follow_up_date }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-medium text-slate-800 mb-2">Description:</h4>
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <p class="text-gray-700 whitespace-pre-line">{{ referral.description }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if referral.supporting_documents %}
+                    <div>
+                        <h4 class="font-medium text-slate-800 mb-2">Supporting Documents:</h4>
+                        <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                            <p class="text-gray-700 whitespace-pre-line">{{ referral.supporting_documents }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <a href="{% url 'service_detail' referral.service.slug %}" class="text-primary-600 hover:text-primary-800 font-medium">
+                        View Service Details
+                    </a>
+                    {% if referral.status != 'completed' and referral.status != 'cancelled' and referral.status != 'denied' %}
+                    <a href="{% url 'referral_update_create' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium ml-4">
+                        Add Update
+                    </a>
+                    <a href="{% url 'referral_document_create' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium ml-4">
+                        Upload Document
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Status Updates -->
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+                <h2 class="text-xl font-bold text-slate-800 mb-6">Status Updates</h2>
+                
+                {% if updates %}
+                <div class="relative">
+                    <!-- Status Line -->
+                    <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                    
+                    <div class="space-y-6 relative">
+                        {% for update in updates %}
+                        <div class="flex">
+                            <div class="relative z-10">
+                                <div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary-600 text-white">
+                                    <i class="fas fa-comment-dots"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow ml-4 bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="font-medium text-gray-800">
+                                        {{ update.created_by.get_full_name }}
+                                        <span class="text-sm font-normal text-gray-500 ml-2">
+                                            {% if update.created_by == request.user %}
+                                            (You)
+                                            {% elif update.created_by.user_type == 'staff' or update.created_by.user_type == 'mp' %}
+                                            (Staff)
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ update.created_at }}</div>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <div class="{% if update.status == 'completed' %}bg-green-100 text-green-800{% elif update.status == 'denied' %}bg-red-100 text-red-800{% elif update.status == 'draft' %}bg-gray-100 text-gray-800{% elif update.status == 'submitted' %}bg-blue-100 text-blue-800{% elif update.status == 'processing' or update.status == 'reviewing' or update.status == 'referred' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %} text-xs font-medium px-2 py-0.5 rounded">
+                                        {{ update.get_status_display }}
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 whitespace-pre-line">{{ update.notes }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200 text-center">
+                    <p class="text-gray-500">No updates have been added to this referral yet.</p>
+                </div>
+                {% endif %}
+                
+                {% if referral.status != 'completed' and referral.status != 'cancelled' and referral.status != 'denied' %}
+                <div class="mt-6 text-center">
+                    <a href="{% url 'referral_update_create' referral.reference_number %}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition inline-block">
+                        Add Update
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Status Card -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Referral Status</h2>
+                
+                <div class="mb-4">
+                    <div class="h-2 bg-gray-200 rounded-full mb-2 overflow-hidden">
+                        <div class="h-full rounded-full 
+                            {% if referral.status == 'draft' %}
+                                w-1/6 bg-gray-500
+                            {% elif referral.status == 'submitted' %}
+                                w-2/6 bg-blue-500
+                            {% elif referral.status == 'reviewing' %}
+                                w-3/6 bg-blue-500
+                            {% elif referral.status == 'processing' %}
+                                w-3/6 bg-yellow-500
+                            {% elif referral.status == 'referred' %}
+                                w-4/6 bg-yellow-500
+                            {% elif referral.status == 'approved' %}
+                                w-5/6 bg-green-500
+                            {% elif referral.status == 'completed' %}
+                                w-full bg-green-500
+                            {% elif referral.status == 'denied' %}
+                                w-full bg-red-500
+                            {% elif referral.status == 'cancelled' %}
+                                w-full bg-gray-500
+                            {% endif %}
+                        "></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Submitted</span>
+                        <span>Processing</span>
+                        <span>Completed</span>
+                    </div>
+                </div>
+                
+                <div class="p-4 {% if referral.status == 'completed' %}bg-green-50 border border-green-100 text-green-800{% elif referral.status == 'denied' %}bg-red-50 border border-red-100 text-red-800{% elif referral.status == 'draft' %}bg-gray-50 border border-gray-100 text-gray-800{% elif referral.status == 'submitted' %}bg-blue-50 border border-blue-100 text-blue-800{% elif referral.status == 'processing' or referral.status == 'reviewing' or referral.status == 'referred' %}bg-yellow-50 border border-yellow-100 text-yellow-800{% else %}bg-gray-50 border border-gray-100 text-gray-800{% endif %} rounded-md mb-4">
+                    <div class="flex items-center">
+                        <i class="
+                            {% if referral.status == 'completed' %}
+                                fas fa-check-circle text-green-500
+                            {% elif referral.status == 'denied' %}
+                                fas fa-times-circle text-red-500
+                            {% elif referral.status == 'submitted' or referral.status == 'reviewing' %}
+                                fas fa-clock text-blue-500
+                            {% elif referral.status == 'processing' or referral.status == 'referred' %}
+                                fas fa-spinner text-yellow-500
+                            {% else %}
+                                fas fa-info-circle text-gray-500
+                            {% endif %}
+                            mr-2 text-xl
+                        "></i>
+                        <div>
+                            <p class="font-medium">{{ referral.get_status_display }}</p>
+                            <p class="text-sm">
+                                {% if referral.status == 'draft' %}
+                                    Your referral is not yet submitted.
+                                {% elif referral.status == 'submitted' %}
+                                    Your referral has been received and is pending review.
+                                {% elif referral.status == 'reviewing' %}
+                                    Your referral is currently being reviewed by our staff.
+                                {% elif referral.status == 'processing' %}
+                                    Your referral is being processed.
+                                {% elif referral.status == 'referred' %}
+                                    Your referral has been sent to {{ referral.service.agency.name }}.
+                                {% elif referral.status == 'approved' %}
+                                    Your referral has been approved.
+                                {% elif referral.status == 'completed' %}
+                                    Your referral has been successfully processed.
+                                {% elif referral.status == 'denied' %}
+                                    Your referral has been denied. Please check the updates for more information.
+                                {% elif referral.status == 'cancelled' %}
+                                    Your referral has been cancelled.
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Documents -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Documents</h2>
+                
+                {% if documents %}
+                <div class="space-y-3">
+                    {% for document in documents %}
+                    <div class="flex items-center p-3 border border-gray-200 rounded-md bg-gray-50">
+                        <div class="text-gray-400 mr-3">
+                            <i class="fas fa-file-alt text-xl"></i>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="font-medium text-gray-800">{{ document.name }}</p>
+                            <p class="text-xs text-gray-500">{{ document.created_at }}</p>
+                        </div>
+                        <a href="{{ document.file.url }}" target="_blank" class="text-primary-600 hover:text-primary-800">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200 text-center">
+                    <p class="text-gray-500">No documents have been uploaded yet.</p>
+                </div>
+                {% endif %}
+                
+                {% if referral.status != 'completed' and referral.status != 'cancelled' and referral.status != 'denied' %}
+                <div class="mt-4 text-center">
+                    <a href="{% url 'referral_document_create' referral.reference_number %}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition inline-block">
+                        Upload Document
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Service Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Service Information</h2>
+                
+                <div class="flex items-center mb-4">
+                    <div class="bg-gray-100 h-10 w-10 flex items-center justify-center rounded-full mr-3">
+                        <i class="{% if referral.service.category.icon %}{{ referral.service.category.icon }}{% else %}fas fa-file-alt{% endif %} text-gray-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-slate-800">{{ referral.service.name }}</h3>
+                        <p class="text-sm text-gray-600">{{ referral.service.category.name }}</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-700 text-sm mb-4">{{ referral.service.description|truncatewords:30 }}</p>
+                
+                <div class="flex items-center mb-3">
+                    <div class="w-5 text-gray-400">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <span class="text-gray-700 ml-2">{{ referral.service.agency.name }}</span>
+                </div>
+                
+                {% if referral.service.agency.contact_phone %}
+                <div class="flex items-center mb-3">
+                    <div class="w-5 text-gray-400">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <span class="text-gray-700 ml-2">{{ referral.service.agency.contact_phone }}</span>
+                </div>
+                {% endif %}
+                
+                <a href="{% url 'service_detail' referral.service.slug %}" class="text-primary-600 hover:text-primary-800 font-medium text-sm">
+                    View Service Details
+                </a>
+            </div>
+            
+            <!-- Help & Support -->
+            <div class="bg-primary-50 rounded-lg p-6 border border-primary-100">
+                <h2 class="text-lg font-semibold text-primary-800 mb-3">Need Help?</h2>
+                <p class="text-gray-700 mb-4">If you have questions about your referral or need assistance, our team is here to help.</p>
+                <div class="space-y-2">
+                    <a href="#" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                        <i class="fas fa-phone-alt mr-2"></i>
+                        Contact Support
+                    </a>
+                    <a href="#" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                        <i class="fas fa-question-circle mr-2"></i>
+                        FAQs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

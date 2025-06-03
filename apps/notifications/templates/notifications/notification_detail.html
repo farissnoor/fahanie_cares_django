@@ -1,0 +1,124 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ notification.title }} - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <!-- Header -->
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h1 class="text-2xl font-bold mb-2">{{ notification.title }}</h1>
+                    <div class="flex gap-4 text-sm text-gray-600">
+                        <span><i class="fas fa-clock mr-1"></i>{{ notification.created_at|date:"M d, Y g:i A" }}</span>
+                        <span class="capitalize"><i class="fas fa-tag mr-1"></i>{{ notification.get_type_display }}</span>
+                        {% if notification.priority != 'normal' %}
+                        <span class="capitalize"><i class="fas fa-exclamation-circle mr-1"></i>{{ notification.priority }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    {% if not notification.is_read %}
+                    <button id="markRead" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                        <i class="fas fa-check mr-2"></i>Mark as Read
+                    </button>
+                    {% endif %}
+                    <button id="deleteNotification" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Message -->
+            <div class="border-t pt-4">
+                <p class="text-gray-700 whitespace-pre-wrap">{{ notification.message }}</p>
+            </div>
+            
+            <!-- Related Object -->
+            {% if notification.related_object %}
+            <div class="border-t mt-6 pt-4">
+                <h3 class="font-semibold mb-2">Related Information</h3>
+                {% if notification.type == 'referral_status' or notification.type == 'referral_comment' %}
+                <a href="{% url 'referrals:referral_detail' notification.data.referral_id %}" class="text-blue-600 hover:underline">
+                    View Referral {{ notification.data.reference_number }}
+                </a>
+                {% elif notification.type == 'document_upload' or notification.type == 'document_status' %}
+                <a href="{% url 'documents:document_detail' notification.data.document_id %}" class="text-blue-600 hover:underline">
+                    View Document: {{ notification.data.document_title }}
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <!-- Delivery Status -->
+            <div class="border-t mt-6 pt-4">
+                <h3 class="font-semibold mb-2">Delivery Status</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    {% if notification.email_sent %}
+                    <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Email Sent</div>
+                    {% endif %}
+                    {% if 'in_app' in notification.channels_delivered %}
+                    <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>In-App Delivered</div>
+                    {% endif %}
+                    {% if notification.push_sent %}
+                    <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>Push Sent</div>
+                    {% endif %}
+                    {% if notification.sms_sent %}
+                    <div class="text-green-600"><i class="fas fa-check-circle mr-1"></i>SMS Sent</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="border-t mt-6 pt-4">
+                <a href="{% url 'notifications:notification_list' %}" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                    <i class="fas fa-arrow-left mr-2"></i>Back to Notifications
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mark as read
+const markReadBtn = document.getElementById('markRead');
+if (markReadBtn) {
+    markReadBtn.addEventListener('click', function() {
+        fetch(`/notifications/{{ notification.id }}/read/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                markReadBtn.remove();
+            }
+        });
+    });
+}
+
+// Delete notification
+document.getElementById('deleteNotification').addEventListener('click', function() {
+    if (!confirm('Are you sure you want to delete this notification?')) return;
+    
+    fetch(`/notifications/{{ notification.id }}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            window.location.href = '{% url "notifications:notification_list" %}';
+        }
+    });
+});
+</script>
+{% endblock %}

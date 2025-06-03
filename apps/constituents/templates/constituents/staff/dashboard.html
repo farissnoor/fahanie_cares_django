@@ -1,0 +1,526 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Staff Dashboard - Constituents{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Constituent Management</h1>
+                    <p class="text-lg text-white/90">Manage constituent profiles, interactions, and groups</p>
+                </div>
+                <div class="mt-4 md:mt-0 space-x-2">
+                    {% include 'components/atoms/button.html' with variant='inverse' text='Add Constituent' href='/staff/constituents/create/' icon='fas fa-plus' icon_position='left' %}
+                    {% include 'components/atoms/button.html' with variant='inverse' text='Analytics' href='/staff/constituents/analytics/' icon='fas fa-chart-line' icon_position='left' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Constituent Management</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Quick Stats -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Quick Stats</h2>
+                
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-2 bg-primary-50 rounded shadow-sm">
+                        <span class="text-sm">Total Constituents</span>
+                        <span class="font-medium">{{ total_constituents }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-primary-50 rounded shadow-sm">
+                        <span class="text-sm">New This Month</span>
+                        <span class="font-medium">{{ new_this_month }}</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-primary-50 rounded shadow-sm">
+                        <span class="text-sm">Avg Engagement</span>
+                        <span class="font-medium">{{ avg_engagement|floatformat:1 }}/10</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-center">
+                    <a href="{% url 'staff_constituent_analytics' %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 font-medium text-sm">
+                        <i class="fas fa-chart-line mr-1"></i>
+                        View Full Analytics
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Engagement Level Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Engagement Level</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}" class="{% if not selected_engagement_level %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>All Constituents</span>
+                            <span class="text-gray-500">{{ total_constituents }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?engagement_level=high" class="{% if selected_engagement_level == 'high' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
+                                High (7-10)
+                            </span>
+                            <span class="text-gray-500">{{ engagement_counts.high }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?engagement_level=medium" class="{% if selected_engagement_level == 'medium' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-yellow-500 rounded-full mr-2"></span>
+                                Medium (4-6)
+                            </span>
+                            <span class="text-gray-500">{{ engagement_counts.medium }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?engagement_level=low" class="{% if selected_engagement_level == 'low' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-orange-500 rounded-full mr-2"></span>
+                                Low (1-3)
+                            </span>
+                            <span class="text-gray-500">{{ engagement_counts.low }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?engagement_level=inactive" class="{% if selected_engagement_level == 'inactive' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-gray-300 rounded-full mr-2"></span>
+                                Inactive (0)
+                            </span>
+                            <span class="text-gray-500">{{ engagement_counts.inactive }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Voter Status Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Voter Status</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?is_voter=true" class="{% if selected_is_voter == 'true' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Registered Voters</span>
+                            <span class="text-gray-500">{{ voter_counts.voters }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?is_voter=false" class="{% if selected_is_voter == 'false' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Non-Voters</span>
+                            <span class="text-gray-500">{{ voter_counts.non_voters }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Volunteer Status Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Volunteer Status</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?is_volunteer=true" class="{% if selected_is_volunteer == 'true' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Volunteers</span>
+                            <span class="text-gray-500">{{ volunteer_counts.volunteers }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?is_volunteer=false" class="{% if selected_is_volunteer == 'false' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Non-Volunteers</span>
+                            <span class="text-gray-500">{{ volunteer_counts.non_volunteers }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Groups Filter -->
+            {% if groups %}
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">
+                    <div class="flex justify-between items-center">
+                        <span>Groups</span>
+                        <a href="{% url 'staff_constituent_group_list' %}" class="text-sm text-primary-600 hover:text-primary-800 transition">
+                            View All
+                        </a>
+                    </div>
+                </h2>
+                
+                <ul class="space-y-2 max-h-56 overflow-y-auto">
+                    {% for group in groups %}
+                    <li>
+                        <a href="{% url 'staff_constituent_dashboard' %}?group={{ group.id }}" class="{% if selected_group == group.id|stringformat:'s' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>{{ group.name }}</span>
+                            <span class="text-gray-500">{{ group.member_count }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                
+                <div class="mt-4 text-center">
+                    <a href="{% url 'staff_constituent_group_create' %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 font-medium text-sm">
+                        <i class="fas fa-plus mr-1"></i>
+                        Create New Group
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-4">
+            <!-- Filters and Search -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <form method="get" action="{% url 'staff_constituent_dashboard' %}" class="space-y-6">
+                    <!-- Basic Search -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="q">
+                                Search
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="q" name="q" value="{{ search_query }}" placeholder="Name, email, phone, voter ID..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <button type="submit" class="absolute right-2 top-2 text-gray-500">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="sort_by">
+                                Sort By
+                            </label>
+                            <select id="sort_by" name="sort_by" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                                <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                                <option value="-updated_at" {% if sort_by == '-updated_at' %}selected{% endif %}>Recently Updated</option>
+                                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Name (A-Z)</option>
+                                <option value="engagement_high" {% if sort_by == 'engagement_high' %}selected{% endif %}>Engagement (High to Low)</option>
+                                <option value="engagement_low" {% if sort_by == 'engagement_low' %}selected{% endif %}>Engagement (Low to High)</option>
+                                <option value="recent_engagement" {% if sort_by == 'recent_engagement' %}selected{% endif %}>Recent Engagement</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Search Toggle -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <button type="button" id="toggleAdvanced" class="flex items-center text-primary-600 hover:text-primary-800 transition">
+                            <i class="fas fa-sliders-h mr-2"></i>
+                            <span id="advancedText">Show Advanced Filters</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Advanced Filters (hidden by default) -->
+                    <div id="advancedFilters" class="hidden">
+                        <!-- Hidden fields to preserve sidebar filters if used -->
+                        {% if selected_engagement_level %}
+                        <input type="hidden" name="engagement_level" value="{{ selected_engagement_level }}">
+                        {% endif %}
+                        
+                        {% if selected_is_voter %}
+                        <input type="hidden" name="is_voter" value="{{ selected_is_voter }}">
+                        {% endif %}
+                        
+                        {% if selected_is_volunteer %}
+                        <input type="hidden" name="is_volunteer" value="{{ selected_is_volunteer }}">
+                        {% endif %}
+                        
+                        {% if selected_group %}
+                        <input type="hidden" name="group" value="{{ selected_group }}">
+                        {% endif %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- First Column -->
+                            <div class="space-y-4">
+                                <!-- Gender -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="gender">
+                                        Gender
+                                    </label>
+                                    <select id="gender" name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Gender</option>
+                                        <option value="male" {% if selected_gender == 'male' %}selected{% endif %}>Male</option>
+                                        <option value="female" {% if selected_gender == 'female' %}selected{% endif %}>Female</option>
+                                        <option value="other" {% if selected_gender == 'other' %}selected{% endif %}>Other</option>
+                                        <option value="prefer_not_to_say" {% if selected_gender == 'prefer_not_to_say' %}selected{% endif %}>Prefer not to say</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Second Column -->
+                            <div class="space-y-4">
+                                <!-- Engagement Level (if not from sidebar) -->
+                                {% if not selected_engagement_level %}
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="engagement_level">
+                                        Engagement Level
+                                    </label>
+                                    <select id="engagement_level" name="engagement_level" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Level</option>
+                                        <option value="high" {% if selected_engagement_level == 'high' %}selected{% endif %}>High (7-10)</option>
+                                        <option value="medium" {% if selected_engagement_level == 'medium' %}selected{% endif %}>Medium (4-6)</option>
+                                        <option value="low" {% if selected_engagement_level == 'low' %}selected{% endif %}>Low (1-3)</option>
+                                        <option value="inactive" {% if selected_engagement_level == 'inactive' %}selected{% endif %}>Inactive (0)</option>
+                                    </select>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Third Column -->
+                            <div class="space-y-4">
+                                <!-- Groups (if not from sidebar) -->
+                                {% if not selected_group and groups %}
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="group">
+                                        Group
+                                    </label>
+                                    <select id="group" name="group" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Group</option>
+                                        {% for group in groups %}
+                                        <option value="{{ group.id }}" {% if selected_group == group.id|stringformat:'s' %}selected{% endif %}>{{ group.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Buttons -->
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition">
+                            Apply Filters
+                        </button>
+                        
+                        {% if request.GET %}
+                        <a href="{% url 'staff_constituent_dashboard' %}" class="ml-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                            Clear Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            
+            <script>
+                // Toggle advanced filters
+                document.addEventListener('DOMContentLoaded', function() {
+                    const toggleBtn = document.getElementById('toggleAdvanced');
+                    const advancedFilters = document.getElementById('advancedFilters');
+                    const advancedText = document.getElementById('advancedText');
+                    
+                    // Check if any advanced filters are already set
+                    const hasAdvancedFilters = {{ selected_gender|yesno:"true,false" }};
+                    
+                    if (hasAdvancedFilters) {
+                        advancedFilters.classList.remove('hidden');
+                        advancedText.textContent = 'Hide Advanced Filters';
+                    }
+                    
+                    toggleBtn.addEventListener('click', function() {
+                        advancedFilters.classList.toggle('hidden');
+                        
+                        if (advancedFilters.classList.contains('hidden')) {
+                            advancedText.textContent = 'Show Advanced Filters';
+                        } else {
+                            advancedText.textContent = 'Hide Advanced Filters';
+                        }
+                    });
+                });
+            </script>
+            
+            <!-- Constituents Table -->
+            {% if constituents %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Contact Info
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Demographics
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Engagement
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for constituent in constituents %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if constituent.profile_image %}
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <img class="h-10 w-10 rounded-full object-cover" src="{{ constituent.profile_image.url }}" alt="">
+                                    </div>
+                                    {% else %}
+                                    <div class="flex-shrink-0 h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <span class="text-primary-600 font-semibold">{{ constituent.user.get_initials }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-primary-600">
+                                            <a href="{% url 'staff_constituent_detail' constituent.id %}" class="hover:underline">
+                                                {{ constituent.user.get_full_name }}
+                                            </a>
+                                        </div>
+                                        <div class="text-xs text-gray-500">
+                                            {% if constituent.membership_date %}Member since {{ constituent.membership_date|date:"M d, Y" }}{% else %}Basic constituent{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900">{{ constituent.user.email }}</div>
+                                {% if constituent.user.phone_number %}
+                                <div class="text-sm text-gray-500">{{ constituent.user.phone_number }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if constituent.gender %}
+                                <div class="text-sm text-gray-900">{{ constituent.get_gender_display }}</div>
+                                {% endif %}
+                                {% if constituent.birth_date %}
+                                <div class="text-sm text-gray-500">{% now "Y" as current_year %}{{ current_year|add:"-constituent.birth_date.year" }} years</div>
+                                {% endif %}
+                                {% if constituent.occupation %}
+                                <div class="text-sm text-gray-500">{{ constituent.occupation }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-16 bg-gray-200 rounded-full h-2.5">
+                                        <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{ constituent.engagement_level|default:0|mul:10 }}%"></div>
+                                    </div>
+                                    <span class="ml-2 text-sm text-gray-700">{{ constituent.engagement_level|default:0 }}/10</span>
+                                </div>
+                                {% if constituent.last_engagement %}
+                                <div class="text-xs text-gray-500 mt-1">Last engaged: {{ constituent.last_engagement|date:"M d, Y" }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col space-y-1">
+                                    {% if constituent.is_voter %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        Voter
+                                    </span>
+                                    {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                        Non-Voter
+                                    </span>
+                                    {% endif %}
+                                    
+                                    {% if constituent.is_volunteer %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                        Volunteer
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'staff_constituent_detail' constituent.id %}" class="text-primary-600 hover:text-primary-800 mr-3">
+                                    <i class="fas fa-eye mr-1"></i> View
+                                </a>
+                                <a href="{% url 'staff_constituent_interaction_create' constituent.id %}" class="text-primary-600 hover:text-primary-800">
+                                    <i class="fas fa-comment-alt mr-1"></i> Log Interaction
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?{{ filter_params.urlencode }}&page={{ page_obj.previous_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if i == page_obj.number %}
+                        <a href="#" class="px-3 py-2 text-white bg-primary-600 border border-primary-600">{{ i }}</a>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <a href="?{{ filter_params.urlencode }}&page={{ i }}" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?{{ filter_params.urlencode }}&page={{ page_obj.next_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 text-center">
+                <div class="text-gray-400 text-5xl mb-4">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">No Constituents Found</h3>
+                <p class="text-gray-600 mb-4">
+                    {% if request.GET %}
+                    No constituents match your current filters. Try different filter criteria or clear all filters.
+                    {% else %}
+                    There are no constituents in the system yet.
+                    {% endif %}
+                </p>
+                
+                <div class="mt-6 space-x-4">
+                    {% if request.GET %}
+                    <a href="{% url 'staff_constituent_dashboard' %}" class="text-primary-600 hover:text-primary-800 font-medium border border-primary-600 px-4 py-2 rounded-md">
+                        Clear Filters
+                    </a>
+                    {% endif %}
+                    
+                    <a href="{% url 'staff_constituent_create' %}" class="bg-primary-600 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-700 transition">
+                        <i class="fas fa-plus mr-2"></i> Add Constituent
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Staff Dashboard -->
+{% endblock %}

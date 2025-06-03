@@ -1,0 +1,105 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Chapters - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-primary-800 mb-8">#FahanieCares Chapters</h1>
+    
+    <!-- Filters -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+        <form method="get" class="flex flex-wrap gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <input type="text" name="search" value="{{ request.GET.search }}" 
+                       placeholder="Search chapters..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500">
+            </div>
+            <select name="municipality" class="px-4 py-2 border border-gray-300 rounded-md">
+                <option value="">All Municipalities</option>
+                {% for municipality in municipalities %}
+                    <option value="{{ municipality }}" {% if request.GET.municipality == municipality %}selected{% endif %}>
+                        {{ municipality }}
+                    </option>
+                {% endfor %}
+            </select>
+            <select name="tier" class="px-4 py-2 border border-gray-300 rounded-md">
+                <option value="">All Tiers</option>
+                <option value="provincial" {% if request.GET.tier == 'provincial' %}selected{% endif %}>Provincial</option>
+                <option value="municipal" {% if request.GET.tier == 'municipal' %}selected{% endif %}>Municipal/City</option>
+            </select>
+            {% include 'components/atoms/button.html' with variant='primary' text='Search' type='submit' %}
+        </form>
+    </div>
+    
+    <!-- Chapter Grid -->
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {% for chapter in chapters %}
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="flex items-start justify-between mb-4">
+                <h3 class="text-xl font-semibold text-primary-800">
+                    <a href="{% url 'chapter_detail' chapter.slug %}" class="hover:text-primary-600">
+                        {{ chapter.name }}
+                    </a>
+                </h3>
+                <span class="px-2 py-1 text-xs font-medium rounded 
+                       {% if chapter.tier == 'provincial' %}bg-purple-100 text-purple-800{% endif %}
+                       {% if chapter.tier == 'municipal' %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ chapter.get_tier_display }}
+                </span>
+            </div>
+            
+            <p class="text-gray-600 mb-4">
+                <i class="fas fa-map-marker-alt mr-1"></i>
+                {{ chapter.municipality }}{% if chapter.province %}, {{ chapter.province }}{% endif %}
+            </p>
+            
+            {% if chapter.description %}
+            <p class="text-gray-700 mb-4 line-clamp-3">{{ chapter.description|truncatewords:30 }}</p>
+            {% endif %}
+            
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <span><i class="fas fa-users mr-1"></i> {{ chapter.member_count }} members</span>
+                <span><i class="fas fa-calendar mr-1"></i> {{ chapter.activity_count }} activities</span>
+            </div>
+            
+            <div class="mt-4 flex gap-2">
+                {% include 'components/atoms/button.html' with variant='primary' text='View Details' href=chapter.get_absolute_url full_width=True %}
+                {% if user.is_authenticated and chapter.id not in user_memberships %}
+                {% include 'components/atoms/button.html' with variant='outline' text='Join Chapter' href=chapter.get_join_url full_width=True %}
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-8">
+            <p class="text-gray-500">No chapters found.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-8 flex justify-center">
+        <nav class="flex items-center space-x-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.municipality %}&municipality={{ request.GET.municipality }}{% endif %}{% if request.GET.tier %}&tier={{ request.GET.tier }}{% endif %}"
+               class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                Previous
+            </a>
+            {% endif %}
+            
+            <span class="px-3 py-2 text-gray-700">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.municipality %}&municipality={{ request.GET.municipality }}{% endif %}{% if request.GET.tier %}&tier={{ request.GET.tier }}{% endif %}"
+               class="px-3 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+                Next
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

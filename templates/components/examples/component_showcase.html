@@ -1,0 +1,197 @@
+{% comment %}
+Component Showcase - Demonstrates component usage
+This file serves as a live documentation and testing ground for components
+{% endcomment %}
+
+{% extends 'base/base.html' %}
+
+{% block title %}Component Showcase - #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Component Showcase</h1>
+            <p class="text-xl text-white/90">Live examples of the #FahanieCares component library</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Button Examples -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Button Components</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% include 'components/atoms/button.html' with variant='primary' text='Primary Button' %}
+            {% include 'components/atoms/button.html' with variant='secondary' text='Secondary Button' %}
+            {% include 'components/atoms/button.html' with variant='outline' text='Outline Button' %}
+            {% include 'components/atoms/button.html' with variant='ghost' text='Ghost Button' %}
+            {% include 'components/atoms/button.html' with variant='danger' text='Danger Button' %}
+            {% include 'components/atoms/button.html' with variant='primary' text='With Icon' icon='fas fa-arrow-right' %}
+            {% include 'components/atoms/button.html' with variant='primary' text='Loading' loading=true %}
+            {% include 'components/atoms/button.html' with variant='outline' text='Disabled' disabled=true %}
+            {% include 'components/atoms/button.html' with variant='primary' text='Large Button' size='lg' %}
+        </div>
+    </div>
+</section>
+
+<!-- Badge Examples -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Badge Components</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="flex flex-wrap gap-4">
+            {% include 'components/atoms/badge.html' with variant='primary' text='Primary' %}
+            {% include 'components/atoms/badge.html' with variant='secondary' text='Secondary' %}
+            {% include 'components/atoms/badge.html' with variant='success' text='Success' %}
+            {% include 'components/atoms/badge.html' with variant='warning' text='Warning' %}
+            {% include 'components/atoms/badge.html' with variant='danger' text='Danger' %}
+            {% include 'components/atoms/badge.html' with variant='info' text='Info' %}
+            {% include 'components/atoms/badge.html' with variant='success' text='Large Badge' size='lg' %}
+            {% include 'components/atoms/badge.html' with variant='primary' text='Rounded' rounded='full' %}
+        </div>
+    </div>
+</section>
+
+<!-- Card Examples -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Card Components</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% include 'components/molecules/card.html' with 
+            title='Basic Card'
+            description='This is a basic card component with title and description.'
+            cta_text='Learn More'
+            cta_href='#'
+        %}
+        
+        {% include 'components/molecules/card.html' with 
+            title='Card with Icon'
+            description='This card includes an icon and badge for status indication.'
+            icon='fas fa-users'
+            badge_text='Active'
+            badge_variant='success'
+            cta_text='View Details'
+        %}
+        
+        {% include 'components/molecules/card.html' with 
+            title='Service Card'
+            description='Example of a service card with image placeholder and multiple CTAs.'
+            image_placeholder='Service Image'
+            badge_text='Featured'
+            badge_variant='info'
+            cta_text='Apply Now'
+            href='#'
+        %}
+    </div>
+</section>
+
+<!-- Animation Examples -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Animation Examples</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="grid md:grid-cols-4 gap-4" x-data="staggerAnimation({staggerDelay: 100})">
+            <div class="bg-primary-100 p-4 rounded-lg text-center animate-fade-in-up">
+                <div class="text-2xl font-bold text-primary-600">1</div>
+                <p class="text-sm text-gray-600">Fade In Up</p>
+            </div>
+            <div class="bg-green-100 p-4 rounded-lg text-center animate-fade-in-up">
+                <div class="text-2xl font-bold text-green-600">2</div>
+                <p class="text-sm text-gray-600">Staggered</p>
+            </div>
+            <div class="bg-blue-100 p-4 rounded-lg text-center animate-fade-in-up">
+                <div class="text-2xl font-bold text-blue-600">3</div>
+                <p class="text-sm text-gray-600">Animation</p>
+            </div>
+            <div class="bg-purple-100 p-4 rounded-lg text-center animate-fade-in-up">
+                <div class="text-2xl font-bold text-purple-600">4</div>
+                <p class="text-sm text-gray-600">Example</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Counter Animation Example -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Counter Animation</h2>
+    <div class="bg-primary-700 text-white rounded-lg p-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8" x-data="staggerAnimation({staggerDelay: 100})">
+            <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: 1250, duration: 2500})">
+                <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                <p class="text-white/80">Users Served</p>
+            </div>
+            <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: 45, duration: 2000})">
+                <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                <p class="text-white/80">Active Programs</p>
+            </div>
+            <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: 890, duration: 2800})">
+                <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                <p class="text-white/80">Referrals</p>
+            </div>
+            <div class="text-center animate-fade-in-up" x-data="counterAnimation({target: 12, duration: 2200})">
+                <div class="text-4xl md:text-5xl font-bold mb-2" x-text="Math.floor(current).toLocaleString()"></div>
+                <p class="text-white/80">Chapters</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Interactive Examples -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Interactive Components</h2>
+    
+    <!-- Modal Example -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h3 class="text-lg font-semibold mb-4">Modal Example</h3>
+        <div x-data="modal()">
+            {% include 'components/atoms/button.html' with variant='primary' text='Open Modal' x_data='@click="open()"' %}
+            
+            <!-- Modal Overlay -->
+            <div x-show="isOpen" 
+                 x-transition.opacity
+                 class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                 @click.away="close()">
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4" @click.stop>
+                    <h3 class="text-lg font-semibold mb-4">Modal Title</h3>
+                    <p class="text-gray-600 mb-6">This is a modal dialog example using Alpine.js behaviors.</p>
+                    <div class="flex justify-end space-x-3">
+                        {% include 'components/atoms/button.html' with variant='outline' text='Cancel' x_data='@click="close()"' %}
+                        {% include 'components/atoms/button.html' with variant='primary' text='Confirm' x_data='@click="close()"' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Dropdown Example -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h3 class="text-lg font-semibold mb-4">Dropdown Example</h3>
+        <div x-data="dropdown()" class="relative inline-block">
+            {% include 'components/atoms/button.html' with variant='outline' text='Dropdown Menu' icon='fas fa-chevron-down' x_data='@click="toggle()"' %}
+            
+            <div x-show="isOpen" 
+                 x-transition
+                 class="absolute top-full left-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-10">
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 1</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 2</a>
+                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Option 3</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Empty State Example -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Empty State Example</h2>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+        {% include 'components/molecules/empty_state.html' with 
+            icon='fas fa-search'
+            title='No Results Found'
+            description='We could not find any results matching your search criteria. Please try different keywords or adjust your filters.'
+            cta_text='Clear Filters'
+            cta_href='#'
+        %}
+    </div>
+</section>
+
+{% endblock %}

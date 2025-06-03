@@ -1,0 +1,187 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ chapter.name }} - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Chapter Header -->
+    <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+        <div class="flex items-start justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-primary-800 mb-2">{{ chapter.name }}</h1>
+                <p class="text-lg text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    {{ chapter.municipality }}{% if chapter.province %}, {{ chapter.province }}{% endif %}
+                </p>
+            </div>
+            <div class="text-right">
+                <span class="px-3 py-1 text-sm font-medium rounded 
+                       {% if chapter.tier == 'provincial' %}bg-purple-100 text-purple-800{% endif %}
+                       {% if chapter.tier == 'municipal' %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ chapter.get_tier_display }}
+                </span>
+                {% if user.is_authenticated %}
+                    {% if user_membership %}
+                        <div class="mt-2">
+                            <span class="px-3 py-1 text-sm font-medium rounded bg-green-100 text-green-800">
+                                {{ user_membership.get_role_display }}
+                            </span>
+                        </div>
+                    {% else %}
+                        <div class="mt-2">
+                            {% include 'components/atoms/button.html' with variant='primary' text='Join Chapter' href=chapter.get_join_url %}
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if chapter.description %}
+        <div class="mt-4">
+            <h3 class="font-semibold text-primary-700 mb-2">About</h3>
+            <p class="text-gray-700">{{ chapter.description }}</p>
+        </div>
+        {% endif %}
+        
+        {% if chapter.mission_statement %}
+        <div class="mt-4">
+            <h3 class="font-semibold text-primary-700 mb-2">Mission Statement</h3>
+            <p class="text-gray-700">{{ chapter.mission_statement }}</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="grid gap-8 md:grid-cols-3">
+        <!-- Chapter Stats -->
+        <div class="md:col-span-1">
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-semibold text-primary-700 mb-4">Chapter Statistics</h2>
+                <div class="space-y-3">
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Members</span>
+                        <span class="font-semibold">{{ chapter.member_count }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Volunteers</span>
+                        <span class="font-semibold">{{ chapter.volunteer_count }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Activities</span>
+                        <span class="font-semibold">{{ chapter.activity_count }}</span>
+                    </div>
+                    {% if chapter.established_date %}
+                    <div class="flex justify-between">
+                        <span class="text-gray-600">Established</span>
+                        <span class="font-semibold">{{ chapter.established_date|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Leadership -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h2 class="text-xl font-semibold text-primary-700 mb-4">Leadership</h2>
+                <div class="space-y-3">
+                    {% for leader in leadership %}
+                    <div class="flex items-center">
+                        <img src="{% if leader.user.profile_picture %}{{ leader.user.profile_picture.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" 
+                             alt="{{ leader.user.get_full_name }}" 
+                             class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ leader.user.get_full_name }}</p>
+                            <p class="text-sm text-gray-600">{{ leader.get_role_display }}</p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500">No leadership assigned yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Meeting Schedule -->
+            {% if chapter.meeting_schedule %}
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Meeting Schedule</h2>
+                <p class="text-gray-700">{{ chapter.meeting_schedule }}</p>
+                {% if chapter.meeting_location %}
+                <p class="text-gray-600 mt-2">
+                    <i class="fas fa-location-dot mr-1"></i>
+                    {{ chapter.meeting_location }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Activities Section -->
+        <div class="md:col-span-2">
+            <!-- Upcoming Activities -->
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-primary-700">Upcoming Activities</h2>
+                    {% if user_membership and user_membership.role in 'coordinator,assistant_coordinator' %}
+                    {% include 'components/atoms/button.html' with variant='primary' text='Create Activity' href=chapter.get_create_activity_url %}
+                    {% endif %}
+                </div>
+                <div class="space-y-4">
+                    {% for activity in upcoming_activities %}
+                    <div class="border-b border-gray-200 pb-4 last:border-b-0">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-medium text-gray-900">
+                                    <a href="{% url 'activity_detail' activity.pk %}" class="hover:text-primary-600">
+                                        {{ activity.title }}
+                                    </a>
+                                </h3>
+                                <p class="text-sm text-gray-600 mt-1">
+                                    <i class="far fa-calendar mr-1"></i>{{ activity.date|date:"M d, Y" }}
+                                    <i class="far fa-clock ml-3 mr-1"></i>{{ activity.start_time|time:"g:i A" }}
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-location-dot mr-1"></i>{{ activity.venue }}
+                                </p>
+                            </div>
+                            <span class="px-2 py-1 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                                {{ activity.get_activity_type_display }}
+                            </span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500">No upcoming activities scheduled.</p>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <a href="{% url 'chapter_activities' chapter.slug %}" 
+                       class="text-primary-600 hover:text-primary-800">
+                        View all activities →
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Recent Activities -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Activities</h2>
+                <div class="space-y-4">
+                    {% for activity in recent_activities %}
+                    <div class="border-b border-gray-200 pb-4 last:border-b-0">
+                        <h3 class="font-medium text-gray-900">{{ activity.title }}</h3>
+                        <p class="text-sm text-gray-600 mt-1">
+                            <i class="far fa-calendar mr-1"></i>{{ activity.date|date:"M d, Y" }}
+                            <span class="ml-3">
+                                <i class="fas fa-users mr-1"></i>{{ activity.actual_participants }} participants
+                            </span>
+                        </p>
+                        {% if activity.report %}
+                        <p class="text-sm text-gray-700 mt-2">{{ activity.report|truncatewords:20 }}</p>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-gray-500">No recent activities.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

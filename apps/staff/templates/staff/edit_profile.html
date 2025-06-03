@@ -1,0 +1,338 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - #FahanieCares Staff{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .form-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px 12px 0 0;
+        text-align: center;
+    }
+    
+    .form-body {
+        background: white;
+        padding: 2rem;
+        border-radius: 0 0 12px 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-control textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+    
+    .readonly-info {
+        background: #f7fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: #4a5568;
+        font-style: italic;
+    }
+    
+    .info-note {
+        background: #bee3f8;
+        border-left: 4px solid #4299e1;
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .btn-save {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .btn-save:hover {
+        transform: translateY(-2px);
+    }
+    
+    .btn-cancel {
+        background: #e2e8f0;
+        color: #4a5568;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.2s;
+        margin-left: 1rem;
+    }
+    
+    .btn-cancel:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+        color: #4a5568;
+        background: #cbd5e0;
+    }
+    
+    .current-info {
+        background: #f0fff4;
+        border-left: 4px solid #48bb78;
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 0.5rem;
+    }
+    
+    .warning-note {
+        background: #fef5e7;
+        border-left: 4px solid #ed8936;
+        padding: 1rem;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    @media (max-width: 768px) {
+        .edit-profile-container {
+            padding: 1rem;
+        }
+        
+        .form-header, .form-body {
+            padding: 1.5rem;
+        }
+        
+        .btn-cancel {
+            margin-left: 0;
+            margin-top: 0.5rem;
+            display: block;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <div class="form-header">
+        <h1>✏️ Edit Your Profile</h1>
+        <p>Update your contact information and personal details</p>
+    </div>
+    
+    <div class="form-body">
+        <div class="info-note">
+            <strong>📝 Note:</strong> You can edit your contact information and bio. For changes to position, division, or employment status, please contact your supervisor or system administrators.
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Readonly Information -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">👤 Full Name</label>
+                        <div class="readonly-info">{{ staff.full_name }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">💼 Position</label>
+                        <div class="readonly-info">{{ staff.position|default:"Not specified" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">🏢 Division</label>
+                        <div class="readonly-info">{{ staff.get_division_display|default:"Not assigned" }}</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">🏛️ Office</label>
+                        <div class="readonly-info">{{ staff.get_office_display|default:"Not assigned" }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <hr class="my-4">
+            
+            <!-- Editable Fields -->
+            <h4 class="mb-3">📝 Editable Information</h4>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">📧 Email Address</label>
+                <div class="current-info">
+                    <strong>Current:</strong> {{ staff.email|default:"Not provided" }}
+                </div>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       class="form-control" 
+                       value="{{ staff.email|default:'' }}"
+                       placeholder="Enter your email address">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone_number" class="form-label">📱 Phone Number</label>
+                <div class="current-info">
+                    <strong>Current:</strong> {{ staff.phone_number|default:"Not provided" }}
+                </div>
+                <input type="tel" 
+                       id="phone_number" 
+                       name="phone_number" 
+                       class="form-control" 
+                       value="{{ staff.phone_number|default:'' }}"
+                       placeholder="Enter your phone number (e.g., 09123456789)">
+            </div>
+            
+            <div class="form-group">
+                <label for="address" class="form-label">🏠 Address</label>
+                <div class="current-info">
+                    <strong>Current:</strong> {{ staff.address|default:"Not provided" }}
+                </div>
+                <textarea id="address" 
+                         name="address" 
+                         class="form-control" 
+                         rows="3"
+                         placeholder="Enter your complete address">{{ staff.address|default:'' }}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="bio" class="form-label">👋 Bio / About Me</label>
+                <div class="current-info">
+                    <strong>Current:</strong> {{ staff.bio|default:"No bio provided" }}
+                </div>
+                <textarea id="bio" 
+                         name="bio" 
+                         class="form-control" 
+                         rows="4"
+                         placeholder="Tell us about yourself, your background, interests, etc.">{{ staff.bio|default:'' }}</textarea>
+                <small class="text-muted">This will be visible to other staff members in the directory.</small>
+            </div>
+            
+            <div class="warning-note">
+                <strong>⚠️ Important:</strong> Changes to your email address will also update your login email. Make sure you can access the new email address before saving.
+            </div>
+            
+            <div class="d-flex flex-wrap align-items-center">
+                <button type="submit" class="btn-save">
+                    💾 Save Changes
+                </button>
+                <a href="{% url 'staff:profile' %}" class="btn-cancel">
+                    ❌ Cancel
+                </a>
+            </div>
+        </form>
+        
+        <hr class="my-4">
+        
+        <!-- Help Section -->
+        <div class="info-note">
+            <h5>🆘 Need Help?</h5>
+            <p class="mb-2">For assistance with your profile or system access:</p>
+            <ul class="mb-0">
+                <li><strong>Technical Issues:</strong> Contact Farissnoor Edza (IT Staff)</li>
+                <li><strong>Employment Changes:</strong> Contact your supervisor</li>
+                <li><strong>System Permissions:</strong> Contact Saidamen Mambayao (System Developer)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                const bootstrapAlert = new bootstrap.Alert(alert);
+                bootstrapAlert.close();
+            });
+        }, 5000);
+        
+        // Form validation
+        const form = document.querySelector('form');
+        const emailInput = document.getElementById('email');
+        
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            
+            // Email validation
+            if (emailInput.value) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(emailInput.value)) {
+                    alert('Please enter a valid email address.');
+                    emailInput.focus();
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+        
+        // Phone number formatting
+        const phoneInput = document.getElementById('phone_number');
+        phoneInput.addEventListener('input', function(e) {
+            // Remove non-digits
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Format Philippine mobile numbers
+            if (value.length >= 11) {
+                value = value.substring(0, 11);
+            }
+            
+            e.target.value = value;
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,480 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Staff Directory - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .directory-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .directory-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    
+    .filters-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    
+    .filter-select, .search-input {
+        padding: 0.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        transition: border-color 0.3s;
+    }
+    
+    .filter-select:focus, .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .search-input {
+        flex: 1;
+        min-width: 250px;
+    }
+    
+    .btn-filter {
+        background: #667eea;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 1rem;
+    }
+    
+    .division-section {
+        background: white;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .division-header {
+        background: linear-gradient(90deg, #4299e1 0%, #667eea 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .staff-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+    
+    .staff-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
+        border: 1px solid #e2e8f0;
+        position: relative;
+    }
+    
+    .staff-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    .staff-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .staff-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .staff-position {
+        color: #4a5568;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        min-height: 2.4rem;
+        line-height: 1.2;
+    }
+    
+    .staff-details {
+        font-size: 0.85rem;
+        color: #6b7280;
+        line-height: 1.4;
+    }
+    
+    .staff-detail-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .staff-detail-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .detail-icon {
+        width: 16px;
+        margin-right: 0.5rem;
+        text-align: center;
+    }
+    
+    .staff-badges {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-align: center;
+        min-width: 60px;
+    }
+    
+    .badge-developer {
+        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+    
+    .badge-main {
+        background: #e6fffa;
+        color: #1a365d;
+    }
+    
+    .badge-satellite {
+        background: #fef5e7;
+        color: #744210;
+    }
+    
+    .badge-contractual {
+        background: #bee3f8;
+        color: #2b6cb0;
+    }
+    
+    .badge-coterminous {
+        background: #fbd38d;
+        color: #c05621;
+    }
+    
+    .contact-info {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .contact-link {
+        color: #667eea;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    
+    .contact-link:hover {
+        color: #4c51bf;
+        text-decoration: underline;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 3rem;
+        color: #6b7280;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .no-results-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    @media (max-width: 768px) {
+        .directory-container {
+            padding: 1rem;
+        }
+        
+        .filter-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .staff-grid {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+        
+        .stats-row {
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="directory-container">
+    <!-- Header -->
+    <div class="directory-header">
+        <h1>📖 Staff Directory</h1>
+        <p>Connect with your colleagues across #FahanieCares</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters-section">
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <input type="text" 
+                       name="search" 
+                       class="search-input" 
+                       placeholder="🔍 Search by name, position, or email..." 
+                       value="{{ search_query|default:'' }}">
+                
+                <select name="division" class="filter-select">
+                    <option value="">All Divisions</option>
+                    {% for value, label in division_choices %}
+                        <option value="{{ value }}" {% if current_division == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <select name="office" class="filter-select">
+                    <option value="">All Offices</option>
+                    {% for value, label in office_choices %}
+                        <option value="{{ value }}" {% if current_office == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" class="btn-filter">Filter</button>
+            </div>
+            
+            <div class="stats-row">
+                <div>
+                    <strong>{{ total_staff }}</strong> staff member{{ total_staff|pluralize }} found
+                    {% if search_query or current_division or current_office %}
+                        <a href="{% url 'staff:directory' %}" style="margin-left: 1rem; color: #667eea;">Clear filters</a>
+                    {% endif %}
+                </div>
+                <div>
+                    <a href="{% url 'staff:profile' %}" style="color: #667eea;">👤 My Profile</a>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Staff Directory by Division -->
+    {% if divisions %}
+        {% for division_name, staff_list in divisions.items %}
+        <div class="division-section">
+            <div class="division-header">
+                🏢 {{ division_name }} ({{ staff_list|length }} member{{ staff_list|length|pluralize }})
+            </div>
+            
+            <div class="staff-grid">
+                {% for staff in staff_list %}
+                <div class="staff-card">
+                    <!-- Badges -->
+                    <div class="staff-badges">
+                        {% if staff.user.is_superuser %}
+                            <span class="badge badge-developer">DEV</span>
+                        {% endif %}
+                        {% if staff.office %}
+                            <span class="badge badge-{{ staff.office }}">
+                                {% if staff.office == 'main_office' %}MAIN{% else %}SAT{% endif %}
+                            </span>
+                        {% endif %}
+                        {% if staff.employment_status %}
+                            <span class="badge badge-{{ staff.employment_status }}">
+                                {{ staff.get_employment_status_display|upper|truncatechars:6 }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Avatar -->
+                    <div class="staff-avatar">
+                        {% if staff.profile_image %}
+                            <img src="{{ staff.profile_image.url }}" alt="{{ staff.full_name }}" 
+                                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                            {{ staff.full_name|first }}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Basic Info -->
+                    <div class="staff-name">{{ staff.full_name }}</div>
+                    <div class="staff-position">{{ staff.position|default:"Staff Member" }}</div>
+                    
+                    <!-- Details -->
+                    <div class="staff-details">
+                        {% if staff.get_division_display %}
+                        <div class="staff-detail-row">
+                            <span class="detail-icon">🏢</span>
+                            {{ staff.get_division_display }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if staff.get_office_display %}
+                        <div class="staff-detail-row">
+                            <span class="detail-icon">🏛️</span>
+                            {{ staff.get_office_display }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if staff.phone_number %}
+                        <div class="staff-detail-row">
+                            <span class="detail-icon">📱</span>
+                            <a href="tel:{{ staff.phone_number }}" class="contact-link">
+                                {{ staff.phone_number }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    {% if staff.email %}
+                    <div class="contact-info">
+                        <div class="staff-detail-row">
+                            <span class="detail-icon">📧</span>
+                            <a href="mailto:{{ staff.email }}" class="contact-link">
+                                {{ staff.email|truncatechars:25 }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Bio Preview -->
+                    {% if staff.bio %}
+                    <div class="contact-info">
+                        <div style="font-style: italic; color: #6b7280; font-size: 0.8rem;">
+                            "{{ staff.bio|truncatechars:60 }}"
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- No Results -->
+        <div class="no-results">
+            <div class="no-results-icon">🔍</div>
+            <h3>No staff members found</h3>
+            <p>Try adjusting your search filters or clear all filters to see all staff.</p>
+            <a href="{% url 'staff:directory' %}" style="color: #667eea; text-decoration: none;">
+                🔄 Show All Staff
+            </a>
+        </div>
+    {% endif %}
+    
+    <!-- Back to Profile -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{% url 'staff:profile' %}" 
+           style="background: #667eea; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500;">
+            👤 Back to My Profile
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-submit form on filter change
+        const filterSelects = document.querySelectorAll('.filter-select');
+        filterSelects.forEach(function(select) {
+            select.addEventListener('change', function() {
+                this.form.submit();
+            });
+        });
+        
+        // Animate staff cards on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '0';
+                    entry.target.style.transform = 'translateY(20px)';
+                    entry.target.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    
+                    setTimeout(function() {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }, 100);
+                    
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        const staffCards = document.querySelectorAll('.staff-card');
+        staffCards.forEach(function(card) {
+            observer.observe(card);
+        });
+        
+        // Phone number click tracking
+        const phoneLinks = document.querySelectorAll('a[href^="tel:"]');
+        phoneLinks.forEach(function(link) {
+            link.addEventListener('click', function() {
+                console.log('Phone call initiated to:', this.href);
+            });
+        });
+    });
+</script>
+{% endblock %}

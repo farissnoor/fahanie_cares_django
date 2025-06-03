@@ -1,0 +1,340 @@
+{% comment %}
+Common Alpine.js Behaviors Library
+This file contains reusable Alpine.js data components for common UI interactions.
+
+Usage:
+Include this file in your base template after Alpine.js is loaded.
+Use the behaviors by adding x-data attributes to your HTML elements.
+
+Example:
+<div x-data="modal()">...</div>
+<div x-data="dropdown()">...</div>
+<div x-data="tabs()">...</div>
+{% endcomment %}
+
+<script>
+document.addEventListener('alpine:init', () => {
+    
+    // Modal Behavior
+    Alpine.data('modal', (options = {}) => ({
+        isOpen: options.initialOpen || false,
+        closeOnEscape: options.closeOnEscape ?? true,
+        closeOnClickAway: options.closeOnClickAway ?? true,
+        
+        open() {
+            this.isOpen = true;
+            if (options.disableBodyScroll ?? true) {
+                document.body.style.overflow = 'hidden';
+            }
+            this.$dispatch('modal-opened');
+        },
+        
+        close() {
+            this.isOpen = false;
+            if (options.disableBodyScroll ?? true) {
+                document.body.style.overflow = '';
+            }
+            this.$dispatch('modal-closed');
+        },
+        
+        toggle() {
+            this.isOpen ? this.close() : this.open();
+        },
+        
+        init() {
+            if (this.closeOnEscape) {
+                this.$watch('isOpen', (value) => {
+                    if (value) {
+                        const handler = (e) => {
+                            if (e.key === 'Escape') {
+                                this.close();
+                                document.removeEventListener('keydown', handler);
+                            }
+                        };
+                        document.addEventListener('keydown', handler);
+                    }
+                });
+            }
+        }
+    }));
+    
+    // Dropdown Behavior
+    Alpine.data('dropdown', (options = {}) => ({
+        isOpen: false,
+        closeOnClickAway: options.closeOnClickAway ?? true,
+        hoverDelay: options.hoverDelay || 150,
+        enableHover: options.enableHover || false,
+        hoverTimer: null,
+        
+        open() {
+            this.isOpen = true;
+            this.$dispatch('dropdown-opened');
+        },
+        
+        close() {
+            this.isOpen = false;
+            this.$dispatch('dropdown-closed');
+        },
+        
+        toggle() {
+            this.isOpen ? this.close() : this.open();
+        },
+        
+        mouseenter() {
+            if (this.enableHover) {
+                clearTimeout(this.hoverTimer);
+                this.hoverTimer = setTimeout(() => {
+                    this.open();
+                }, this.hoverDelay);
+            }
+        },
+        
+        mouseleave() {
+            if (this.enableHover) {
+                clearTimeout(this.hoverTimer);
+                this.hoverTimer = setTimeout(() => {
+                    this.close();
+                }, this.hoverDelay);
+            }
+        }
+    }));
+    
+    // Tabs Behavior
+    Alpine.data('tabs', (options = {}) => ({
+        activeTab: options.defaultTab || 0,
+        
+        setActive(index) {
+            this.activeTab = index;
+            this.$dispatch('tab-changed', { activeTab: index });
+        },
+        
+        isActive(index) {
+            return this.activeTab === index;
+        }
+    }));
+    
+    // Accordion Behavior
+    Alpine.data('accordion', (options = {}) => ({
+        openItems: options.allowMultiple ? [] : null,
+        allowMultiple: options.allowMultiple || false,
+        
+        toggle(index) {
+            if (this.allowMultiple) {
+                const itemIndex = this.openItems.indexOf(index);
+                if (itemIndex > -1) {
+                    this.openItems.splice(itemIndex, 1);
+                } else {
+                    this.openItems.push(index);
+                }
+            } else {
+                this.openItems = this.openItems === index ? null : index;
+            }
+            this.$dispatch('accordion-toggled', { index, isOpen: this.isOpen(index) });
+        },
+        
+        isOpen(index) {
+            if (this.allowMultiple) {
+                return this.openItems.includes(index);
+            }
+            return this.openItems === index;
+        }
+    }));
+    
+    // Toast/Notification Behavior
+    Alpine.data('toast', (options = {}) => ({
+        isVisible: false,
+        message: '',
+        type: 'info', // 'success', 'error', 'warning', 'info'
+        duration: options.duration || 5000,
+        timer: null,
+        
+        show(message, type = 'info', duration = this.duration) {
+            this.message = message;
+            this.type = type;
+            this.isVisible = true;
+            
+            if (duration > 0) {
+                this.timer = setTimeout(() => {
+                    this.hide();
+                }, duration);
+            }
+            
+            this.$dispatch('toast-shown', { message, type });
+        },
+        
+        hide() {
+            this.isVisible = false;
+            if (this.timer) {
+                clearTimeout(this.timer);
+                this.timer = null;
+            }
+            this.$dispatch('toast-hidden');
+        }
+    }));
+    
+    // Form Validation Behavior
+    Alpine.data('formValidation', (options = {}) => ({
+        fields: {},
+        errors: {},
+        isSubmitting: false,
+        
+        addField(name, rules = []) {
+            this.fields[name] = {
+                value: '',
+                rules: rules,
+                touched: false
+            };
+            this.errors[name] = [];
+        },
+        
+        validateField(name) {
+            const field = this.fields[name];
+            if (!field) return;
+            
+            this.errors[name] = [];
+            
+            field.rules.forEach(rule => {
+                const result = rule(field.value);
+                if (result !== true) {
+                    this.errors[name].push(result);
+                }
+            });
+            
+            return this.errors[name].length === 0;
+        },
+        
+        validateAll() {
+            let isValid = true;
+            Object.keys(this.fields).forEach(name => {
+                if (!this.validateField(name)) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        },
+        
+        hasError(name) {
+            return this.errors[name] && this.errors[name].length > 0;
+        },
+        
+        getError(name) {
+            return this.errors[name] && this.errors[name][0];
+        }
+    }));
+    
+    // Search Behavior
+    Alpine.data('search', (options = {}) => ({
+        query: '',
+        results: [],
+        isLoading: false,
+        debounceTimer: null,
+        debounceDelay: options.debounceDelay || 300,
+        minLength: options.minLength || 2,
+        
+        search() {
+            if (this.query.length < this.minLength) {
+                this.results = [];
+                return;
+            }
+            
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = setTimeout(() => {
+                this.performSearch();
+            }, this.debounceDelay);
+        },
+        
+        async performSearch() {
+            this.isLoading = true;
+            
+            try {
+                if (options.searchFunction) {
+                    this.results = await options.searchFunction(this.query);
+                } else {
+                    // Default behavior - emit event for external handling
+                    this.$dispatch('search-requested', { query: this.query });
+                }
+            } catch (error) {
+                console.error('Search error:', error);
+                this.results = [];
+            } finally {
+                this.isLoading = false;
+            }
+        },
+        
+        clear() {
+            this.query = '';
+            this.results = [];
+            clearTimeout(this.debounceTimer);
+        }
+    }));
+    
+    // Infinite Scroll Behavior
+    Alpine.data('infiniteScroll', (options = {}) => ({
+        isLoading: false,
+        hasMore: true,
+        page: 1,
+        threshold: options.threshold || 100,
+        
+        init() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && this.hasMore && !this.isLoading) {
+                        this.loadMore();
+                    }
+                });
+            }, {
+                rootMargin: `${this.threshold}px`
+            });
+            
+            // Observer will be attached to element with x-intersect
+            this.$nextTick(() => {
+                const trigger = this.$el.querySelector('[x-intersect]');
+                if (trigger) {
+                    observer.observe(trigger);
+                }
+            });
+        },
+        
+        async loadMore() {
+            if (this.isLoading || !this.hasMore) return;
+            
+            this.isLoading = true;
+            this.page++;
+            
+            try {
+                if (options.loadFunction) {
+                    const result = await options.loadFunction(this.page);
+                    this.hasMore = result.hasMore;
+                } else {
+                    this.$dispatch('load-more-requested', { page: this.page });
+                }
+            } catch (error) {
+                console.error('Load more error:', error);
+                this.page--;
+            } finally {
+                this.isLoading = false;
+            }
+        }
+    }));
+    
+    // Copy to Clipboard Behavior
+    Alpine.data('clipboard', () => ({
+        copied: false,
+        
+        async copy(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                this.copied = true;
+                setTimeout(() => {
+                    this.copied = false;
+                }, 2000);
+                this.$dispatch('text-copied', { text });
+            } catch (error) {
+                console.error('Copy failed:', error);
+                this.$dispatch('copy-failed', { error });
+            }
+        }
+    }));
+    
+});
+</script>

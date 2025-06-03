@@ -1,0 +1,367 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Performance Analytics - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3">Performance Analytics</h1>
+            <p class="text-lg text-white/90">Staff performance and efficiency metrics</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_dashboard' %}" class="hover:text-primary-600 transition">Staff Dashboard</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_analytics_dashboard' %}" class="hover:text-primary-600 transition">Analytics</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Performance</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mb-12">
+    <!-- Analytics Navigation -->
+    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 mb-6">
+        <div class="flex flex-wrap items-center justify-between">
+            <div class="flex space-x-4 mb-4 md:mb-0">
+                <a href="{% url 'staff_analytics_dashboard' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-chart-pie mr-2"></i> Overview
+                </a>
+                <a href="{% url 'staff_analytics_services' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-hand-holding-heart mr-2"></i> Services
+                </a>
+                <a href="{% url 'staff_analytics_performance' %}" class="px-4 py-2 rounded-md bg-primary-600 text-white font-medium">
+                    <i class="fas fa-user-clock mr-2"></i> Performance
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'staff_dashboard' %}" class="text-primary-600 hover:text-primary-800 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Avg. Completion Time</div>
+            <div class="text-3xl font-bold text-gray-800">
+                {% if completion_stats.overall_avg_days %}
+                    {{ completion_stats.overall_avg_days|floatformat:1 }} days
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="mt-2 text-sm text-blue-600">
+                <i class="fas fa-check-circle mr-1"></i> Based on completed referrals
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Avg. Response Time</div>
+            <div class="text-3xl font-bold text-gray-800">
+                {% if avg_response_time %}
+                    {{ avg_response_time|floatformat:1 }} days
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="mt-2 text-sm text-green-600">
+                <i class="fas fa-clock mr-1"></i> First staff response time
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Staff with Active Referrals</div>
+            <div class="text-3xl font-bold text-gray-800">
+                {{ staff_stats|length }}
+            </div>
+            <div class="mt-2 text-sm text-primary-600">
+                <i class="fas fa-users mr-1"></i> Staff members
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completion Time by Category -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Completion Time by Service Category</h2>
+        
+        {% if completion_stats.by_category %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Category
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Avg. Completion Time
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Relative Performance
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for category in completion_stats.by_category %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ category.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ category.avg_days|floatformat:1 }} days
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                {% if completion_stats.overall_avg_days and category.avg_days < completion_stats.overall_avg_days %}
+                                <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-arrow-down mr-1"></i> {{ completion_stats.overall_avg_days|subtract:category.avg_days|floatformat:1 }} days faster
+                                </span>
+                                {% elif completion_stats.overall_avg_days and category.avg_days > completion_stats.overall_avg_days %}
+                                <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-arrow-up mr-1"></i> {{ category.avg_days|subtract:completion_stats.overall_avg_days|floatformat:1 }} days slower
+                                </span>
+                                {% else %}
+                                <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    Average
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-gray-50 rounded-md p-4 text-center">
+            <p class="text-gray-500">No category completion time data available.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Staff Performance -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Staff Performance Metrics</h2>
+        
+        {% if staff_stats %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Staff Member
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Assigned
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Completed
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Active
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Completion Rate
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Avg. Time
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for staff in staff_stats %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ staff.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ staff.assigned_count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ staff.completed_count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ staff.active_count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2 max-w-[100px]">
+                                    <div class="{% if staff.completion_rate >= 75 %}bg-green-600{% elif staff.completion_rate >= 50 %}bg-yellow-500{% elif staff.completion_rate >= 25 %}bg-orange-500{% else %}bg-red-500{% endif %} h-2.5 rounded-full" style="width: {{ staff.completion_rate }}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600">{{ staff.completion_rate|floatformat:1 }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {% if staff.avg_completion_days %}
+                                {{ staff.avg_completion_days|floatformat:1 }} days
+                                
+                                {% if completion_stats.overall_avg_days %}
+                                    {% if staff.avg_completion_days < completion_stats.overall_avg_days %}
+                                        <span class="inline-block ml-1 text-xs text-green-600">
+                                            <i class="fas fa-arrow-down"></i> {{ completion_stats.overall_avg_days|subtract:staff.avg_completion_days|floatformat:1 }}
+                                        </span>
+                                    {% elif staff.avg_completion_days > completion_stats.overall_avg_days %}
+                                        <span class="inline-block ml-1 text-xs text-red-600">
+                                            <i class="fas fa-arrow-up"></i> {{ staff.avg_completion_days|subtract:completion_stats.overall_avg_days|floatformat:1 }}
+                                        </span>
+                                    {% endif %}
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="bg-gray-50 rounded-md p-4 text-center">
+            <p class="text-gray-500">No staff performance data available.</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Performance Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Completion Rate Chart -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Completion Rates</h2>
+            <div class="h-80">
+                <canvas id="completionRateChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Completion Time Chart -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Avg. Completion Time (Days)</h2>
+            <div class="h-80">
+                <canvas id="completionTimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Staff names for charts
+        const staffNames = [
+            {% for staff in staff_stats %}
+                '{{ staff.name }}',
+            {% endfor %}
+        ];
+        
+        // Completion Rate Chart
+        const completionRateCanvas = document.getElementById('completionRateChart');
+        const completionRateData = {
+            labels: staffNames,
+            datasets: [{
+                label: 'Completion Rate (%)',
+                data: [
+                    {% for staff in staff_stats %}
+                        {{ staff.completion_rate|floatformat:1 }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    {% for staff in staff_stats %}
+                        '{% if staff.completion_rate >= 75 %}rgba(22, 163, 74, 0.8){% elif staff.completion_rate >= 50 %}rgba(234, 179, 8, 0.8){% elif staff.completion_rate >= 25 %}rgba(249, 115, 22, 0.8){% else %}rgba(239, 68, 68, 0.8){% endif %}',
+                    {% endfor %}
+                ],
+                borderColor: [
+                    {% for staff in staff_stats %}
+                        '{% if staff.completion_rate >= 75 %}rgba(22, 163, 74, 1){% elif staff.completion_rate >= 50 %}rgba(234, 179, 8, 1){% elif staff.completion_rate >= 25 %}rgba(249, 115, 22, 1){% else %}rgba(239, 68, 68, 1){% endif %}',
+                    {% endfor %}
+                ],
+                borderWidth: 1
+            }]
+        };
+        
+        new Chart(completionRateCanvas, {
+            type: 'bar',
+            data: completionRateData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Completion Rate (%)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Completion Time Chart
+        const completionTimeCanvas = document.getElementById('completionTimeChart');
+        const avgTimes = [
+            {% for staff in staff_stats %}
+                {% if staff.avg_completion_days %}{{ staff.avg_completion_days|floatformat:1 }}{% else %}null{% endif %},
+            {% endfor %}
+        ];
+        
+        const completionTimeData = {
+            labels: staffNames,
+            datasets: [{
+                label: 'Avg. Completion Time (Days)',
+                data: avgTimes,
+                backgroundColor: 'rgba(79, 70, 229, 0.8)',
+                borderColor: 'rgba(79, 70, 229, 1)',
+                borderWidth: 1
+            }]
+        };
+        
+        new Chart(completionTimeCanvas, {
+            type: 'bar',
+            data: completionTimeData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Days'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

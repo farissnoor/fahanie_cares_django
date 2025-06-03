@@ -1,0 +1,152 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Upload Document - Referral {{ referral.reference_number }}{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Upload Document</h1>
+            <p class="text-xl text-white/90">Referral {{ referral.reference_number }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'referral_list' %}" class="hover:text-primary-600 transition">My Referrals</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'referral_detail' referral.reference_number %}" class="hover:text-primary-600 transition">{{ referral.reference_number }}</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Upload Document</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+        <h2 class="text-xl font-semibold text-slate-800 mb-6">Upload Document for Referral</h2>
+        
+        <div class="mb-6">
+            <div class="flex items-start">
+                <div class="{% if referral.status == 'completed' %}bg-green-100 text-green-800{% elif referral.status == 'denied' %}bg-red-100 text-red-800{% elif referral.status == 'draft' %}bg-gray-100 text-gray-800{% elif referral.status == 'submitted' %}bg-blue-100 text-blue-800{% elif referral.status == 'processing' or referral.status == 'reviewing' or referral.status == 'referred' %}bg-yellow-100 text-yellow-800{% else %}bg-gray-100 text-gray-800{% endif %} px-3 py-1 rounded-full text-sm font-medium mr-3">
+                    {{ referral.get_status_display }}
+                </div>
+                <div>
+                    <h3 class="font-medium text-slate-800">{{ referral.service.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ referral.service.agency.name }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.name.id_for_label }}">
+                    Document Name
+                    <span class="text-red-500">*</span>
+                </label>
+                <input type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="{{ form.name.value|default:'' }}" required>
+                <p class="text-gray-500 text-sm mt-1">Enter a descriptive name for this document</p>
+                {% if form.name.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.file.id_for_label }}">
+                    Document File
+                    <span class="text-red-500">*</span>
+                </label>
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div class="space-y-1 text-center">
+                        <i class="fas fa-file-upload text-gray-400 text-3xl mb-3"></i>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="{{ form.file.id_for_label }}" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-800 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                <span>Upload a file</span>
+                                <input id="{{ form.file.id_for_label }}" name="{{ form.file.name }}" type="file" class="sr-only" required>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">
+                            PDF, Word, Excel, JPEG, PNG up to 10MB
+                        </p>
+                    </div>
+                </div>
+                <div id="selected-file" class="mt-2 text-sm text-gray-600 hidden">
+                    Selected file: <span id="file-name" class="font-medium"></span>
+                </div>
+                {% if form.file.errors %}
+                <p class="text-red-600 text-sm mt-1">{{ form.file.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="bg-primary-50 p-6 rounded-lg border border-primary-100 mb-6">
+                <div class="flex items-start">
+                    <div class="text-primary-600 text-xl mr-4 mt-1">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-primary-800 mb-2">Document Requirements</h3>
+                        <ul class="text-gray-700 space-y-1">
+                            <li>Documents should support your referral request (e.g., application forms, ID cards, certificates).</li>
+                            <li>Ensure that all text in documents is clear and legible.</li>
+                            <li>If uploading images of documents, ensure they are properly lit and in focus.</li>
+                            <li>Maximum file size: 10MB per document.</li>
+                            <li>Supported formats: PDF, Word (.docx), Excel (.xlsx), JPEG, PNG.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between">
+                <a href="{% url 'referral_detail' referral.reference_number %}" class="text-gray-600 hover:text-gray-800 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Referral
+                </a>
+                <button type="submit" class="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700 transition font-medium">
+                    Upload Document
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.getElementById('{{ form.file.id_for_label }}');
+        const fileNameDisplay = document.getElementById('file-name');
+        const selectedFileContainer = document.getElementById('selected-file');
+        
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files.length > 0) {
+                fileNameDisplay.textContent = this.files[0].name;
+                selectedFileContainer.classList.remove('hidden');
+            } else {
+                selectedFileContainer.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA for this page -->
+{% endblock %}

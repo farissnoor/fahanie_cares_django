@@ -1,0 +1,375 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Bangsamoro Ministries PPAS - #FahanieCares{% endblock %}
+{% block meta_description %}Discover Programs, Projects, Activities, and Services (PPAS) from Bangsamoro Ministries through #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Bangsamoro Ministries PPAS</h1>
+            <p class="text-xl text-white/90">Discover Programs, Projects, Activities, and Services (PPAS) from Bangsamoro Ministries</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Ministries PPAS</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Ministry Filters -->
+<div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-8">
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">Filter by Ministry</h2>
+    <p class="text-gray-600 mb-6">Select a ministry to view their specific Programs, Projects, Activities, and Services.</p>
+    
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'ministries_ppas' %}" class="{% if not ministry_filter %}bg-primary-600 text-white{% else %}bg-white border border-gray-300 text-gray-700 hover:bg-gray-50{% endif %} px-4 py-2 rounded-md transition">
+            All Ministries ({{ total_programs }})
+        </a>
+        {% for ministry in ministries %}
+            <a href="{% url 'ministries_ppas' %}?ministry={{ ministry.code }}" 
+               class="{% if ministry_filter == ministry.code %}bg-primary-600 text-white{% else %}bg-white border border-gray-300 text-gray-700 hover:bg-gray-50{% endif %} px-4 py-2 rounded-md transition">
+                {{ ministry.name }} ({{ ministry.count }})
+            </a>
+        {% endfor %}
+    </div>
+    
+    <div class="mt-6">
+        <h3 class="text-lg font-medium text-slate-800 mb-3">Additional Filters</h3>
+        <div class="grid md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="sector">Sector</label>
+                <select id="sector" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <option value="">All Sectors</option>
+                    <option>Health</option>
+                    <option>Education</option>
+                    <option>Agriculture</option>
+                    <option>Social Welfare</option>
+                    <option>Infrastructure</option>
+                    <option>Economic Development</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="type">Type</label>
+                <select id="type" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <option value="">All Types</option>
+                    <option>Program</option>
+                    <option>Project</option>
+                    <option>Activity</option>
+                    <option>Service</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="location">Location</label>
+                <select id="location" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <option value="">All Locations</option>
+                    <option>Cotabato City</option>
+                    <option>Maguindanao</option>
+                    <option>Lanao del Sur</option>
+                    <option>Basilan</option>
+                    <option>Sulu</option>
+                    <option>Tawi-Tawi</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ministry Overview -->
+{% if ministry_filter and ministry_stats %}
+    {% for ministry_code, ministry_data in ministry_stats.items %}
+        {% if ministry_code == ministry_filter %}
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-8">
+            <div class="flex flex-col md:flex-row md:items-center gap-6">
+                <div class="bg-gradient-to-br from-primary-100 to-primary-200 h-32 w-32 flex-shrink-0 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-building text-4xl text-primary-600"></i>
+                </div>
+                <div class="flex-grow">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">{{ ministry_data.name }}</h2>
+                    <p class="text-gray-600 mb-4">{{ ministry_data.description }}</p>
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <span class="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded font-medium">{{ ministry_data.count }} Programs</span>
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-medium">Active Ministry</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-medium">BARMM Government</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-500">Total Programs:</span>
+                            <span class="font-medium text-gray-800">{{ ministry_data.count }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Ministry Code:</span>
+                            <span class="font-medium text-gray-800 uppercase">{{ ministry_code }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Coverage:</span>
+                            <span class="font-medium text-gray-800">BARMM-wide</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+<!-- Overall Summary -->
+<div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-8">
+    <div class="text-center">
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Bangsamoro Autonomous Region in Muslim Mindanao</h2>
+        <p class="text-gray-600 mb-6">Comprehensive Programs, Projects, Activities and Services (PPAS) from BARMM Ministries</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-primary-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-primary-600">{{ total_programs }}</div>
+                <div class="text-sm text-gray-600">Total Programs</div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-green-600">{{ ministries|length }}</div>
+                <div class="text-sm text-gray-600">Active Ministries</div>
+            </div>
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-blue-600">₱16.5B</div>
+                <div class="text-sm text-gray-600">Total Budget</div>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <div class="text-2xl font-bold text-purple-600">1M+</div>
+                <div class="text-sm text-gray-600">Beneficiaries</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- PPAS Listings -->
+<div class="mb-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-slate-800">
+            {% if ministry_filter %}
+                {% for ministry_code, ministry_data in ministry_stats.items %}
+                    {% if ministry_code == ministry_filter %}
+                        Programs from {{ ministry_data.name }}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                All Ministry Programs
+            {% endif %}
+        </h2>
+        <span class="text-gray-500 text-sm">Showing {{ ppas_items|length }} of {{ total_programs }} programs</span>
+    </div>
+</div>
+
+<div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    {% for item in ppas_items %}
+    <!-- PPAS Card -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+        <!-- Header with Ministry Color -->
+        <div class="h-2 {% if item.ministry_code == 'mssd' %}bg-blue-500{% elif item.ministry_code == 'mafar' %}bg-green-500{% elif item.ministry_code == 'mtit' %}bg-orange-500{% else %}bg-gray-500{% endif %}"></div>
+        
+        <div class="p-6">
+            <div class="flex justify-between items-start mb-3">
+                <div class="flex flex-col gap-1">
+                    <span class="bg-primary-100 text-primary-800 text-xs px-2 py-1 rounded font-medium">{{ item.type }}</span>
+                    <span class="text-xs text-gray-500 uppercase tracking-wide">{{ item.ministry_code }}</span>
+                </div>
+                <div class="text-right">
+                    {% if item.status == 'Active' %}
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">{{ item.status }}</span>
+                    {% elif item.status == 'Pending Approval' %}
+                        <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">{{ item.status }}</span>
+                    {% else %}
+                        <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">{{ item.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <h3 class="text-lg font-semibold text-slate-800 mb-2 line-clamp-2">{{ item.title }}</h3>
+            <p class="text-gray-600 mb-4 text-sm line-clamp-3">{{ item.description }}</p>
+            
+            <!-- Program Details -->
+            <div class="space-y-2 mb-4">
+                {% if item.location %}
+                <div class="flex items-start">
+                    <i class="fas fa-map-marker-alt text-gray-400 w-4 mt-0.5 mr-2 flex-shrink-0"></i>
+                    <span class="text-gray-600 text-sm line-clamp-2">{{ item.location }}</span>
+                </div>
+                {% endif %}
+                
+                {% if item.target %}
+                <div class="flex items-start">
+                    <i class="fas fa-users text-gray-400 w-4 mt-0.5 mr-2 flex-shrink-0"></i>
+                    <span class="text-gray-600 text-sm line-clamp-2">{{ item.target }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex items-center">
+                    <i class="fas fa-calendar-alt text-gray-400 w-4 mr-2"></i>
+                    <span class="text-gray-600 text-sm">{{ item.timeline }}</span>
+                </div>
+                
+                {% if item.budget_display %}
+                <div class="flex items-center">
+                    <i class="fas fa-peso-sign text-gray-400 w-4 mr-2"></i>
+                    <span class="text-gray-600 text-sm font-medium">{{ item.budget_display }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Priority Badge -->
+            {% if item.priority %}
+            <div class="mb-4">
+                {% if item.priority == 'Critical' %}
+                    <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-medium">🔴 {{ item.priority }} Priority</span>
+                {% elif item.priority == 'High' %}
+                    <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded font-medium">🟠 {{ item.priority }} Priority</span>
+                {% else %}
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-medium">🔵 {{ item.priority }} Priority</span>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            <a href="#program-{{ item.id }}" 
+               onclick="showProgramDetails({{ item.id }})" 
+               class="bg-primary-600 text-white px-4 py-2 rounded-md font-medium hover:bg-primary-700 transition text-center block text-sm">
+                View Details
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not ppas_items %}
+<div class="text-center py-12">
+    <div class="text-gray-400 text-6xl mb-4">
+        <i class="fas fa-folder-open"></i>
+    </div>
+    <h3 class="text-lg font-medium text-gray-900 mb-2">No Programs Found</h3>
+    <p class="text-gray-500">
+        {% if ministry_filter %}
+            No programs are currently available for the selected ministry.
+        {% else %}
+            No programs are currently available.
+        {% endif %}
+    </p>
+    {% if ministry_filter %}
+    <a href="{% url 'ministries_ppas' %}" class="mt-4 inline-block bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition">
+        View All Programs
+    </a>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Pagination -->
+<div class="flex justify-center mb-8">
+    <nav class="inline-flex rounded-md shadow-sm">
+        <a href="#" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        <a href="#" class="px-3 py-2 text-white bg-primary-600 border border-primary-600">1</a>
+        <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">2</a>
+        <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">3</a>
+        <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">4</a>
+        <a href="#" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">5</a>
+        <a href="#" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </nav>
+</div>
+
+<!-- Notion Form Integration Placeholder -->
+<div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-8">
+    <h2 class="text-xl font-semibold text-slate-800 mb-4">Request Information</h2>
+    <p class="text-gray-600 mb-6">Interested in a specific PPAS? Fill out the form below and we'll connect you with the right ministry.</p>
+    
+    <div class="bg-gray-100 p-8 rounded-lg border border-gray-200 flex items-center justify-center">
+        <div class="text-center">
+            <div class="text-3xl text-gray-400 mb-2">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <p class="text-gray-600 mb-4">Notion Form Embed Will Appear Here</p>
+            <p class="text-sm text-gray-500">The actual implementation will include an embedded Notion Form for information requests</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showProgramDetails(programId) {
+    // For now, just show an alert with the program ID
+    // In the future, this could open a modal or navigate to a detail page
+    alert('Program Details for ID: ' + programId + '\n\nThis will show detailed information about the ministry program including objectives, implementation strategy, and how to apply.');
+}
+
+// Ministry filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+    
+    // Add loading animation when filtering by ministry
+    document.querySelectorAll('a[href*="ministry="]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const button = this;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+            button.style.pointerEvents = 'none';
+            
+            // Allow the navigation to proceed
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.style.pointerEvents = 'auto';
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block cta %}
+<!-- CTA Section -->
+<section class="py-12 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Become a #FahanieCares Member</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">Register as a #FahanieCares member to access our full range of services and receive updates about Bangsamoro Ministries' PPAS.</p>
+        <a href="{% url 'register' %}" class="bg-white text-primary-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition inline-block">Register Now</a>
+    </div>
+</section>
+{% endblock %}

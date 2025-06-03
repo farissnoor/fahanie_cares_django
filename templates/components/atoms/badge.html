@@ -1,0 +1,22 @@
+{% comment %}
+Badge Component - Atomic Design Level: Atom
+
+Usage Examples:
+{% include 'components/atoms/badge.html' with variant='primary' text='Active' %}
+{% include 'components/atoms/badge.html' with variant='success' text='Completed' %}
+{% include 'components/atoms/badge.html' with variant='warning' text='Pending' %}
+{% include 'components/atoms/badge.html' with variant='danger' text='Cancelled' %}
+{% include 'components/atoms/badge.html' with variant='info' text='News' size='lg' %}
+
+Parameters:
+- variant: 'primary', 'secondary', 'success', 'warning', 'danger', 'info' (required)
+- text: Badge text content (required)
+- size: 'sm', 'md', 'lg' (optional, default: 'md')
+- rounded: 'sm', 'md', 'lg', 'full' (optional, default: 'md')
+- extra_classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% comment %} Build badge with inline conditional classes and defaults {% endcomment %}
+<span class="inline-flex items-center font-medium transition-colors duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1 text-sm{% else %}px-2.5 py-0.5 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} {% if variant == 'success' %}bg-success-50 text-success-700 hover:bg-success-100 border border-success-200{% elif variant == 'warning' %}bg-warning-50 text-warning-700 hover:bg-warning-100 border border-warning-200{% elif variant == 'danger' %}bg-error-50 text-error-700 hover:bg-error-100 border border-error-200{% elif variant == 'info' %}bg-info-50 text-info-700 hover:bg-info-100 border border-info-200{% elif variant == 'secondary' %}bg-gray-100 text-gray-800 hover:bg-gray-200{% else %}bg-primary-100 text-primary-800 hover:bg-primary-200{% endif %} {{ extra_classes }}">
+    {{ text }}
+</span>

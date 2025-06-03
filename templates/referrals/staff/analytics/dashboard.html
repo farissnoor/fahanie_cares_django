@@ -1,0 +1,486 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load referral_tags %}
+
+{% block title %}Analytics Dashboard - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-3xl md:text-4xl font-bold mb-3">Analytics Dashboard</h1>
+            <p class="text-lg text-white/90">Monitor referral trends and performance metrics</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_dashboard' %}" class="hover:text-primary-600 transition">Staff Dashboard</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Analytics</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto mb-12">
+    <!-- Analytics Navigation -->
+    <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 mb-6">
+        <div class="flex flex-wrap items-center justify-between">
+            <div class="flex space-x-4 mb-4 md:mb-0">
+                <a href="{% url 'staff_analytics_dashboard' %}" class="px-4 py-2 rounded-md bg-primary-600 text-white font-medium">
+                    <i class="fas fa-chart-pie mr-2"></i> Overview
+                </a>
+                <a href="{% url 'staff_analytics_services' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-hand-holding-heart mr-2"></i> Services
+                </a>
+                <a href="{% url 'staff_analytics_performance' %}" class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 transition font-medium">
+                    <i class="fas fa-user-clock mr-2"></i> Performance
+                </a>
+            </div>
+            <div>
+                <a href="{% url 'staff_dashboard' %}" class="text-primary-600 hover:text-primary-800 font-medium">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Summary Metrics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Total Referrals</div>
+            <div class="text-3xl font-bold text-gray-800">{{ total_referrals }}</div>
+            <div class="mt-2 text-sm">
+                <span class="text-green-600"><i class="fas fa-check-circle mr-1"></i> {{ completed_referrals }} completed</span>
+                <span class="mx-2 text-gray-300">|</span>
+                <span class="text-blue-600"><i class="fas fa-clock mr-1"></i> {{ active_referrals }} active</span>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Avg. Completion Time</div>
+            <div class="text-3xl font-bold text-gray-800">
+                {% if completion_stats.overall_avg_days %}
+                    {{ completion_stats.overall_avg_days|floatformat:1 }} days
+                {% else %}
+                    N/A
+                {% endif %}
+            </div>
+            <div class="mt-2 text-sm text-yellow-600">
+                <i class="fas fa-hourglass-half mr-1"></i> Based on {{ completed_referrals }} completed referrals
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div class="text-gray-500 text-sm mb-1">Unassigned Referrals</div>
+            <div class="text-3xl font-bold text-gray-800">{{ unassigned_count }}</div>
+            <div class="mt-2 text-sm">
+                <a href="{% url 'staff_dashboard' %}?assigned_to=unassigned" class="text-primary-600 hover:text-primary-800 transition">
+                    <i class="fas fa-search mr-1"></i> View unassigned referrals
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts Row 1 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Status Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referral Status Distribution</h2>
+            <div class="h-64">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Priority Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referral Priority Distribution</h2>
+            <div class="h-64">
+                <canvas id="priorityChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Trend -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Monthly Referral Trend</h2>
+        <div class="h-80">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Charts Row 2 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <!-- Agency Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referrals by Agency</h2>
+            <div class="h-64">
+                <canvas id="agencyChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Category Distribution -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Referrals by Service Category</h2>
+            <div class="h-64">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Top Services -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Top Requested Services</h2>
+            <a href="{% url 'staff_analytics_services' %}" class="text-primary-600 hover:text-primary-800 transition">
+                View all services <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Service
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Agency
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Referrals
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for service in top_services %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ service.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ service.agency__name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <span class="bg-primary-100 text-primary-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    {{ service.referral_count }}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-4 text-sm text-gray-500 text-center">
+                            No services data available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Staff Performance -->
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold text-gray-800">Staff Performance</h2>
+            <a href="{% url 'staff_analytics_performance' %}" class="text-primary-600 hover:text-primary-800 transition">
+                View detailed metrics <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Staff Member
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Assigned
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Completed
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Completion Rate
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Avg. Time
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for staff in staff_stats %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            {{ staff.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ staff.assigned_count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {{ staff.completed_count }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mr-2 max-w-[100px]">
+                                    <div class="bg-primary-600 h-2.5 rounded-full" style="width: {{ staff.completion_rate }}%"></div>
+                                </div>
+                                <span class="text-sm text-gray-600">{{ staff.completion_rate|floatformat:1 }}%</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                            {% if staff.avg_completion_days %}
+                                {{ staff.avg_completion_days|floatformat:1 }} days
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-sm text-gray-500 text-center">
+                            No staff performance data available
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Status Chart
+        const statusCanvas = document.getElementById('statusChart');
+        const statusData = {
+            labels: [
+                {% for status, name in status_choices %}
+                    '{{ name }}',
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Referrals by Status',
+                data: [
+                    {% for status, name in status_choices %}
+                        {{ status_counts|get_item:status }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    '#4F46E5', // submitted
+                    '#10B981', // reviewing
+                    '#F59E0B', // processing
+                    '#F97316', // referred
+                    '#22C55E', // approved
+                    '#3B82F6', // completed
+                    '#EF4444', // denied
+                    '#6B7280', // cancelled
+                    '#9CA3AF', // draft
+                ],
+                hoverOffset: 4
+            }]
+        };
+        
+        new Chart(statusCanvas, {
+            type: 'doughnut',
+            data: statusData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+        
+        // Priority Chart
+        const priorityCanvas = document.getElementById('priorityChart');
+        const priorityData = {
+            labels: ['Low', 'Medium', 'High', 'Urgent'],
+            datasets: [{
+                label: 'Referrals by Priority',
+                data: [
+                    {{ priority_counts.low }},
+                    {{ priority_counts.medium }},
+                    {{ priority_counts.high }},
+                    {{ priority_counts.urgent }}
+                ],
+                backgroundColor: [
+                    '#22C55E', // low
+                    '#F59E0B', // medium
+                    '#F97316', // high
+                    '#EF4444', // urgent
+                ],
+                hoverOffset: 4
+            }]
+        };
+        
+        new Chart(priorityCanvas, {
+            type: 'pie',
+            data: priorityData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    }
+                }
+            }
+        });
+        
+        // Monthly Chart
+        const monthlyCanvas = document.getElementById('monthlyChart');
+        const monthlyData = {
+            labels: {{ monthly_labels|safe }},
+            datasets: [{
+                label: 'Referrals',
+                data: {{ monthly_data|safe }},
+                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                borderColor: 'rgba(16, 185, 129, 1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        };
+        
+        new Chart(monthlyCanvas, {
+            type: 'line',
+            data: monthlyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Agency Chart
+        const agencyCanvas = document.getElementById('agencyChart');
+        const agencyLabels = [
+            {% for agency in agency_data %}
+                '{{ agency.name }}',
+            {% endfor %}
+        ];
+        const agencyValues = [
+            {% for agency in agency_data %}
+                {{ agency.referral_count }},
+            {% endfor %}
+        ];
+        
+        const agencyData = {
+            labels: agencyLabels,
+            datasets: [{
+                label: 'Referrals by Agency',
+                data: agencyValues,
+                backgroundColor: [
+                    'rgba(79, 70, 229, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                ]
+            }]
+        };
+        
+        new Chart(agencyCanvas, {
+            type: 'bar',
+            data: agencyData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Category Chart
+        const categoryCanvas = document.getElementById('categoryChart');
+        const categoryLabels = [
+            {% for category in category_data %}
+                '{{ category.name }}',
+            {% endfor %}
+        ];
+        const categoryValues = [
+            {% for category in category_data %}
+                {{ category.referral_count }},
+            {% endfor %}
+        ];
+        
+        const categoryData = {
+            labels: categoryLabels,
+            datasets: [{
+                label: 'Referrals by Category',
+                data: categoryValues,
+                backgroundColor: [
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(79, 70, 229, 0.8)',
+                    'rgba(245, 158, 11, 0.8)',
+                    'rgba(239, 68, 68, 0.8)',
+                    'rgba(59, 130, 246, 0.8)',
+                ]
+            }]
+        };
+        
+        new Chart(categoryCanvas, {
+            type: 'bar',
+            data: categoryData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,195 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Government Services{% if selected_category %} - {{ selected_category.name }}{% endif %}{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Government Services{% if selected_category %}: {{ selected_category.name }}{% endif %}</h1>
+            <p class="text-xl text-white/90">Find information on government services and request referrals through the #FahanieCares program</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            {% if selected_category %}
+                <a href="{% url 'service_list' %}" class="hover:text-primary-600 transition">Services</a>
+                <i class="fas fa-chevron-right text-xs mx-2"></i>
+                <span class="text-gray-800 font-medium">{{ selected_category.name }}</span>
+            {% else %}
+                <span class="text-gray-800 font-medium">Services</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Search</h2>
+            <form method="get" action="{% url 'service_list' %}">
+                <div class="relative">
+                    <input type="text" name="q" value="{{ search_query }}" placeholder="Search services..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <button type="submit" class="absolute right-2 top-2 text-gray-500">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Categories</h2>
+            <ul class="space-y-2">
+                <li>
+                    <a href="{% url 'service_list' %}" class="{% if not selected_category %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                        All Services
+                    </a>
+                </li>
+                {% for category in categories %}
+                <li>
+                    <a href="{% url 'service_list_by_category' category.slug %}" class="{% if selected_category.slug == category.slug %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                        {{ category.name }}
+                    </a>
+                    {% if category.subcategories.exists %}
+                    <ul class="ml-4 mt-2 space-y-1">
+                        {% for subcategory in category.subcategories.all %}
+                        <li>
+                            <a href="{% url 'service_list_by_category' subcategory.slug %}" class="text-sm {% if selected_category.slug == subcategory.slug %}font-medium text-primary-600{% else %}text-gray-600 hover:text-primary-600{% endif %} transition">
+                                {{ subcategory.name }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mt-6">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Need Assistance?</h2>
+            <p class="text-gray-600 mb-4">Our team can help you navigate government services and provide personalized assistance.</p>
+            <a href="#" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition text-center block">Contact Us</a>
+        </div>
+    </div>
+    
+    <!-- Services -->
+    <div class="lg:col-span-3">
+        {% if search_query %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <p class="text-gray-600">
+                <span class="font-medium">Search results for:</span> "{{ search_query }}"
+                <a href="{% url 'service_list' %}" class="text-primary-600 ml-2 hover:underline">Clear search</a>
+            </p>
+        </div>
+        {% endif %}
+        
+        {% if services %}
+        <div class="grid md:grid-cols-2 gap-6" x-data="staggerAnimation({staggerDelay: 120})">
+            {% for service in services %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up hover-lift focus-ring" 
+                 tabindex="0"
+                 x-data="hoverAnimation()">
+                <div class="border-b border-gray-100 bg-gray-50 py-2 px-4 transition-colors duration-300"
+                     :class="{ 'bg-primary-50': isHovered }"
+                     @mouseenter="mouseenter()"
+                     @mouseleave="mouseleave()">
+                    <span class="text-sm font-medium text-gray-600">{{ service.agency.name }}</span>
+                </div>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-2">{{ service.name }}</h3>
+                        {% if service.category.icon %}
+                        <div class="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center text-primary-600 transition-transform duration-300"
+                             :class="{ 'scale-110': isHovered }">
+                            <i class="{{ service.category.icon }}"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <p class="text-gray-600 mb-4">{{ service.description|truncatewords:20 }}</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-4 transition-colors duration-300">
+                        <i class="fas fa-tag mr-2 transition-colors duration-300" :class="{ 'text-primary-600': isHovered }"></i>
+                        <span>{{ service.category.name }}</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-2">
+                        <a href="{% url 'service_detail' service.slug %}" class="text-primary-600 hover:text-primary-800 font-medium group transition-all duration-300">
+                            View Details
+                        </a>
+                        <a href="{% url 'referral_create' service.slug %}" class="bg-primary-600 text-white px-3 py-1 rounded-md text-sm hover:bg-primary-700 transition-all duration-300 hover-scale">
+                            Request Referral
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="flex justify-center mt-10">
+            <nav class="inline-flex rounded-md shadow-sm">
+                {% if page_obj.has_previous %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.previous_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+                
+                {% for i in paginator.page_range %}
+                    {% if i == page_obj.number %}
+                    <a href="#" class="px-3 py-2 text-white bg-primary-600 border border-primary-600">{{ i }}</a>
+                    {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                    <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ i }}" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">{{ i }}</a>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <a href="?{% if search_query %}q={{ search_query }}&{% endif %}page={{ page_obj.next_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 text-center">
+            <div class="text-gray-400 text-5xl mb-4">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-800 mb-2">No Services Found</h3>
+            <p class="text-gray-600 mb-4">
+                {% if search_query %}
+                No services matching "{{ search_query }}" were found. Please try a different search term.
+                {% else %}
+                There are no services available in this category at the moment.
+                {% endif %}
+            </p>
+            <a href="{% url 'service_list' %}" class="text-primary-600 hover:text-primary-800 font-medium">View All Services</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<section class="py-12 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Need Help Finding the Right Service?</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">Our team can assist you in navigating government services and connecting you with the right resources.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#" class="bg-white text-primary-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition inline-block">Schedule a Consultation</a>
+            <a href="#" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-md font-medium hover:bg-white/10 transition inline-block">Contact Support</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

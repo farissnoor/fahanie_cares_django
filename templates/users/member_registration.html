@@ -1,0 +1,194 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Become a #FahanieCares Member{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Become a #FahanieCares Member</h1>
+            <p class="text-xl text-white/90">Join our community and gain access to exclusive programs and services</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'programs' %}" class="hover:text-primary-600 transition">Programs</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Member Registration</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-center text-slate-800 mb-6">Upgrade to Member Status</h2>
+        
+        <div class="bg-primary-50 p-6 rounded-lg border border-primary-100 mb-8">
+            <div class="flex items-start">
+                <div class="text-primary-600 text-xl mr-4 mt-1">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-primary-800 mb-2">Why Become a Member?</h3>
+                    <p class="text-gray-700 mb-2">As a #FahanieCares member, you'll enjoy these benefits:</p>
+                    <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                        <li>Access to all #FahanieCares programs and services</li>
+                        <li>Priority application for assistance programs</li>
+                        <li>Invitations to exclusive events and workshops</li>
+                        <li>Monthly newsletter with updates on parliamentary activities</li>
+                        <li>Opportunity to join your local chapter</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="id_first_name">
+                        First Name
+                    </label>
+                    <input type="text" name="first_name" id="id_first_name" value="{{ form.initial.first_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>
+                    {% if form.first_name.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="id_last_name">
+                        Last Name
+                    </label>
+                    <input type="text" name="last_name" id="id_last_name" value="{{ form.initial.last_name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>
+                    {% if form.last_name.errors %}
+                        <p class="text-red-600 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="id_email">
+                    Email Address
+                </label>
+                <input type="email" name="email" id="id_email" value="{{ form.initial.email }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>
+                {% if form.email.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="id_phone_number">
+                    Phone Number
+                </label>
+                <input type="tel" name="phone_number" id="id_phone_number" value="{{ form.initial.phone_number }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>
+                {% if form.phone_number.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.phone_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="id_address">
+                    Address
+                </label>
+                <textarea name="address" id="id_address" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>{{ form.initial.address }}</textarea>
+                {% if form.address.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.address.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="id_municipality">
+                    Municipality
+                </label>
+                <select name="municipality" id="id_municipality" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required>
+                    <option value="">Select your municipality</option>
+                    <option value="Municipality 1" {% if form.initial.municipality == 'Municipality 1' %}selected{% endif %}>Municipality 1</option>
+                    <option value="Municipality 2" {% if form.initial.municipality == 'Municipality 2' %}selected{% endif %}>Municipality 2</option>
+                    <option value="Municipality 3" {% if form.initial.municipality == 'Municipality 3' %}selected{% endif %}>Municipality 3</option>
+                    <option value="Municipality 4" {% if form.initial.municipality == 'Municipality 4' %}selected{% endif %}>Municipality 4</option>
+                </select>
+                {% if form.municipality.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.municipality.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        <input id="id_terms" name="terms" type="checkbox" class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" required>
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="id_terms" class="text-gray-700">
+                            I agree to the <a href="#" class="text-primary-600 hover:text-primary-800">Member Terms & Conditions</a> and <a href="#" class="text-primary-600 hover:text-primary-800">Privacy Policy</a>
+                        </label>
+                    </div>
+                </div>
+                {% if form.terms.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.terms.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    Upgrade to Member
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="mt-8 grid md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-primary-600 text-3xl mb-4">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-800 mb-2">Member Events</h3>
+            <p class="text-gray-600 mb-3">Exclusive access to workshops, seminars, and community events organized by #FahanieCares.</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-primary-600 text-3xl mb-4">
+                <i class="fas fa-handshake"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-800 mb-2">Priority Assistance</h3>
+            <p class="text-gray-600 mb-3">Members receive priority processing for all assistance programs and referral requests.</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+            <div class="text-primary-600 text-3xl mb-4">
+                <i class="fas fa-users"></i>
+            </div>
+            <h3 class="text-lg font-semibold text-slate-800 mb-2">Join Your Chapter</h3>
+            <p class="text-gray-600 mb-3">Become part of your local #FahanieCares chapter and engage with community initiatives.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<!-- CTA Section -->
+<section class="py-12 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Questions About Membership?</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">Our team is here to assist you with any questions about #FahanieCares membership and benefits.</p>
+        <a href="#" class="bg-white text-primary-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition inline-block">Contact Support</a>
+    </div>
+</section>
+{% endblock %}

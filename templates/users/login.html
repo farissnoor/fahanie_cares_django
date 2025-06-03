@@ -1,0 +1,163 @@
+{% extends 'base/base.html' %} {% block title %}Log In -
+#FahanieCares{%endblock%} {% block content %}
+<div class="max-w-md mx-auto">
+  <div class="bg-white rounded-lg shadow-md p-8 border border-gray-100">
+    <h1 class="text-2xl font-bold text-center text-slate-800 mb-6">
+      Log In to #FahanieCares
+    </h1>
+
+    <form method="post">
+      {% csrf_token %} {% if form.non_field_errors %}
+      <div
+        class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4"
+      >
+        {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div class="mb-4">
+        <label
+          class="block text-gray-700 text-sm font-medium mb-2"
+          for="id_username"
+        >
+          Username or Email
+        </label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+          required
+        />
+        {% if form.username.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div class="mb-6">
+        <label
+          class="block text-gray-700 text-sm font-medium mb-2"
+          for="id_password"
+        >
+          Password
+        </label>
+        <div class="relative">
+          <input
+            type="password"
+            name="password"
+            id="id_password"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent pr-10"
+            required
+          />
+          <span
+            class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
+            id="togglePassword"
+          >
+            <i class="far fa-eye"></i>
+          </span>
+        </div>
+        {% if form.password.errors %}
+        <p class="text-red-600 text-sm mt-1">{{ form.password.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center">
+          <input
+            id="remember_me"
+            name="remember_me"
+            type="checkbox"
+            class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+          />
+          <label for="remember_me" class="ml-2 block text-sm text-gray-700">
+            Remember me
+          </label>
+        </div>
+
+        <div class="text-sm">
+          <a
+            href="{% url 'password_reset' %}"
+            class="text-primary-600 hover:text-primary-800"
+          >
+            Forgot your password?
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <button
+          type="submit"
+          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+        >
+          Sign in
+        </button>
+      </div>
+    </form>
+
+    <div class="mt-6">
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500"> Or continue with </span>
+        </div>
+      </div>
+
+      <div class="mt-6 grid grid-cols-2 gap-3">
+        <div>
+          <a
+            href="#"
+            class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <i class="fab fa-facebook-f mr-2 text-blue-600"></i>
+            Facebook
+          </a>
+        </div>
+        <div>
+          <a
+            href="#"
+            class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <i class="fab fa-google mr-2 text-red-600"></i>
+            Google
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center mt-6">
+      <p class="text-sm text-gray-600">
+        Don't have an account?
+        <a
+          href="{% url 'register' %}"
+          class="text-primary-600 hover:text-primary-800 font-medium"
+        >
+          Register now
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("id_password");
+
+    if (togglePassword && passwordInput) {
+      togglePassword.addEventListener("click", function () {
+        const type =
+          passwordInput.getAttribute("type") === "password"
+            ? "text"
+            : "password";
+        passwordInput.setAttribute("type", type);
+        this.querySelector("i").classList.toggle("fa-eye");
+        this.querySelector("i").classList.toggle("fa-eye-slash");
+      });
+    }
+  });
+</script>
+{% endblock %}

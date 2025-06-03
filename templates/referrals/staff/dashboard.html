@@ -1,0 +1,632 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Staff Dashboard - Referrals{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Staff Referral Dashboard</h1>
+                    <p class="text-lg text-white/90">Manage and process constituent service referrals</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="{% url 'staff_analytics_dashboard' %}" class="bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition">
+                        <i class="fas fa-chart-line mr-2"></i> Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Staff Dashboard</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Status Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Status</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}" class="{% if not selected_status %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>All Referrals</span>
+                            <span class="text-gray-500">{{ status_counts.all }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=submitted" class="{% if selected_status == 'submitted' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Submitted</span>
+                            <span class="text-gray-500">{{ status_counts.submitted }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=reviewing" class="{% if selected_status == 'reviewing' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Under Review</span>
+                            <span class="text-gray-500">{{ status_counts.reviewing }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=processing" class="{% if selected_status == 'processing' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Processing</span>
+                            <span class="text-gray-500">{{ status_counts.processing }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=referred" class="{% if selected_status == 'referred' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Referred to Agency</span>
+                            <span class="text-gray-500">{{ status_counts.referred }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=completed" class="{% if selected_status == 'completed' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Completed</span>
+                            <span class="text-gray-500">{{ status_counts.completed }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?status=denied" class="{% if selected_status == 'denied' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition flex justify-between">
+                            <span>Denied</span>
+                            <span class="text-gray-500">{{ status_counts.denied }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Priority Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Priority</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?sort_by=priority_high" class="text-gray-700 hover:text-primary-600 transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-red-500 rounded-full mr-2"></span>
+                                Urgent
+                            </span>
+                            <span class="text-gray-500">{{ priority_counts.urgent }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?sort_by=priority_high" class="text-gray-700 hover:text-primary-600 transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-orange-500 rounded-full mr-2"></span>
+                                High
+                            </span>
+                            <span class="text-gray-500">{{ priority_counts.high }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?sort_by=priority_high" class="text-gray-700 hover:text-primary-600 transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-yellow-500 rounded-full mr-2"></span>
+                                Medium
+                            </span>
+                            <span class="text-gray-500">{{ priority_counts.medium }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?sort_by=priority_high" class="text-gray-700 hover:text-primary-600 transition flex justify-between">
+                            <span class="flex items-center">
+                                <span class="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
+                                Low
+                            </span>
+                            <span class="text-gray-500">{{ priority_counts.low }}</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Assignment Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Assignment</h2>
+                
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?assigned_to=unassigned" class="{% if selected_assigned_to == 'unassigned' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                            Unassigned
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?assigned_to=me" class="{% if selected_assigned_to == 'me' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                            Assigned to Me
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Follow-up Alerts -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <h2 class="text-lg font-semibold text-slate-800 mb-4">Follow-up Alerts</h2>
+                
+                <ul class="space-y-3">
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?follow_up=today" class="flex justify-between {% if selected_follow_up == 'today' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                            <span class="flex items-center">
+                                <i class="fas fa-calendar-day mr-2 text-red-500"></i>
+                                Today
+                            </span>
+                            {% if follow_up_counts.today > 0 %}
+                            <span class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ follow_up_counts.today }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?follow_up=overdue" class="flex justify-between {% if selected_follow_up == 'overdue' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                            <span class="flex items-center">
+                                <i class="fas fa-exclamation-circle mr-2 text-orange-500"></i>
+                                Overdue
+                            </span>
+                            {% if follow_up_counts.overdue > 0 %}
+                            <span class="bg-orange-100 text-orange-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ follow_up_counts.overdue }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'staff_dashboard' %}?follow_up=this_week" class="flex justify-between {% if selected_follow_up == 'this_week' %}font-medium text-primary-600{% else %}text-gray-700 hover:text-primary-600{% endif %} transition">
+                            <span class="flex items-center">
+                                <i class="fas fa-calendar-week mr-2 text-blue-500"></i>
+                                This Week
+                            </span>
+                            {% if follow_up_counts.this_week > 0 %}
+                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                {{ follow_up_counts.this_week }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Quick Insights -->
+            <div class="bg-primary-50 rounded-lg p-5 border border-primary-100">
+                <h2 class="text-lg font-semibold text-primary-800 mb-4">Quick Insights</h2>
+                
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center p-2 bg-white rounded shadow-sm">
+                        <span class="text-sm">Avg. Response Time</span>
+                        <span class="font-medium">
+                            {% if avg_response_time %}
+                                {{ avg_response_time|floatformat:1 }} days
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="flex justify-between items-center p-2 bg-white rounded shadow-sm">
+                        <span class="text-sm">Avg. Completion Time</span>
+                        <span class="font-medium">
+                            {% if completion_stats.overall_avg_days %}
+                                {{ completion_stats.overall_avg_days|floatformat:1 }} days
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </li>
+                    <li class="flex justify-between items-center p-2 bg-white rounded shadow-sm">
+                        <span class="text-sm">Completed This Month</span>
+                        <span class="font-medium">
+                            {{ completed_this_month|default:"0" }}
+                        </span>
+                    </li>
+                </ul>
+                
+                <div class="mt-4 text-center">
+                    <a href="{% url 'staff_analytics_dashboard' %}" class="inline-flex items-center text-primary-600 hover:text-primary-800 font-medium text-sm">
+                        <i class="fas fa-chart-line mr-1"></i>
+                        View Full Analytics
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="lg:col-span-4">
+            <!-- Filters and Search -->
+            <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-100 mb-6">
+                <form method="get" action="{% url 'staff_dashboard' %}" class="space-y-6">
+                    <!-- Basic Search -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="q">
+                                Search
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="q" name="q" value="{{ search_query }}" placeholder="Reference, name, service..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <button type="submit" class="absolute right-2 top-2 text-gray-500">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-gray-700 text-sm font-medium mb-2" for="sort_by">
+                                Sort By
+                            </label>
+                            <select id="sort_by" name="sort_by" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                <option value="-created_at" {% if sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                                <option value="created_at" {% if sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                                <option value="-updated_at" {% if sort_by == '-updated_at' %}selected{% endif %}>Recently Updated</option>
+                                <option value="reference_number" {% if sort_by == 'reference_number' %}selected{% endif %}>Reference Number</option>
+                                <option value="constituent__first_name" {% if sort_by == 'constituent__first_name' %}selected{% endif %}>Constituent Name (A-Z)</option>
+                                <option value="service__name" {% if sort_by == 'service__name' %}selected{% endif %}>Service Name (A-Z)</option>
+                                <option value="service__agency__name" {% if sort_by == 'service__agency__name' %}selected{% endif %}>Agency Name (A-Z)</option>
+                                <option value="status" {% if sort_by == 'status' %}selected{% endif %}>Status</option>
+                                <option value="priority" {% if sort_by == 'priority' %}selected{% endif %}>Priority (Low to High)</option>
+                                <option value="priority_high" {% if sort_by == 'priority_high' %}selected{% endif %}>Priority (High to Low)</option>
+                                <option value="follow_up_date" {% if sort_by == 'follow_up_date' %}selected{% endif %}>Follow-up Date (Earliest First)</option>
+                                <option value="-follow_up_date" {% if sort_by == '-follow_up_date' %}selected{% endif %}>Follow-up Date (Latest First)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Advanced Search Toggle -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <button type="button" id="toggleAdvanced" class="flex items-center text-primary-600 hover:text-primary-800 transition">
+                            <i class="fas fa-sliders-h mr-2"></i>
+                            <span id="advancedText">Show Advanced Filters</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Advanced Filters (hidden by default) -->
+                    <div id="advancedFilters" class="hidden">
+                        <!-- Hidden fields to preserve status if from sidebar -->
+                        {% if selected_status %}
+                        <input type="hidden" name="status" value="{{ selected_status }}">
+                        {% endif %}
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- First Column -->
+                            <div class="space-y-4">
+                                <!-- Status filter if not from sidebar -->
+                                {% if not selected_status %}
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="status">
+                                        Status
+                                    </label>
+                                    <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Status</option>
+                                        {% for status_value, status_label in status_choices %}
+                                        <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- Priority -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="priority">
+                                        Priority
+                                    </label>
+                                    <select id="priority" name="priority" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Priority</option>
+                                        {% for priority_value, priority_label in priority_choices %}
+                                        <option value="{{ priority_value }}" {% if selected_priority == priority_value %}selected{% endif %}>{{ priority_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Assigned To -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="assigned_to">
+                                        Assigned To
+                                    </label>
+                                    <select id="assigned_to" name="assigned_to" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Staff</option>
+                                        <option value="unassigned" {% if selected_assigned_to == 'unassigned' %}selected{% endif %}>Unassigned</option>
+                                        <option value="me" {% if selected_assigned_to == 'me' %}selected{% endif %}>Me</option>
+                                        {% for staff in staff_users %}
+                                        <option value="{{ staff.id }}" {% if selected_assigned_to == staff.id|stringformat:"s" %}selected{% endif %}>{{ staff.get_full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Second Column -->
+                            <div class="space-y-4">
+                                <!-- Agency -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="agency">
+                                        Agency
+                                    </label>
+                                    <select id="agency" name="agency" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">All Agencies</option>
+                                        {% for agency in agencies %}
+                                        <option value="{{ agency.id }}" {% if selected_agency == agency.id|stringformat:"s" %}selected{% endif %}>{{ agency.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Service Category -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="category">
+                                        Service Category
+                                    </label>
+                                    <select id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">All Categories</option>
+                                        {% for category in categories %}
+                                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                                        {% endfor %}
+                                        {% if subcategories %}
+                                        <optgroup label="Sub-categories">
+                                            {% for subcategory in subcategories %}
+                                            <option value="{{ subcategory.id }}" {% if selected_category == subcategory.id|stringformat:"s" %}selected{% endif %}>{{ subcategory.parent.name }} - {{ subcategory.name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endif %}
+                                    </select>
+                                </div>
+                                
+                                <!-- Follow Up -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2" for="follow_up">
+                                        Follow-up Date
+                                    </label>
+                                    <select id="follow_up" name="follow_up" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        <option value="">Any Date</option>
+                                        <option value="today" {% if selected_follow_up == 'today' %}selected{% endif %}>Today ({{ follow_up_counts.today }})</option>
+                                        <option value="overdue" {% if selected_follow_up == 'overdue' %}selected{% endif %}>Overdue ({{ follow_up_counts.overdue }})</option>
+                                        <option value="this_week" {% if selected_follow_up == 'this_week' %}selected{% endif %}>This Week ({{ follow_up_counts.this_week }})</option>
+                                        <option value="upcoming" {% if selected_follow_up == 'upcoming' %}selected{% endif %}>All Upcoming</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Third Column -->
+                            <div class="space-y-4">
+                                <!-- Date Range Fields -->
+                                <div>
+                                    <label class="block text-gray-700 text-sm font-medium mb-2">
+                                        Date Range
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label class="block text-gray-700 text-xs mb-1" for="date_from">From</label>
+                                            <input type="date" id="date_from" name="date_from" value="{{ date_from }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        </div>
+                                        <div>
+                                            <label class="block text-gray-700 text-xs mb-1" for="date_to">To</label>
+                                            <input type="date" id="date_to" name="date_to" value="{{ date_to }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Buttons -->
+                    <div class="flex justify-end pt-4">
+                        <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition">
+                            Apply Filters
+                        </button>
+                        
+                        {% if request.GET %}
+                        <a href="{% url 'staff_dashboard' %}" class="ml-2 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition">
+                            Clear Filters
+                        </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+            
+            <script>
+                // Toggle advanced filters
+                document.addEventListener('DOMContentLoaded', function() {
+                    const toggleBtn = document.getElementById('toggleAdvanced');
+                    const advancedFilters = document.getElementById('advancedFilters');
+                    const advancedText = document.getElementById('advancedText');
+                    
+                    // Check if any advanced filters are already set
+                    const hasAdvancedFilters = {{ selected_status|yesno:"true," }}{{ selected_priority|yesno:"true," }}{{ selected_agency|yesno:"true," }}{{ selected_category|yesno:"true," }}{{ selected_assigned_to|yesno:"true," }}{{ selected_follow_up|yesno:"true," }}{{ date_from|yesno:"true," }}{{ date_to|yesno:"true,false" }};
+                    
+                    if (hasAdvancedFilters) {
+                        advancedFilters.classList.remove('hidden');
+                        advancedText.textContent = 'Hide Advanced Filters';
+                    }
+                    
+                    toggleBtn.addEventListener('click', function() {
+                        advancedFilters.classList.toggle('hidden');
+                        
+                        if (advancedFilters.classList.contains('hidden')) {
+                            advancedText.textContent = 'Show Advanced Filters';
+                        } else {
+                            advancedText.textContent = 'Hide Advanced Filters';
+                        }
+                    });
+                });
+            </script>
+            
+            <!-- Referrals Table -->
+            {% if referrals %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-100 mb-6 overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Reference
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Constituent
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Service
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Priority
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Assigned To
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for referral in referrals %}
+                        <tr class="{% cycle '' 'bg-gray-50' %}">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary-600">
+                                <a href="{% url 'staff_referral_detail' referral.reference_number %}" class="hover:underline">
+                                    {{ referral.reference_number }}
+                                </a>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ referral.constituent.get_full_name }}
+                                <div class="text-xs text-gray-500">{{ referral.constituent.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ referral.service.name }}
+                                <div class="text-xs text-gray-500">{{ referral.service.agency.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {{ referral.created_at|date:"M d, Y" }}
+                                <div class="text-xs text-gray-500">{{ referral.created_at|time:"h:i A" }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if referral.status == 'completed' %}
+                                        bg-green-100 text-green-800
+                                    {% elif referral.status == 'denied' %}
+                                        bg-red-100 text-red-800
+                                    {% elif referral.status == 'draft' %}
+                                        bg-gray-100 text-gray-800
+                                    {% elif referral.status == 'submitted' %}
+                                        bg-blue-100 text-blue-800
+                                    {% elif referral.status == 'reviewing' %}
+                                        bg-purple-100 text-purple-800
+                                    {% elif referral.status == 'processing' %}
+                                        bg-yellow-100 text-yellow-800
+                                    {% elif referral.status == 'referred' %}
+                                        bg-orange-100 text-orange-800
+                                    {% else %}
+                                        bg-gray-100 text-gray-800
+                                    {% endif %}
+                                ">
+                                    {{ referral.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="flex items-center text-sm">
+                                    <span class="h-2 w-2 rounded-full mr-2
+                                        {% if referral.priority == 'urgent' %}
+                                            bg-red-500
+                                        {% elif referral.priority == 'high' %}
+                                            bg-orange-500
+                                        {% elif referral.priority == 'medium' %}
+                                            bg-yellow-500
+                                        {% elif referral.priority == 'low' %}
+                                            bg-green-500
+                                        {% endif %}
+                                    "></span>
+                                    {{ referral.get_priority_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {% if referral.assigned_to %}
+                                    {{ referral.assigned_to.get_full_name }}
+                                {% else %}
+                                    <span class="text-gray-400">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{% url 'staff_referral_detail' referral.reference_number %}" class="text-primary-600 hover:text-primary-800">
+                                    View
+                                </a>
+                                
+                                {% if not referral.assigned_to %}
+                                <form method="post" action="{% url 'staff_assign_to_me' referral.reference_number %}" class="inline ml-3">
+                                    {% csrf_token %}
+                                    <button type="submit" class="text-primary-600 hover:text-primary-800">
+                                        Assign to Me
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="flex justify-center">
+                <nav class="inline-flex rounded-md shadow-sm">
+                    {% if page_obj.has_previous %}
+                    <a href="?{{ filter_params.urlencode }}&page={{ page_obj.previous_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if i == page_obj.number %}
+                        <a href="#" class="px-3 py-2 text-white bg-primary-600 border border-primary-600">{{ i }}</a>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <a href="?{{ filter_params.urlencode }}&page={{ i }}" class="px-3 py-2 text-gray-700 bg-white border border-gray-300 hover:bg-gray-50">{{ i }}</a>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <a href="?{{ filter_params.urlencode }}&page={{ page_obj.next_page_number }}" class="px-3 py-2 text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 text-center">
+                <div class="text-gray-400 text-5xl mb-4">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-800 mb-2">No Referrals Found</h3>
+                <p class="text-gray-600 mb-4">
+                    {% if request.GET %}
+                    No referrals match your current filters. Try different filter criteria or clear all filters.
+                    {% else %}
+                    There are no referrals in the system yet.
+                    {% endif %}
+                </p>
+                
+                {% if request.GET %}
+                <a href="{% url 'staff_dashboard' %}" class="text-primary-600 hover:text-primary-800 font-medium">
+                    Clear Filters
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Staff Dashboard -->
+{% endblock %}

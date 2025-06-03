@@ -1,0 +1,82 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Search History - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold">Search History</h1>
+        {% if search_history %}
+        <form method="post" action="{% url 'search:clear_search_history' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger"
+                    onclick="return confirm('Are you sure you want to clear your search history?')">
+                <i class="fas fa-trash mr-2"></i>Clear History
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    
+    {% if search_history %}
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Search Query
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Module
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Results
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Time
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for search in search_history %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {{ search.query|default:"All" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            {{ search.get_module_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ search.result_count }} result{{ search.result_count|pluralize }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ search.created_at|date:"M d, Y g:i A" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <a href="{% url 'search:search' %}?query={{ search.query }}&module={{ search.module }}" 
+                           class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-redo mr-1"></i>Repeat
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+        <i class="fas fa-history text-gray-400 text-5xl mb-4"></i>
+        <p class="text-xl text-gray-600">No search history</p>
+        <p class="text-gray-500 mt-2">Your search history will appear here</p>
+        <a href="{% url 'search:search' %}" class="btn btn-primary mt-4">
+            <i class="fas fa-search mr-2"></i>Start Searching
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

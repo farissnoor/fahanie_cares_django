@@ -1,0 +1,258 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Staff Management Dashboard - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--color-primary-600);
+    }
+    .stat-label {
+        color: var(--color-gray-500);
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .attendance-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .status-present { background-color: #d1fae5; color: #065f46; }
+    .status-absent { background-color: #fee2e2; color: #991b1b; }
+    .status-late { background-color: #fef3c7; color: #92400e; }
+    .status-leave { background-color: #e0e7ff; color: #3730a3; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-primary-800">Staff Management Dashboard</h1>
+            <p class="text-gray-600 mt-1">Overview of staff, teams, and attendance</p>
+        </div>
+        <div class="flex gap-3">
+            {% include 'components/atoms/button.html' with variant='primary' text='View All Staff' href='/staff/list/' %}
+            {% include 'components/atoms/button.html' with variant='success' text='Track Attendance' href='/staff/attendance/' %}
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Staff -->
+        <div class="stat-card">
+            <div class="stat-number">{{ total_staff }}</div>
+            <div class="stat-label">Total Active Staff</div>
+        </div>
+
+        <!-- Active Teams -->
+        <div class="stat-card">
+            <div class="stat-number">{{ active_teams }}</div>
+            <div class="stat-label">Active Teams</div>
+        </div>
+
+        <!-- Today's Attendance -->
+        <div class="stat-card">
+            <div class="stat-number">{{ attendance_summary.present }}</div>
+            <div class="stat-label">Present Today</div>
+        </div>
+
+        <!-- On Leave -->
+        <div class="stat-card">
+            <div class="stat-number">{{ attendance_summary.on_leave }}</div>
+            <div class="stat-label">On Leave Today</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Division Statistics -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold mb-4">Staff by Division</h3>
+            <div class="space-y-3">
+                {% for division in division_stats %}
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium">
+                        {% if division.division %}
+                            {% if division.division == 'legislative_affairs' %}
+                                Legislative Affairs
+                            {% elif division.division == 'administrative_affairs' %}
+                                Administrative Affairs
+                            {% elif division.division == 'communications' %}
+                                Communications
+                            {% elif division.division == 'it_unit' %}
+                                IT Unit
+                            {% elif division.division == 'mp_office' %}
+                                MP Uy-Oyod's Office
+                            {% else %}
+                                {{ division.division|title }}
+                            {% endif %}
+                        {% else %}
+                            Unassigned
+                        {% endif %}
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 bg-gray-200 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ division.count|mul:100|div:total_staff }}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">{{ division.count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Employment Status -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold mb-4">Employment Status</h3>
+            <div class="space-y-3">
+                {% for status in status_stats %}
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium">
+                        {% if status.employment_status %}
+                            {% if status.employment_status == 'contractual' %}
+                                Contractual
+                            {% elif status.employment_status == 'coterminous' %}
+                                Coterminous
+                            {% elif status.employment_status == 'consultant' %}
+                                Consultant
+                            {% elif status.employment_status == 'intern' %}
+                                Intern
+                            {% elif status.employment_status == 'volunteer' %}
+                                Volunteer
+                            {% else %}
+                                {{ status.employment_status|title }}
+                            {% endif %}
+                        {% else %}
+                            Unassigned
+                        {% endif %}
+                    </span>
+                    <div class="flex items-center gap-2">
+                        <div class="w-20 bg-gray-200 rounded-full h-2">
+                            <div class="bg-green-600 h-2 rounded-full" style="width: {{ status.count|mul:100|div:total_staff }}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-600">{{ status.count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <!-- Attendance Summary -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold mb-4">Today's Attendance Summary</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="text-center">
+                    <div class="attendance-status status-present text-lg mb-1">
+                        {{ attendance_summary.present }}
+                    </div>
+                    <div class="text-sm text-gray-600">Present</div>
+                </div>
+                <div class="text-center">
+                    <div class="attendance-status status-absent text-lg mb-1">
+                        {{ attendance_summary.absent }}
+                    </div>
+                    <div class="text-sm text-gray-600">Absent</div>
+                </div>
+                <div class="text-center">
+                    <div class="attendance-status status-late text-lg mb-1">
+                        {{ attendance_summary.late }}
+                    </div>
+                    <div class="text-sm text-gray-600">Late</div>
+                </div>
+                <div class="text-center">
+                    <div class="attendance-status status-leave text-lg mb-1">
+                        {{ attendance_summary.on_leave }}
+                    </div>
+                    <div class="text-sm text-gray-600">On Leave</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Hires -->
+        <div class="chart-container">
+            <h3 class="text-lg font-semibold mb-4">Recent Hires (Last 30 Days)</h3>
+            {% if recent_hires %}
+                <div class="space-y-3">
+                    {% for staff in recent_hires %}
+                    <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-b-0">
+                        <div>
+                            <div class="font-medium text-sm">{{ staff.full_name }}</div>
+                            <div class="text-xs text-gray-500">{{ staff.position }}</div>
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            {{ staff.date_hired|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-gray-500 text-center py-8">
+                    No new hires in the last 30 days
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8">
+        <h3 class="text-lg font-semibold mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'staff:sync_from_notion' %}" 
+               class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-center"
+               onclick="return confirm('This will sync staff data from Notion. Continue?')">
+                <div class="text-blue-600 mb-2">
+                    <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </div>
+                <div class="font-medium">Sync from Notion</div>
+                <div class="text-sm text-gray-500">Update staff data</div>
+            </a>
+
+            <a href="{% url 'staff:export_staff_csv' %}" 
+               class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-center">
+                <div class="text-green-600 mb-2">
+                    <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="font-medium">Export to CSV</div>
+                <div class="text-sm text-gray-500">Download staff data</div>
+            </a>
+
+            <a href="{% url 'staff:performance_overview' %}" 
+               class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-center">
+                <div class="text-purple-600 mb-2">
+                    <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div class="font-medium">Performance Overview</div>
+                <div class="text-sm text-gray-500">View evaluations</div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

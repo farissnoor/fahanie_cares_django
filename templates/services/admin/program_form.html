@@ -1,0 +1,622 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if form.instance.pk %}Edit Ministry Program{% else %}Add New Ministry Program{% endif %} - #FahanieCares
+{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">
+                {% if form.instance.pk %}Edit Ministry Program{% else %}Add New Ministry Program{% endif %}
+            </h1>
+            <p class="text-xl text-white/90">
+                {% if form.instance.pk %}Update program details and settings{% else %}Create a new ministry program with comprehensive details{% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'admin_dashboard' %}" class="hover:text-primary-600 transition">Admin Dashboard</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'program_list' %}" class="hover:text-primary-600 transition">Programs</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">
+                {% if form.instance.pk %}Edit Program{% else %}Add Program{% endif %}
+            </span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Action Buttons -->
+    <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'program_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Programs
+            </a>
+            {% if form.instance.pk %}
+            <a href="{% url 'program_detail' form.instance.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg transition flex items-center">
+                <i class="fas fa-eye mr-2"></i>View Program
+            </a>
+            {% endif %}
+        </div>
+        <div class="text-sm text-gray-600">
+            {% if form.instance.pk %}
+                Last updated: {{ form.instance.updated_at|date:"M d, Y g:i A" }}
+            {% else %}
+                <span class="text-green-600 font-medium">Creating new program</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Error Messages -->
+    {% if form.errors or form.non_field_errors %}
+    <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-lg mb-6">
+        <div class="flex items-center mb-3">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            <h3 class="font-medium text-red-800">Please correct the following errors:</h3>
+        </div>
+        {% if form.non_field_errors %}
+            {% for error in form.non_field_errors %}
+                <div class="mb-2">{{ error }}</div>
+            {% endfor %}
+        {% endif %}
+        {% for field in form %}
+            {% if field.errors %}
+                <div class="mb-2">
+                    <strong>{{ field.label }}:</strong>
+                    {% for error in field.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Success Messages -->
+    {% if messages %}
+        {% for message in messages %}
+        <div class="bg-{{ message.tags }}-50 border border-{{ message.tags }}-200 text-{{ message.tags }}-700 px-6 py-4 rounded-lg mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-{{ message.tags }}-500 mr-2"></i>
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" id="programForm" class="space-y-8">
+        {% csrf_token %}
+        
+        <!-- Program Overview Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                    <i class="fas fa-info-circle text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">Program Overview</h2>
+                    <p class="text-gray-600">Basic information about the ministry program</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.code.id_for_label }}">
+                        Program Code <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.code }}
+                    <p class="text-gray-500 text-xs mt-1">Unique identifier (e.g., MSSD-2024-001)</p>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.ministry.id_for_label }}">
+                        Ministry <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.ministry }}
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.ppa_type.id_for_label }}">
+                        PPA Type <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.ppa_type }}
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.status.id_for_label }}">
+                        Status <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.status }}
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.priority_level.id_for_label }}">
+                        Priority Level <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.priority_level }}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.title.id_for_label }}">
+                    Program Title <span class="text-red-500">*</span>
+                </label>
+                {{ form.title }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="titleCounter">0/300 characters</div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.description.id_for_label }}">
+                    Program Description <span class="text-red-500">*</span>
+                </label>
+                {{ form.description }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="descriptionCounter">0/2000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">Comprehensive description of the program's purpose and scope</p>
+            </div>
+        </div>
+
+        <!-- Implementation Details Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                    <i class="fas fa-cogs text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">Implementation Details</h2>
+                    <p class="text-gray-600">Timeline, target groups, and implementation strategy</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.start_date.id_for_label }}">
+                        Start Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.start_date }}
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.end_date.id_for_label }}">
+                        End Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.end_date }}
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.estimated_beneficiaries.id_for_label }}">
+                        Target Beneficiaries
+                    </label>
+                    {{ form.estimated_beneficiaries }}
+                    <p class="text-gray-500 text-xs mt-1">Number of individuals expected to benefit</p>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.funding_source.id_for_label }}">
+                        Funding Source <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.funding_source }}
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.geographic_coverage.id_for_label }}">
+                    Geographic Coverage
+                </label>
+                {{ form.geographic_coverage }}
+                <p class="text-gray-500 text-xs mt-1">Areas and locations where this program will be implemented</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.implementing_units.id_for_label }}">
+                    Implementing Units
+                </label>
+                {{ form.implementing_units }}
+                <p class="text-gray-500 text-xs mt-1">Responsible implementing units and offices</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.implementation_strategy.id_for_label }}">
+                    Implementation Strategy
+                </label>
+                {{ form.implementation_strategy }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="strategyCounter">0/2000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">Detailed approach and methodology for program implementation</p>
+            </div>
+        </div>
+
+        <!-- Budget Information Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                    <i class="fas fa-peso-sign text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">Budget Information</h2>
+                    <p class="text-gray-600">Financial allocation and budget details</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.total_budget.id_for_label }}">
+                        Total Budget <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.total_budget }}
+                    <p class="text-gray-500 text-xs mt-1">Total budget allocation in Philippine Pesos</p>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.allocated_budget.id_for_label }}">
+                        Allocated Budget
+                    </label>
+                    {{ form.allocated_budget }}
+                    <p class="text-gray-500 text-xs mt-1">Amount currently allocated for implementation</p>
+                </div>
+            </div>
+            
+            <!-- Budget Preview -->
+            <div class="mt-6 bg-primary-50 p-4 rounded-lg border border-primary-100" id="budgetPreview">
+                <h3 class="text-lg font-medium text-primary-800 mb-2">Budget Preview</h3>
+                <div class="text-2xl font-bold text-primary-900" id="budgetFormatted">₱0.00</div>
+                <div class="text-sm mt-1" id="budgetValidation"></div>
+            </div>
+        </div>
+
+        <!-- Outcomes & Monitoring Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                    <i class="fas fa-chart-line text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">Outcomes & Monitoring</h2>
+                    <p class="text-gray-600">Expected outcomes, objectives, and success metrics</p>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.objectives.id_for_label }}">
+                    Program Objectives
+                </label>
+                {{ form.objectives }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="objectivesCounter">0/1000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">Program objectives and goals</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.expected_outcomes.id_for_label }}">
+                    Expected Outcomes
+                </label>
+                {{ form.expected_outcomes }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="outcomesCounter">0/1000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">Anticipated results and impact of the program</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.key_performance_indicators.id_for_label }}">
+                    Key Performance Indicators
+                </label>
+                {{ form.key_performance_indicators }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="kpiCounter">0/1000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">KPIs for monitoring and evaluation</p>
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.partner_agencies.id_for_label }}">
+                    Partner Agencies & Organizations
+                </label>
+                {{ form.partner_agencies }}
+                <div class="text-right text-xs text-gray-500 mt-1" id="partnersCounter">0/1000 characters</div>
+                <p class="text-gray-500 text-xs mt-1">Partner agencies, organizations, and key stakeholders</p>
+            </div>
+        </div>
+
+        <!-- Program Settings Section -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex items-center mb-6">
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                    <i class="fas fa-cog text-2xl"></i>
+                </div>
+                <div>
+                    <h2 class="text-xl font-semibold text-slate-800">Program Settings</h2>
+                    <p class="text-gray-600">Visibility and administrative settings</p>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    {{ form.is_featured }}
+                    <label class="ml-3 text-gray-700 font-medium" for="{{ form.is_featured.id_for_label }}">
+                        Mark as Featured Program
+                    </label>
+                </div>
+                <p class="text-gray-500 text-sm ml-8">Featured programs appear prominently on the website</p>
+                
+                <div class="flex items-center">
+                    {{ form.is_public }}
+                    <label class="ml-3 text-gray-700 font-medium" for="{{ form.is_public.id_for_label }}">
+                        Public Program
+                    </label>
+                </div>
+                <p class="text-gray-500 text-sm ml-8">Make this program visible to the public</p>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="flex flex-wrap gap-3">
+                    <button type="submit" name="action" value="save" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-save mr-2"></i>
+                        {% if form.instance.pk %}Update Program{% else %}Create Program{% endif %}
+                    </button>
+                    
+                    {% if form.instance.pk %}
+                    <button type="submit" name="action" value="save_continue" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-edit mr-2"></i>Save & Continue Editing
+                    </button>
+                    {% else %}
+                    <button type="submit" name="action" value="save_add_another" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Save & Add Another
+                    </button>
+                    {% endif %}
+                </div>
+                
+                <div class="flex flex-wrap gap-3">
+                    <a href="{% url 'program_list' %}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-medium transition flex items-center">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </a>
+                    
+                    {% if form.instance.pk %}
+                    <button type="button" class="bg-red-100 hover:bg-red-200 text-red-700 px-6 py-3 rounded-lg font-medium transition flex items-center" 
+                            onclick="confirmDelete('{{ form.instance.code }}', {{ form.instance.pk }})">
+                        <i class="fas fa-trash mr-2"></i>Delete
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- What Happens Next Information -->
+    <div class="bg-primary-50 rounded-lg p-6 border border-primary-100 mt-8">
+        <div class="flex items-start">
+            <div class="text-primary-600 text-xl mr-4 mt-1">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-medium text-primary-800 mb-2">What Happens Next?</h3>
+                <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                    {% if form.instance.pk %}
+                    <li>Program updates will be reviewed by the system administrator</li>
+                    <li>Changes will be reflected immediately in the ministry programs listing</li>
+                    <li>Audit trail will track all modifications for compliance</li>
+                    {% else %}
+                    <li>New program will be created and added to the ministry programs database</li>
+                    <li>Program will be reviewed by the system administrator before publication</li>
+                    <li>You'll receive confirmation once the program is successfully created</li>
+                    {% endif %}
+                    <li>All changes are logged for audit and compliance purposes</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+{% if form.instance.pk %}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the program <strong>{{ form.instance.program_code }}</strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="{% url 'program_delete' form.instance.pk %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete Program</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupCharacterCounters();
+    setupBudgetPreview();
+    setupFormValidation();
+    setupDateValidation();
+});
+
+function setupCharacterCounters() {
+    const fields = [
+        { id: 'id_title', counterId: 'titleCounter', maxLength: 300 },
+        { id: 'id_description', counterId: 'descriptionCounter', maxLength: 2000 },
+        { id: 'id_implementation_strategy', counterId: 'strategyCounter', maxLength: 2000 },
+        { id: 'id_objectives', counterId: 'objectivesCounter', maxLength: 1000 },
+        { id: 'id_expected_outcomes', counterId: 'outcomesCounter', maxLength: 1000 },
+        { id: 'id_key_performance_indicators', counterId: 'kpiCounter', maxLength: 1000 },
+        { id: 'id_partner_agencies', counterId: 'partnersCounter', maxLength: 1000 }
+    ];
+
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const counter = document.getElementById(field.counterId);
+        
+        if (input && counter) {
+            function updateCounter() {
+                const length = input.value.length;
+                counter.textContent = `${length}/${field.maxLength} characters`;
+                
+                if (length > field.maxLength * 0.9) {
+                    counter.className = 'text-right text-xs text-red-500 mt-1';
+                } else if (length > field.maxLength * 0.8) {
+                    counter.className = 'text-right text-xs text-yellow-500 mt-1';
+                } else {
+                    counter.className = 'text-right text-xs text-gray-500 mt-1';
+                }
+            }
+            
+            input.addEventListener('input', updateCounter);
+            updateCounter(); // Initial update
+        }
+    });
+}
+
+function setupBudgetPreview() {
+    const budgetInput = document.getElementById('id_total_budget');
+    const budgetFormatted = document.getElementById('budgetFormatted');
+    const budgetValidation = document.getElementById('budgetValidation');
+    const ministrySelect = document.getElementById('id_ministry');
+    
+    const ministryLimits = {
+        'mssd': 15000000000.00,
+        'mafar': 8000000000.00,
+        'mtit': 5000000000.00
+    };
+    
+    function updateBudgetPreview() {
+        const budget = parseFloat(budgetInput.value) || 0;
+        const ministry = ministrySelect.value;
+        
+        // Format budget
+        budgetFormatted.textContent = `₱${budget.toLocaleString('en-PH', {minimumFractionDigits: 2})}`;
+        
+        // Validate against ministry limits
+        if (ministry && budget > 0) {
+            const limit = ministryLimits[ministry] || 1000000000.00;
+            if (budget > limit) {
+                budgetValidation.textContent = `⚠️ Exceeds ${ministry.toUpperCase()} limit of ₱${limit.toLocaleString('en-PH')}`;
+                budgetValidation.className = 'text-sm text-red-600 mt-1';
+            } else {
+                const percentage = (budget / limit * 100).toFixed(1);
+                budgetValidation.textContent = `✓ ${percentage}% of ${ministry.toUpperCase()} budget limit`;
+                budgetValidation.className = 'text-sm text-green-600 mt-1';
+            }
+        } else {
+            budgetValidation.textContent = '';
+        }
+    }
+    
+    if (budgetInput) {
+        budgetInput.addEventListener('input', updateBudgetPreview);
+        ministrySelect.addEventListener('change', updateBudgetPreview);
+        updateBudgetPreview(); // Initial update
+    }
+}
+
+function setupFormValidation() {
+    const form = document.getElementById('programForm');
+    
+    form.addEventListener('submit', function(e) {
+        const startDate = document.getElementById('id_start_date').value;
+        const endDate = document.getElementById('id_end_date').value;
+        
+        if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
+            e.preventDefault();
+            alert('End date must be after start date.');
+            return false;
+        }
+    });
+}
+
+function setupDateValidation() {
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_end_date');
+    
+    function validateDates() {
+        if (startDateInput.value && endDateInput.value) {
+            const startDate = new Date(startDateInput.value);
+            const endDate = new Date(endDateInput.value);
+            
+            if (startDate >= endDate) {
+                endDateInput.setCustomValidity('End date must be after start date');
+            } else {
+                endDateInput.setCustomValidity('');
+            }
+        }
+    }
+    
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', validateDates);
+        endDateInput.addEventListener('change', validateDates);
+    }
+}
+
+function confirmDelete(programCode, programId) {
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Auto-save functionality (optional)
+let autoSaveTimer;
+function scheduleAutoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        // Save draft to localStorage
+        const formData = new FormData(document.getElementById('programForm'));
+        const data = {};
+        for (let [key, value] of formData.entries()) {
+            data[key] = value;
+        }
+        localStorage.setItem('programDraft', JSON.stringify(data));
+    }, 5000); // Auto-save every 5 seconds
+}
+
+// Add auto-save listeners to all form inputs
+document.querySelectorAll('#programForm input, #programForm textarea, #programForm select').forEach(input => {
+    input.addEventListener('input', scheduleAutoSave);
+});
+
+// Load draft on page load
+window.addEventListener('load', function() {
+    const draft = localStorage.getItem('programDraft');
+    if (draft && !document.getElementById('id_program_code').value) {
+        const data = JSON.parse(draft);
+        for (let [key, value] of Object.entries(data)) {
+            const input = document.querySelector(`[name="${key}"]`);
+            if (input && input.type !== 'hidden') {
+                input.value = value;
+            }
+        }
+    }
+});
+
+// Clear draft on successful save
+window.addEventListener('beforeunload', function(e) {
+    // Only warn if form has been modified
+    const form = document.getElementById('programForm');
+    if (form.checkValidity && !form.checkValidity()) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+</script>
+{% endblock %}

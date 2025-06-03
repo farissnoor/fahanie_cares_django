@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}#FahanieCares{% endblock %}</title>
+    <meta
+      name="description"
+      content="{% block meta_description %}#FahanieCares: Bringing Bangsamoro Public Service Closer to You{% endblock %}"
+    />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // Research-based modern green palette for government services
+              primary: {
+                50: "#f0f9f4",   // Lightest sage - backgrounds
+                100: "#dcfce7",  // Light sage - subtle highlights  
+                200: "#bbf7d0",  // Soft sage - hover states
+                300: "#86efac",  // Medium sage - secondary actions
+                400: "#4ade80",  // Bright sage - interactive elements
+                500: "#22c55e",  // Core brand green - main CTAs
+                600: "#16a34a",  // Professional green - primary buttons
+                700: "#15803d",  // Deep sage - active states
+                800: "#166534",  // Forest green - dark text
+                900: "#14532d",  // Darkest green - headings
+              },
+              // Blue-gray for government trust and professionalism
+              secondary: {
+                50: "#f8fafc",   // Clean backgrounds
+                100: "#f1f5f9",  // Section backgrounds
+                200: "#e2e8f0",  // Borders, dividers
+                300: "#cbd5e1",  // Muted elements
+                400: "#94a3b8",  // Secondary text
+                500: "#64748b",  // Body text
+                600: "#475569",  // Dark text
+                700: "#334155",  // Headings
+                800: "#1e293b",  // Primary headings
+                900: "#0f172a",  // Maximum contrast
+              },
+              // Warm gold for prosperity and achievement
+              accent: {
+                50: "#fffbeb",   // Light gold backgrounds
+                100: "#fef3c7",  // Soft gold highlights
+                200: "#fde68a",  // Medium gold accents
+                300: "#fcd34d",  // Bright gold elements
+                400: "#fbbf24",  // Active gold
+                500: "#f59e0b",  // Core gold
+                600: "#d97706",  // Professional gold
+                700: "#b45309",  // Deep gold
+                800: "#92400e",  // Dark gold
+                900: "#78350f",  // Darkest gold
+              },
+              // Enhanced semantic status colors - WCAG AA compliant
+              success: {
+                50: "#ecfdf5",   // Success backgrounds
+                100: "#d1fae5",  // Success highlights
+                500: "#10b981",  // Success messages
+                600: "#059669",  // Success buttons
+                700: "#047857",  // Success active
+              },
+              warning: {
+                50: "#fff7ed",   // Warning backgrounds
+                100: "#ffedd5",  // Warning highlights
+                500: "#f97316",  // Warning messages
+                600: "#ea580c",  // Warning buttons
+                700: "#c2410c",  // Warning active
+              },
+              error: {
+                50: "#fef2f2",   // Error backgrounds
+                100: "#fee2e2",  // Error highlights
+                500: "#ef4444",  // Error messages
+                600: "#dc2626",  // Error buttons
+                700: "#b91c1c",  // Error active
+              },
+              info: {
+                50: "#eff6ff",   // Info backgrounds
+                100: "#dbeafe",  // Info highlights
+                500: "#3b82f6",  // Info messages
+                600: "#2563eb",  // Info buttons
+                700: "#1d4ed8",  // Info active
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              serif: ["Merriweather", "serif"],
+            },
+            // Modern gradient system
+            backgroundImage: {
+              'gradient-primary': 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+              'gradient-hero': 'linear-gradient(135deg, #16a34a 0%, #15803d 50%, #1e293b 100%)',
+              'gradient-nature': 'linear-gradient(135deg, #4ade80 0%, #475569 100%)',
+              'gradient-success': 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+              'gradient-warning': 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+              'gradient-page': 'linear-gradient(180deg, #f8fafc 0%, #f0f9f4 100%)',
+            },
+            // Enhanced box shadows with green tints
+            boxShadow: {
+              'primary': '0 4px 6px -1px rgba(34, 197, 94, 0.1), 0 2px 4px -1px rgba(34, 197, 94, 0.06)',
+              'primary-lg': '0 10px 15px -3px rgba(34, 197, 94, 0.1), 0 4px 6px -2px rgba(34, 197, 94, 0.05)',
+            },
+          },
+        },
+      };
+    </script>
+    
+    <!-- Modern Color System Integration -->
+    {% include 'components/design-system/color_palette.html' %}
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    {% block extra_css %}{% endblock %}
+    <style>
+      /* Loading Overlay */
+      #loading-overlay {
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      /* Custom Spinner */
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff; /* White top border for contrast */
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      /* Pulsing effect for the spinner */
+      .loading-spinner::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        background-color: #22c55e; /* primary-500 */
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      /* Keyframes for spinning animation */
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Keyframes for pulsing animation */
+      @keyframes pulse {
+        0% {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0.7;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.2);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0.7;
+        }
+      }
+    </style>
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Animation Components -->
+    {% include 'components/animations/scroll_animations.html' %}
+    
+    <!-- Common Behaviors -->
+    {% include 'components/behaviors/common_behaviors.html' %}
+    
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body class="font-sans bg-gray-50 flex flex-col min-h-screen">
+    <!-- Loading Overlay -->
+    <div
+      id="loading-overlay"
+      class="fixed inset-0 bg-primary-700 bg-opacity-75 flex items-center justify-center z-50 hidden"
+    >
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Header Navigation -->
+    {% include 'components/navigation/modern_navbar.html' %}
+    
+    <!-- Spacer for fixed navbar -->
+    <div class="h-16"></div>
+    
+    {% block hero %}
+    {% endblock %} 
+    
+    {% block breadcrumbs %}{% endblock %}
+
+    <!-- Main Content -->
+    <main class="flex-grow py-12">
+      <div class="container mx-auto px-4">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+
+    {% block cta %}{% endblock %}
+
+    <!-- Footer -->
+    {% include 'components/navigation/footer.html' %}
+
+    <!-- JavaScript -->
+    <script>
+      // Mobile Menu Toggle
+      document.addEventListener("DOMContentLoaded", function () {
+        const menuButton = document.querySelector("button.mobile-menu-button");
+        const mobileMenu = document.querySelector(".mobile-menu");
+
+        if (menuButton && mobileMenu) {
+          menuButton.addEventListener("click", function () {
+            mobileMenu.classList.toggle("hidden");
+          });
+        }
+      });
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const loadingOverlay = document.getElementById("loading-overlay");
+
+        // Show loading overlay on link clicks and form submissions
+        document.querySelectorAll("a").forEach((link) => {
+          link.addEventListener("click", function (event) {
+            // Only show for internal links and non-empty hrefs
+            if (
+              this.href &&
+              this.href !== "#" &&
+              !this.href.startsWith("mailto:") &&
+              !this.target
+            ) {
+              loadingOverlay.classList.remove("hidden");
+            }
+          });
+        });
+
+        document.querySelectorAll("form").forEach((form) => {
+          form.addEventListener("submit", function () {
+            loadingOverlay.classList.remove("hidden");
+          });
+        });
+
+        // Hide loading overlay when the page finishes loading
+        window.addEventListener("load", function () {
+          loadingOverlay.classList.add("hidden");
+        });
+
+        // Handle browser back/forward button
+        window.addEventListener("pageshow", function (event) {
+          if (event.persisted) {
+            loadingOverlay.classList.add("hidden");
+          }
+        });
+      });
+    </script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

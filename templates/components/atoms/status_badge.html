@@ -1,0 +1,94 @@
+{% comment %}
+Status Badge Component - Enhanced for New Color System
+Atomic Design Level: Atom
+
+Usage Examples:
+{% include 'components/atoms/status_badge.html' with status='success' text='Approved' %}
+{% include 'components/atoms/status_badge.html' with status='warning' text='Pending Review' %}
+{% include 'components/atoms/status_badge.html' with status='error' text='Rejected' %}
+{% include 'components/atoms/status_badge.html' with status='info' text='In Progress' %}
+
+Parameters:
+- status: 'success', 'warning', 'error', 'info', 'active', 'inactive' (required)
+- text: Badge text content (required)
+- size: 'sm', 'md', 'lg' (optional, default: 'md')
+- with_icon: true/false (optional, default: false)
+- rounded: 'sm', 'md', 'lg', 'full' (optional, default: 'md')
+- extra_classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% comment %} Set defaults {% endcomment %}
+{% with 
+    status=status|default:'info'
+    size=size|default:'md'
+    rounded=rounded|default:'md'
+    with_icon=with_icon|default:false
+%}
+
+{% comment %} Render based on status {% endcomment %}
+{% if status == 'success' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-success-50 text-success-700 border border-success-200 hover:bg-success-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="success status">
+        {% if with_icon %}
+            <i class="fas fa-check-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% elif status == 'warning' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-warning-50 text-warning-700 border border-warning-200 hover:bg-warning-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="warning status">
+        {% if with_icon %}
+            <i class="fas fa-exclamation-triangle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% elif status == 'error' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-error-50 text-error-700 border border-error-200 hover:bg-error-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="error status">
+        {% if with_icon %}
+            <i class="fas fa-times-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% elif status == 'info' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-info-50 text-info-700 border border-info-200 hover:bg-info-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="info status">
+        {% if with_icon %}
+            <i class="fas fa-info-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% elif status == 'active' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-primary-50 text-primary-700 border border-primary-200 hover:bg-primary-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="active status">
+        {% if with_icon %}
+            <i class="fas fa-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% elif status == 'inactive' %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="inactive status">
+        {% if with_icon %}
+            <i class="fas fa-pause-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% else %}
+    <span class="inline-flex items-center font-medium transition-all duration-200 {% if size == 'sm' %}px-2 py-1 text-xs{% elif size == 'lg' %}px-3 py-1.5 text-sm{% else %}px-2.5 py-1 text-xs{% endif %} {% if rounded == 'sm' %}rounded-sm{% elif rounded == 'lg' %}rounded-lg{% elif rounded == 'full' %}rounded-full{% else %}rounded{% endif %} bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 {{ extra_classes }}" 
+          role="status" 
+          aria-label="default status">
+        {% if with_icon %}
+            <i class="fas fa-circle {% if size == 'sm' %}text-xs{% elif size == 'lg' %}text-sm{% else %}text-xs{% endif %} mr-1"></i>
+        {% endif %}
+        {{ text }}
+    </span>
+{% endif %}
+
+{% endwith %}{% comment %} defaults {% endcomment %}

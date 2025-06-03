@@ -1,0 +1,182 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Partner with #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-primary-800 mb-6">Partner with #FahanieCares</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Build Meaningful Partnerships</h2>
+            <p class="mb-4 text-gray-700">
+                Join hands with #FahanieCares to extend our reach and amplify our impact in the Bangsamoro communities. 
+                We believe in the power of collaboration to create lasting change and improve lives across the region.
+            </p>
+            <p class="mb-4 text-gray-700">
+                Whether you're an NGO, business, government agency, academic institution, or community organization, 
+                we welcome partnerships that align with our mission of bringing public service closer to the people.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Partnership Opportunities</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Program Implementation</h3>
+                    <p class="text-gray-700">
+                        Collaborate on implementing community programs and service delivery initiatives
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Resource Sharing</h3>
+                    <p class="text-gray-700">
+                        Share expertise, technology, facilities, or other resources to enhance our services
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Capacity Building</h3>
+                    <p class="text-gray-700">
+                        Support training and development programs for staff and community members
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Advocacy & Awareness</h3>
+                    <p class="text-gray-700">
+                        Joint advocacy efforts to promote policies and programs that benefit communities
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {% if message %}
+        <div class="mb-6 p-4 rounded-md {% if message_type == 'success' %}bg-success-50 text-success-700 border border-success-200{% else %}bg-error-50 text-error-700 border border-error-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Partnership Application</h2>
+            <p class="mb-6 text-gray-700">
+                Ready to partner with us? Fill out the form below and tell us about your organization and 
+                how we can work together to serve the Bangsamoro communities.
+            </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Organization Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Organization Information</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ partnership_form.organization_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.organization_name.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ partnership_form.organization_name }}
+                            {% if partnership_form.organization_name.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.organization_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ partnership_form.contact_person.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.contact_person.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ partnership_form.contact_person }}
+                            {% if partnership_form.contact_person.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.contact_person.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ partnership_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.email.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ partnership_form.email }}
+                            {% if partnership_form.email.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ partnership_form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.phone_number.label }}
+                            </label>
+                            {{ partnership_form.phone_number }}
+                            {% if partnership_form.phone_number.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.phone_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ partnership_form.website.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.website.label }}
+                            </label>
+                            {{ partnership_form.website }}
+                            {% if partnership_form.website.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.website.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ partnership_form.partnership_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ partnership_form.partnership_type.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ partnership_form.partnership_type }}
+                            {% if partnership_form.partnership_type.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ partnership_form.partnership_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Partnership Details -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Partnership Details</h3>
+                    
+                    <div class="mb-4">
+                        <label for="{{ partnership_form.proposed_collaboration.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ partnership_form.proposed_collaboration.label }}
+                            <span class="text-error-600">*</span>
+                        </label>
+                        {{ partnership_form.proposed_collaboration }}
+                        {% if partnership_form.proposed_collaboration.errors %}
+                            <p class="text-error-600 text-sm mt-1">{{ partnership_form.proposed_collaboration.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="{{ partnership_form.resources_offered.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ partnership_form.resources_offered.label }}
+                        </label>
+                        {{ partnership_form.resources_offered }}
+                        {% if partnership_form.resources_offered.errors %}
+                            <p class="text-error-600 text-sm mt-1">{{ partnership_form.resources_offered.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="{{ partnership_form.expected_outcomes.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ partnership_form.expected_outcomes.label }}
+                        </label>
+                        {{ partnership_form.expected_outcomes }}
+                        {% if partnership_form.expected_outcomes.errors %}
+                            <p class="text-error-600 text-sm mt-1">{{ partnership_form.expected_outcomes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                {% include 'components/atoms/button.html' with variant='primary' text='Submit Partnership Application' type='submit' full_width=True %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

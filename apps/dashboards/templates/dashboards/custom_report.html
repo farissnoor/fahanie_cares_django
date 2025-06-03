@@ -1,0 +1,198 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Custom Report - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .report-table {
+        font-size: 0.875rem;
+    }
+    .report-summary {
+        background: #f3f4f6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Custom Report Generator</h1>
+    
+    <!-- Report Filter Form -->
+    <form method="post" x-data="reportForm()">
+        {% csrf_token %}
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold mb-4">Report Parameters</h3>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Report Type</label>
+                    {{ form.report_type }}
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="form-label">Output Format</label>
+                    {{ form.format }}
+                </div>
+            </div>
+            
+            <!-- Date Range -->
+            <div class="filter-section">
+                <h4 class="font-medium mb-3">Date Range</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label">Start Date</label>
+                        {{ form.start_date }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">End Date</label>
+                        {{ form.end_date }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Referral Filters -->
+            <div class="filter-section" x-show="reportType === 'referrals'">
+                <h4 class="font-medium mb-3">Referral Filters</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Priority</label>
+                        {{ form.priority }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Constituent Filters -->
+            <div class="filter-section" x-show="reportType === 'constituents'">
+                <h4 class="font-medium mb-3">Constituent Filters</h4>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label class="form-label">Municipality</label>
+                        {{ form.municipality }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Barangay</label>
+                        {{ form.barangay }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label d-block">&nbsp;</label>
+                        <div class="form-check">
+                            {{ form.chapter_member }}
+                            <label class="form-check-label" for="{{ form.chapter_member.id_for_label }}">
+                                Chapter Members Only
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Min Age</label>
+                        {{ form.age_min }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Max Age</label>
+                        {{ form.age_max }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-file-export mr-2"></i>Generate Report
+                </button>
+                <button type="reset" class="btn btn-secondary ml-2">
+                    <i class="fas fa-undo mr-2"></i>Reset
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Report Results -->
+    {% if report_data %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">{{ report_type|title }} Report</h3>
+        
+        <!-- Report Summary -->
+        {% if report_data.summary %}
+        <div class="report-summary">
+            <h4 class="font-medium mb-3">Summary</h4>
+            <div class="row">
+                {% for key, value in report_data.summary.items %}
+                <div class="col-md-3 mb-2">
+                    <div class="text-sm text-gray-600">{{ key|title|replace:"_":" " }}</div>
+                    <div class="font-semibold">{{ value }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Report Data Table -->
+        {% if report_data.data %}
+        <div class="table-responsive">
+            <table class="table report-table">
+                <thead>
+                    <tr>
+                        {% for key in report_data.data.0.keys %}
+                        <th>{{ key|title|replace:"_":" " }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in report_data.data|slice:":100" %}
+                    <tr>
+                        {% for value in row.values %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if report_data.data|length > 100 %}
+        <p class="text-center text-gray-600 mt-3">
+            Showing first 100 of {{ report_data.data|length }} records
+        </p>
+        {% endif %}
+        {% else %}
+        <p class="text-center text-gray-600 py-4">No data found for the selected criteria</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function reportForm() {
+    return {
+        reportType: '{{ form.report_type.value|default:"referrals" }}',
+        
+        init() {
+            // Watch for report type changes
+            document.querySelector('select[name="report_type"]').addEventListener('change', (e) => {
+                this.reportType = e.target.value;
+            });
+        }
+    }
+}
+</script>
+{% endblock %}

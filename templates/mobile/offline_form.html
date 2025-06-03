@@ -1,0 +1,321 @@
+{% extends 'base/mobile_base.html' %}
+{% load static %}
+
+{% block title %}Field Registration - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mobile-offline-form">
+    <h1 class="text-2xl font-bold mb-4">Field Registration</h1>
+    
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+        <p class="text-sm text-yellow-700">
+            <i class="fas fa-info-circle mr-1"></i>
+            This form works offline. Data will be synchronized when internet is available.
+        </p>
+    </div>
+    
+    <form id="offlineForm" class="space-y-4">
+        {% csrf_token %}
+        
+        <!-- Personal Information -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="font-semibold text-gray-900 mb-3">Personal Information</h2>
+            
+            <div class="form-group">
+                <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <input type="text" id="name" name="name" required
+                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+            </div>
+            
+            <div class="form-group">
+                <label for="contact" class="block text-sm font-medium text-gray-700 mb-1">Contact Number *</label>
+                <input type="tel" id="contact" name="contact" required
+                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+            </div>
+            
+            <div class="form-group">
+                <label for="birthdate" class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                <input type="date" id="birthdate" name="birthdate"
+                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+            </div>
+        </div>
+        
+        <!-- Address Information -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="font-semibold text-gray-900 mb-3">Address Information</h2>
+            
+            <div class="form-group">
+                <label for="municipality" class="block text-sm font-medium text-gray-700 mb-1">Municipality *</label>
+                <select id="municipality" name="municipality" required
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    <option value="">Select Municipality</option>
+                    <option value="alicia">Alicia</option>
+                    <option value="banisilan">Banisilan</option>
+                    <option value="burgos">Burgos</option>
+                    <option value="cabatangan">Cabatangan</option>
+                    <option value="carmen">Carmen</option>
+                    <option value="jamindan">Jamindan</option>
+                    <option value="kabacan">Kabacan</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="barangay" class="block text-sm font-medium text-gray-700 mb-1">Barangay</label>
+                <input type="text" id="barangay" name="barangay"
+                       class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+            </div>
+            
+            <div class="form-group">
+                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Complete Address</label>
+                <textarea id="address" name="address" rows="3"
+                          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"></textarea>
+            </div>
+        </div>
+        
+        <!-- Service Request -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="font-semibold text-gray-900 mb-3">Service Request</h2>
+            
+            <div class="form-group">
+                <label for="service_type" class="block text-sm font-medium text-gray-700 mb-1">Service Type *</label>
+                <select id="service_type" name="service_type" required
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    <option value="">Select Service</option>
+                    <option value="medical">Medical Assistance</option>
+                    <option value="legal">Legal Support</option>
+                    <option value="education">Educational Aid</option>
+                    <option value="livelihood">Livelihood Support</option>
+                    <option value="emergency">Emergency Relief</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description of Need</label>
+                <textarea id="description" name="description" rows="3"
+                          class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="urgency" class="block text-sm font-medium text-gray-700 mb-1">Urgency Level</label>
+                <select id="urgency" name="urgency"
+                        class="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500">
+                    <option value="normal">Normal</option>
+                    <option value="high">High</option>
+                    <option value="urgent">Urgent</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Photo Capture -->
+        <div class="bg-white p-4 rounded-lg shadow">
+            <h2 class="font-semibold text-gray-900 mb-3">Documentation</h2>
+            
+            <div class="form-group">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Take Photo</label>
+                <div class="flex space-x-2">
+                    <button type="button" id="capturePhoto" class="flex-1 px-4 py-3 bg-blue-500 text-white rounded-lg">
+                        <i class="fas fa-camera mr-2"></i>Capture Photo
+                    </button>
+                    <input type="file" id="photoInput" accept="image/*" capture="camera" class="hidden">
+                </div>
+                <div id="photoPreview" class="mt-2 hidden">
+                    <img id="previewImage" class="max-w-full h-auto rounded-lg">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="pt-4">
+            <button type="submit" class="w-full py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700">
+                Submit Registration
+            </button>
+        </div>
+    </form>
+    
+    <!-- Sync Status -->
+    <div id="syncStatus" class="mt-4 text-center text-sm text-gray-600">
+        <span id="offlineIndicator" class="hidden">
+            <i class="fas fa-wifi-slash text-red-500 mr-1"></i>
+            Working offline - data will sync when connected
+        </span>
+        <span id="onlineIndicator">
+            <i class="fas fa-wifi text-green-500 mr-1"></i>
+            Connected - data will sync immediately
+        </span>
+    </div>
+</div>
+
+<script>
+// Offline form handling
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('offlineForm');
+    const photoInput = document.getElementById('photoInput');
+    const capturePhoto = document.getElementById('capturePhoto');
+    const photoPreview = document.getElementById('photoPreview');
+    const previewImage = document.getElementById('previewImage');
+    
+    // Check online status
+    function updateOnlineStatus() {
+        const offlineIndicator = document.getElementById('offlineIndicator');
+        const onlineIndicator = document.getElementById('onlineIndicator');
+        
+        if (navigator.onLine) {
+            offlineIndicator.classList.add('hidden');
+            onlineIndicator.classList.remove('hidden');
+        } else {
+            offlineIndicator.classList.remove('hidden');
+            onlineIndicator.classList.add('hidden');
+        }
+    }
+    
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+    
+    // Photo capture
+    capturePhoto.addEventListener('click', function() {
+        photoInput.click();
+    });
+    
+    photoInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                photoPreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData.entries());
+        
+        // Add photo if captured
+        if (photoInput.files[0]) {
+            const reader = new FileReader();
+            reader.onloadend = async function() {
+                data.photo = reader.result;
+                await saveFormData(data);
+            };
+            reader.readAsDataURL(photoInput.files[0]);
+        } else {
+            await saveFormData(data);
+        }
+    });
+    
+    async function saveFormData(data) {
+        if (navigator.onLine) {
+            // Submit directly if online
+            try {
+                const response = await fetch('/api/mobile/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showSuccessMessage('Registration submitted successfully!');
+                    form.reset();
+                    photoPreview.classList.add('hidden');
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                // Save offline if submission fails
+                await saveOffline(data);
+            }
+        } else {
+            // Save offline
+            await saveOffline(data);
+        }
+    }
+    
+    async function saveOffline(data) {
+        try {
+            const db = await openDB();
+            const tx = db.transaction('offlineForms', 'readwrite');
+            const store = tx.objectStore('offlineForms');
+            
+            data.timestamp = new Date().toISOString();
+            await store.add({ data });
+            
+            showSuccessMessage('Saved offline. Will sync when connected.');
+            form.reset();
+            photoPreview.classList.add('hidden');
+            
+            // Register for background sync
+            if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                const sw = await navigator.serviceWorker.ready;
+                await sw.sync.register('sync-offline-data');
+            }
+        } catch (error) {
+            console.error('Error saving offline:', error);
+            showErrorMessage('Error saving data');
+        }
+    }
+    
+    function showSuccessMessage(message) {
+        const alert = document.createElement('div');
+        alert.className = 'fixed top-4 left-4 right-4 p-4 bg-green-100 text-green-700 rounded-lg shadow-lg z-50';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+    
+    function showErrorMessage(message) {
+        const alert = document.createElement('div');
+        alert.className = 'fixed top-4 left-4 right-4 p-4 bg-red-100 text-red-700 rounded-lg shadow-lg z-50';
+        alert.textContent = message;
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            alert.remove();
+        }, 3000);
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    function openDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open('FahanieCares', 1);
+            
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+            
+            request.onupgradeneeded = event => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('offlineForms')) {
+                    db.createObjectStore('offlineForms', { keyPath: 'id', autoIncrement: true });
+                }
+            };
+        });
+    }
+});
+</script>
+{% endblock %}

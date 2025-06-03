@@ -1,0 +1,420 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} | #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">{{ title }}</h1>
+                    <p class="text-lg text-white/90">
+                        {% if object.pk %}
+                        Update information for {{ object.name }}
+                        {% else %}
+                        Create a new constituent group
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_constituent_dashboard' %}" class="hover:text-primary-600 transition">Constituents</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_constituent_group_list' %}" class="hover:text-primary-600 transition">Groups</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            {% if object.pk %}
+            <a href="{% url 'staff_constituent_group_detail' object.slug %}" class="hover:text-primary-600 transition">{{ object.name }}</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Update</span>
+            {% else %}
+            <span class="text-gray-800 font-medium">Create New</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- Group Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Group Information</h3>
+                
+                <div class="grid grid-cols-1 gap-6">
+                    <div>
+                        <label for="id_name" class="block text-sm font-medium text-gray-700 mb-1">Group Name *</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        {{ form.description }}
+                        <p class="text-gray-500 text-xs mt-1">Describe the purpose of this group</p>
+                        {% if form.description.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="id_is_active" class="ml-2 block text-sm text-gray-700">
+                                Group is active
+                            </label>
+                        </div>
+                        <p class="text-gray-500 text-xs mt-1">Inactive groups won't appear in most lists</p>
+                        {% if form.is_active.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.is_active.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            {% if object.pk %}
+            <!-- Members -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Group Members</h3>
+                
+                <div id="memberSearch" class="mb-4">
+                    <label for="memberSearchInput" class="block text-sm font-medium text-gray-700 mb-1">Search Constituents</label>
+                    <div class="relative">
+                        <input type="text" id="memberSearchInput" placeholder="Search by name, email, or phone..." class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                        <button type="button" id="clearSearch" class="absolute right-2 top-2 text-gray-500 hidden">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-2 mb-4">
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md mb-2">
+                        <h4 class="text-sm font-medium text-gray-700">Selected Members</h4>
+                        <span class="text-xs text-gray-500" id="selectedCount">
+                            {% if current_members %}{{ current_members|length }} selected{% else %}0 selected{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div id="selectedMembers" class="max-h-60 overflow-y-auto p-2 space-y-2">
+                        {% if current_members %}
+                            {% for member in current_members %}
+                            <div class="flex items-center justify-between bg-primary-50 p-2 rounded-md">
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="members" value="{{ member.id }}" id="member_{{ member.id }}" class="member-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                                    <label for="member_{{ member.id }}" class="ml-2 text-sm text-gray-700">
+                                        {{ member.user.get_full_name }}
+                                        <span class="text-xs text-gray-500">({{ member.user.email }})</span>
+                                    </label>
+                                </div>
+                                <button type="button" onclick="removeMember('{{ member.id }}', '{{ member.user.get_full_name|escapejs }}')" class="text-gray-500 hover:text-red-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div id="noMembersSelected" class="text-center p-3 text-gray-500">
+                                No members selected yet
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-lg p-2">
+                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded-md mb-2">
+                        <h4 class="text-sm font-medium text-gray-700">Available Constituents</h4>
+                        <button type="button" id="loadMoreBtn" class="text-xs text-primary-600 hover:text-primary-800">
+                            Load More
+                        </button>
+                    </div>
+                    
+                    <div id="availableConstituents" class="max-h-60 overflow-y-auto p-2 space-y-2">
+                        <div class="text-center p-3 text-gray-500">
+                            Loading constituents...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const availableConstituents = document.getElementById('availableConstituents');
+                    const memberSearchInput = document.getElementById('memberSearchInput');
+                    const clearSearchBtn = document.getElementById('clearSearch');
+                    const selectedMembersContainer = document.getElementById('selectedMembers');
+                    const noMembersSelectedMessage = document.getElementById('noMembersSelected');
+                    const selectedCountDisplay = document.getElementById('selectedCount');
+                    const loadMoreBtn = document.getElementById('loadMoreBtn');
+                    
+                    let allConstituents = [];
+                    let displayedCount = 0;
+                    let pageSize = 20;
+                    
+                    // Function to load constituents from the server
+                    async function loadConstituents() {
+                        try {
+                            // In a real implementation, this would be an AJAX call to the server
+                            // For this template, we'll simulate it with a timeout
+                            setTimeout(() => {
+                                allConstituents = [
+                                    {% for member in current_members %}
+                                    {
+                                        id: '{{ member.id }}',
+                                        name: '{{ member.user.get_full_name|escapejs }}',
+                                        email: '{{ member.user.email|escapejs }}',
+                                        selected: true
+                                    },
+                                    {% endfor %}
+                                    // Add more constituents here (in a real implementation)
+                                ];
+                                
+                                displayConstituents();
+                            }, 500);
+                        } catch (error) {
+                            availableConstituents.innerHTML = `<div class="text-center p-3 text-red-500">Error loading constituents</div>`;
+                        }
+                    }
+                    
+                    // Function to display constituents
+                    function displayConstituents(searchTerm = '') {
+                        // Filter constituents based on search term
+                        let filtered = allConstituents;
+                        if (searchTerm) {
+                            const term = searchTerm.toLowerCase();
+                            filtered = allConstituents.filter(c => 
+                                c.name.toLowerCase().includes(term) || 
+                                c.email.toLowerCase().includes(term)
+                            );
+                        }
+                        
+                        // Get only the non-selected constituents
+                        const nonSelected = filtered.filter(c => !c.selected);
+                        
+                        // Update display
+                        if (nonSelected.length === 0) {
+                            availableConstituents.innerHTML = `
+                                <div class="text-center p-3 text-gray-500">
+                                    ${searchTerm ? 'No matching constituents found' : 'No more constituents available'}
+                                </div>
+                            `;
+                            loadMoreBtn.style.display = 'none';
+                            return;
+                        }
+                        
+                        // Display constituents
+                        const toDisplay = nonSelected.slice(0, Math.min(displayedCount + pageSize, nonSelected.length));
+                        displayedCount = toDisplay.length;
+                        
+                        availableConstituents.innerHTML = toDisplay.map(constituent => `
+                            <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-md">
+                                <div class="flex items-center">
+                                    <input type="checkbox" name="" value="${constituent.id}" id="available_${constituent.id}" 
+                                        class="available-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <label for="available_${constituent.id}" class="ml-2 text-sm text-gray-700">
+                                        ${constituent.name}
+                                        <span class="text-xs text-gray-500">(${constituent.email})</span>
+                                    </label>
+                                </div>
+                                <button type="button" onclick="addMember('${constituent.id}', '${constituent.name}', '${constituent.email}')" 
+                                    class="text-gray-500 hover:text-green-500">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        `).join('');
+                        
+                        // Show/hide load more button
+                        loadMoreBtn.style.display = displayedCount < nonSelected.length ? 'block' : 'none';
+                        
+                        // Add event listeners to checkboxes
+                        document.querySelectorAll('.available-checkbox').forEach(checkbox => {
+                            checkbox.addEventListener('change', function() {
+                                const id = this.value;
+                                const constituent = allConstituents.find(c => c.id === id);
+                                if (this.checked) {
+                                    addMember(id, constituent.name, constituent.email);
+                                }
+                            });
+                        });
+                    }
+                    
+                    // Function to update the selected count display
+                    function updateSelectedCount() {
+                        const count = document.querySelectorAll('.member-checkbox').length;
+                        selectedCountDisplay.textContent = `${count} selected`;
+                        
+                        // Show/hide no members message
+                        if (count === 0 && !document.getElementById('noMembersSelected')) {
+                            selectedMembersContainer.innerHTML = `
+                                <div id="noMembersSelected" class="text-center p-3 text-gray-500">
+                                    No members selected yet
+                                </div>
+                            `;
+                        } else if (count > 0) {
+                            const noMembersMsg = document.getElementById('noMembersSelected');
+                            if (noMembersMsg) noMembersMsg.remove();
+                        }
+                    }
+                    
+                    // Load more constituents
+                    loadMoreBtn.addEventListener('click', function() {
+                        displayedCount += pageSize;
+                        displayConstituents(memberSearchInput.value);
+                    });
+                    
+                    // Search functionality
+                    memberSearchInput.addEventListener('input', function() {
+                        const searchTerm = this.value;
+                        displayedCount = 0; // Reset displayed count when searching
+                        displayConstituents(searchTerm);
+                        
+                        // Show/hide clear button
+                        clearSearchBtn.style.display = searchTerm ? 'block' : 'none';
+                    });
+                    
+                    // Clear search
+                    clearSearchBtn.addEventListener('click', function() {
+                        memberSearchInput.value = '';
+                        displayedCount = 0;
+                        displayConstituents();
+                        this.style.display = 'none';
+                    });
+                    
+                    // Initial load
+                    loadConstituents();
+                    updateSelectedCount();
+                });
+                
+                // Function to add a member to the selected list
+                function addMember(id, name, email) {
+                    // Check if already selected
+                    if (document.getElementById(`member_${id}`)) return;
+                    
+                    const noMembersMsg = document.getElementById('noMembersSelected');
+                    if (noMembersMsg) noMembersMsg.remove();
+                    
+                    const selectedMembersContainer = document.getElementById('selectedMembers');
+                    const memberElement = document.createElement('div');
+                    memberElement.className = 'flex items-center justify-between bg-primary-50 p-2 rounded-md';
+                    memberElement.innerHTML = `
+                        <div class="flex items-center">
+                            <input type="checkbox" name="members" value="${id}" id="member_${id}" 
+                                class="member-checkbox h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" checked>
+                            <label for="member_${id}" class="ml-2 text-sm text-gray-700">
+                                ${name}
+                                <span class="text-xs text-gray-500">(${email})</span>
+                            </label>
+                        </div>
+                        <button type="button" onclick="removeMember('${id}', '${name}')" class="text-gray-500 hover:text-red-500">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    selectedMembersContainer.appendChild(memberElement);
+                    
+                    // Update selected count
+                    const selectedCountDisplay = document.getElementById('selectedCount');
+                    const count = document.querySelectorAll('.member-checkbox').length;
+                    selectedCountDisplay.textContent = `${count} selected`;
+                    
+                    // Mark as selected in allConstituents array
+                    const allConstituents = window.allConstituents || [];
+                    const constituent = allConstituents.find(c => c.id === id);
+                    if (constituent) constituent.selected = true;
+                    
+                    // Update available list
+                    const availableCheckbox = document.getElementById(`available_${id}`);
+                    if (availableCheckbox) {
+                        const containerElement = availableCheckbox.closest('div.flex.items-center.justify-between');
+                        if (containerElement) containerElement.remove();
+                    }
+                }
+                
+                // Function to remove a member from the selected list
+                function removeMember(id, name) {
+                    const memberElement = document.getElementById(`member_${id}`).closest('div.flex.items-center.justify-between');
+                    if (memberElement) memberElement.remove();
+                    
+                    // Update selected count
+                    const selectedCountDisplay = document.getElementById('selectedCount');
+                    const count = document.querySelectorAll('.member-checkbox').length;
+                    selectedCountDisplay.textContent = `${count} selected`;
+                    
+                    // Show no members message if needed
+                    if (count === 0) {
+                        const selectedMembersContainer = document.getElementById('selectedMembers');
+                        selectedMembersContainer.innerHTML = `
+                            <div id="noMembersSelected" class="text-center p-3 text-gray-500">
+                                No members selected yet
+                            </div>
+                        `;
+                    }
+                    
+                    // Mark as not selected in allConstituents array
+                    const allConstituents = window.allConstituents || [];
+                    const constituent = allConstituents.find(c => c.id === id);
+                    if (constituent) constituent.selected = false;
+                    
+                    // Update available list
+                    const searchTerm = document.getElementById('memberSearchInput').value;
+                    displayConstituents(searchTerm);
+                }
+            </script>
+            {% endif %}
+            
+            <!-- Form Buttons -->
+            <div class="flex justify-end space-x-3 pt-6">
+                {% if object.pk %}
+                <a href="{% url 'staff_constituent_group_detail' object.slug %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                {% else %}
+                <a href="{% url 'staff_constituent_group_list' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                {% endif %}
+                
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add required classes to form fields
+        const formControls = document.querySelectorAll('input, select, textarea');
+        formControls.forEach(control => {
+            if (!control.classList.contains('form-check-input') && !control.type === 'checkbox') {
+                control.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500', 'focus:border-transparent');
+            }
+        });
+        
+        // Style textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.style.minHeight = '100px';
+        });
+    });
+</script>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Form Pages -->
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Donate to #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-primary-800 mb-6">Support #FahanieCares</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Make a Difference</h2>
+            <p class="mb-4 text-gray-700">
+                Your generous donation helps #FahanieCares expand our programs and reach more Bangsamoro communities 
+                in need. Every contribution, no matter the size, makes a meaningful impact in someone's life.
+            </p>
+            <p class="mb-4 text-gray-700">
+                Together, we can strengthen public service delivery, support community development initiatives, 
+                and create lasting positive change across the Bangsamoro Autonomous Region.
+            </p>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">How Your Donation Helps</h2>
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Community Programs</h3>
+                    <p class="text-gray-700">
+                        Fund essential programs like healthcare initiatives, educational support, and livelihood development
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Service Delivery</h3>
+                    <p class="text-gray-700">
+                        Improve access to government services and reduce barriers for underserved communities
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Emergency Response</h3>
+                    <p class="text-gray-700">
+                        Provide rapid assistance during disasters and emergencies affecting our communities
+                    </p>
+                </div>
+                <div class="border-l-4 border-primary-500 pl-4">
+                    <h3 class="font-semibold text-lg mb-2">Infrastructure Support</h3>
+                    <p class="text-gray-700">
+                        Support technology and infrastructure improvements to enhance our service capabilities
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Ways to Contribute</h2>
+            <div class="grid md:grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-primary-50 rounded-lg">
+                    <i class="fas fa-money-bill-wave text-3xl text-primary-600 mb-2"></i>
+                    <h3 class="font-semibold mb-2">Monetary Donations</h3>
+                    <p class="text-sm text-gray-600">Cash contributions for immediate program needs</p>
+                </div>
+                <div class="text-center p-4 bg-primary-50 rounded-lg">
+                    <i class="fas fa-box text-3xl text-primary-600 mb-2"></i>
+                    <h3 class="font-semibold mb-2">Goods & Materials</h3>
+                    <p class="text-sm text-gray-600">Essential items and supplies for community programs</p>
+                </div>
+                <div class="text-center p-4 bg-primary-50 rounded-lg">
+                    <i class="fas fa-tools text-3xl text-primary-600 mb-2"></i>
+                    <h3 class="font-semibold mb-2">Services & Equipment</h3>
+                    <p class="text-sm text-gray-600">Professional services or equipment donations</p>
+                </div>
+            </div>
+        </div>
+
+        {% if message %}
+        <div class="mb-6 p-4 rounded-md {% if message_type == 'success' %}bg-success-50 text-success-700 border border-success-200{% else %}bg-error-50 text-error-700 border border-error-200{% endif %}">
+            {{ message }}
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-semibold mb-4 text-primary-700">Donation Information</h2>
+            <p class="mb-6 text-gray-700">
+                Complete the form below to let us know about your intended donation. Our team will contact you 
+                to coordinate the donation process and provide any necessary receipts or acknowledgments.
+            </p>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Donor Information -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Donor Information</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ donation_form.donor_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.donor_name.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ donation_form.donor_name }}
+                            {% if donation_form.donor_name.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.donor_name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ donation_form.donor_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.donor_type.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ donation_form.donor_type }}
+                            {% if donation_form.donor_type.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.donor_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ donation_form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.email.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ donation_form.email }}
+                            {% if donation_form.email.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ donation_form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.phone_number.label }}
+                            </label>
+                            {{ donation_form.phone_number }}
+                            {% if donation_form.phone_number.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.phone_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Donation Details -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Donation Details</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ donation_form.donation_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.donation_type.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ donation_form.donation_type }}
+                            {% if donation_form.donation_type.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.donation_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ donation_form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.amount.label }}
+                            </label>
+                            {{ donation_form.amount }}
+                            {% if donation_form.amount.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.amount.errors.0 }}</p>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 mt-1">Required for monetary donations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="{{ donation_form.frequency.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.frequency.label }}
+                                <span class="text-error-600">*</span>
+                            </label>
+                            {{ donation_form.frequency }}
+                            {% if donation_form.frequency.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.frequency.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label for="{{ donation_form.preferred_program.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                                {{ donation_form.preferred_program.label }}
+                            </label>
+                            {{ donation_form.preferred_program }}
+                            {% if donation_form.preferred_program.errors %}
+                                <p class="text-error-600 text-sm mt-1">{{ donation_form.preferred_program.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="{{ donation_form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                            {{ donation_form.description.label }}
+                            <span class="text-error-600">*</span>
+                        </label>
+                        {{ donation_form.description }}
+                        {% if donation_form.description.errors %}
+                            <p class="text-error-600 text-sm mt-1">{{ donation_form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Submit Button -->
+                {% include 'components/atoms/button.html' with variant='primary' text='Submit Donation Information' type='submit' full_width=True %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

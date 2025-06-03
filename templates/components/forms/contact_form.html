@@ -1,0 +1,62 @@
+{% comment %}
+Reusable contact form component that can be included in multiple pages.
+Usage: {% include 'components/forms/contact_form.html' with title="Get in Touch" subtitle="Have questions? We're here to help." form_subject="General Inquiry" %}
+{% endcomment %}
+
+{% if message %}
+<div class="mb-6 p-4 rounded-md {% if message_type == 'success' %}bg-green-50 text-green-700 border border-green-200{% else %}bg-red-50 text-red-700 border border-red-200{% endif %}">
+    {{ message }}
+</div>
+{% endif %}
+
+<div class="bg-white rounded-lg shadow-md p-6 {% if not full_width %}mb-6{% endif %}">
+    <h2 class="text-2xl font-semibold mb-4 text-green-700">{{ title|default:"Contact Us" }}</h2>
+    <p class="mb-6 text-gray-700">
+        {{ subtitle|default:"Have questions, concerns, or need assistance? We're here to help. Fill out the form below, and our team will get back to you as soon as possible." }}
+    </p>
+    
+    <form method="post" action="">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <input type="text" id="name" name="name" required 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+        
+        <div class="mb-4">
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+            <input type="email" id="email" name="email" required 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+        
+        <div class="mb-4">
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+            <input type="tel" id="phone" name="phone" 
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+        </div>
+        
+        <div class="mb-4">
+            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+            <select id="subject" name="subject" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option value="">Select a topic</option>
+                <option value="assistance" {% if form_subject == 'assistance' %}selected{% endif %}>Request Assistance</option>
+                <option value="feedback" {% if form_subject == 'feedback' %}selected{% endif %}>Provide Feedback</option>
+                <option value="volunteer" {% if form_subject == 'volunteer' %}selected{% endif %}>Volunteer Opportunities</option>
+                <option value="chapter" {% if form_subject == 'chapter' %}selected{% endif %}>Chapter Inquiries</option>
+                <option value="other" {% if form_subject == 'other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+        
+        <div class="mb-6">
+            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+            <textarea id="message" name="message" rows="5" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+        </div>
+        
+        <button type="submit" 
+            class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-300">
+            Send Message
+        </button>
+    </form>
+</div>

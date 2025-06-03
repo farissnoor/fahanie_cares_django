@@ -1,0 +1,92 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Notification History - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-6">Notification History</h1>
+    
+    <!-- Date Filter -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="date_from" class="block text-sm font-medium text-gray-700 mb-2">From Date</label>
+                <input type="date" name="date_from" id="date_from" value="{{ date_from }}" class="w-full p-2 border rounded">
+            </div>
+            <div>
+                <label for="date_to" class="block text-sm font-medium text-gray-700 mb-2">To Date</label>
+                <input type="date" name="date_to" id="date_to" value="{{ date_to }}" class="w-full p-2 border rounded">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-filter mr-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-3xl font-bold mb-2">{{ total_count }}</div>
+            <div class="text-gray-600">Total Notifications</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-3xl font-bold text-green-600 mb-2">{{ read_count }}</div>
+            <div class="text-gray-600">Read</div>
+        </div>
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="text-3xl font-bold text-red-600 mb-2">{{ unread_count }}</div>
+            <div class="text-gray-600">Unread</div>
+        </div>
+    </div>
+    
+    <!-- Notification Types Chart -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Notifications by Type</h2>
+        <div class="space-y-3">
+            {% for type_name, count in type_counts.items %}
+            <div class="flex items-center">
+                <div class="w-48">{{ type_name }}</div>
+                <div class="flex-1">
+                    <div class="bg-gray-200 rounded-full h-4">
+                        <div class="bg-blue-600 rounded-full h-4" style="width: {% widthratio count total_count 100 %}%"></div>
+                    </div>
+                </div>
+                <div class="w-16 text-right">{{ count }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Recent Notifications -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-semibold mb-4">Recent Notifications</h2>
+        <div class="space-y-3">
+            {% for notification in recent_notifications %}
+            <div class="border-b pb-3">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-medium">{{ notification.title }}</h3>
+                        <p class="text-sm text-gray-600">{{ notification.message|truncatewords:20 }}</p>
+                        <div class="text-xs text-gray-500 mt-1">
+                            {{ notification.created_at|date:"M d, Y g:i A" }} • {{ notification.get_type_display }}
+                        </div>
+                    </div>
+                    <div>
+                        {% if notification.is_read %}
+                        <span class="text-green-600"><i class="fas fa-check-circle"></i></span>
+                        {% else %}
+                        <span class="text-red-600"><i class="fas fa-times-circle"></i></span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No notifications found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

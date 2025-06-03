@@ -1,0 +1,290 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Executive Dashboard - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .metric-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        height: 100%;
+    }
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2563eb;
+    }
+    .metric-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+    }
+    .chart-container {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-3xl font-bold mb-4">Executive Dashboard</h1>
+        
+        <!-- Date Range Filter -->
+        <form method="get" class="bg-white rounded-lg shadow p-4 mb-6">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter mr-2"></i>Apply Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Key Metrics -->
+    <div class="row mb-6">
+        <div class="col-md-3 mb-4">
+            <div class="metric-card">
+                <div class="metric-label">Total Referrals</div>
+                <div class="metric-value">{{ metrics.referrals.total }}</div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-chart-line text-green-500"></i>
+                    {{ metrics.referrals.completion_rate|floatformat:1 }}% completion rate
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="metric-card">
+                <div class="metric-label">Active Constituents</div>
+                <div class="metric-value">{{ metrics.constituents.active }}</div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-user-plus text-blue-500"></i>
+                    {{ metrics.constituents.new }} new this period
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="metric-card">
+                <div class="metric-label">Chapter Members</div>
+                <div class="metric-value">{{ metrics.chapters.total_members }}</div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-users text-purple-500"></i>
+                    {{ metrics.chapters.active }} active chapters
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="metric-card">
+                <div class="metric-label">Avg Resolution Time</div>
+                <div class="metric-value">{{ metrics.referrals.avg_resolution_time|floatformat:1 }}</div>
+                <div class="text-sm text-gray-600">
+                    <i class="fas fa-clock text-orange-500"></i>
+                    days average
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">Referral Status Distribution</h3>
+                <canvas id="referralStatusChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">Service Categories</h3>
+                <canvas id="categoryChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-8">
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">Trends Over Time</h3>
+                <canvas id="trendChart" width="800" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="chart-container">
+                <h3 class="text-lg font-semibold mb-4">Geographic Distribution</h3>
+                <canvas id="geographicChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chapter Performance -->
+    <div class="row mt-6">
+        <div class="col-12">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h3 class="text-lg font-semibold mb-4">Top Performing Chapters</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Chapter</th>
+                                <th>Location</th>
+                                <th>Members</th>
+                                <th>Status</th>
+                                <th>Trend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for chapter in metrics.chapters.chapter_details|slice:":5" %}
+                            <tr>
+                                <td>{{ chapter.name }}</td>
+                                <td>{{ chapter.location }}</td>
+                                <td>{{ chapter.members }}</td>
+                                <td>
+                                    {% if chapter.is_active %}
+                                        <span class="badge badge-success">Active</span>
+                                    {% else %}
+                                        <span class="badge badge-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <i class="fas fa-chart-line text-green-500"></i>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Referral Status Chart
+const referralStatusCtx = document.getElementById('referralStatusChart').getContext('2d');
+const referralStatusData = {{ referral_status_chart|safe }};
+new Chart(referralStatusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: referralStatusData.labels,
+        datasets: [{
+            data: referralStatusData.data,
+            backgroundColor: [
+                '#10b981',
+                '#3b82f6',
+                '#f59e0b',
+                '#ef4444',
+                '#6366f1'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+
+// Category Chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryData = {{ category_chart|safe }};
+new Chart(categoryCtx, {
+    type: 'bar',
+    data: {
+        labels: categoryData.labels,
+        datasets: [{
+            label: 'Referrals by Category',
+            data: categoryData.data,
+            backgroundColor: '#3b82f6',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false,
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Trend Chart
+const trendCtx = document.getElementById('trendChart').getContext('2d');
+const trendData = {{ trend_chart|safe }};
+new Chart(trendCtx, {
+    type: 'line',
+    data: trendData,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Geographic Chart
+const geographicCtx = document.getElementById('geographicChart').getContext('2d');
+const geographicData = {{ geographic_chart|safe }};
+new Chart(geographicCtx, {
+    type: 'bar',
+    data: {
+        labels: geographicData.labels,
+        datasets: [{
+            label: 'Constituents by Municipality',
+            data: geographicData.data,
+            backgroundColor: '#10b981',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        indexAxis: 'y',
+        plugins: {
+            legend: {
+                display: false,
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

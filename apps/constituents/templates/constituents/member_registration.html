@@ -1,0 +1,392 @@
+{% extends 'base/base.html' %}
+
+{% block title %}#FahanieCares Member Registration{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 border border-gray-100">
+        <h1 class="text-3xl font-bold text-center text-primary-800 mb-2">#FahanieCares Member Registration</h1>
+        <p class="text-center text-gray-600 mb-8">
+            Join the #FahanieCares movement and be part of our mission to bring public service closer to you.
+        </p>
+        
+        <form method="post" class="space-y-8">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <!-- Account Information -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-primary-700 mb-4 flex items-center">
+                    <i class="fas fa-user-circle mr-2 text-primary-600"></i>
+                    Account Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.username.id_for_label }}">
+                            {{ form.username.label }}
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.password1.id_for_label }}">
+                            {{ form.password1.label }}
+                        </label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.password1.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.password2.id_for_label }}">
+                            {{ form.password2.label }}
+                        </label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.password2.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-user mr-2 text-primary-500"></i>
+                    Personal Information
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.last_name.id_for_label }}">
+                            {{ form.last_name.label }}
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.first_name.id_for_label }}">
+                            {{ form.first_name.label }}
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.middle_name.id_for_label }}">
+                            {{ form.middle_name.label }} <span class="text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        {{ form.middle_name }}
+                        {% if form.middle_name.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.middle_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.contact_number.id_for_label }}">
+                            {{ form.contact_number.label }}
+                        </label>
+                        {{ form.contact_number }}
+                        {% if form.contact_number.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.contact_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.email.id_for_label }}">
+                            {{ form.email.label }}
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.age.id_for_label }}">
+                            {{ form.age.label }}
+                        </label>
+                        {{ form.age }}
+                        {% if form.age.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.age.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.sex.id_for_label }}">
+                            {{ form.sex.label }}
+                        </label>
+                        {{ form.sex }}
+                        {% if form.sex.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.sex.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Current Address -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-home mr-2 text-primary-500"></i>
+                    Current Address
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.address_barangay.id_for_label }}">
+                            Barangay
+                        </label>
+                        {{ form.address_barangay }}
+                        {% if form.address_barangay.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.address_barangay.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.address_municipality.id_for_label }}">
+                            Municipality
+                        </label>
+                        {{ form.address_municipality }}
+                        {% if form.address_municipality.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.address_municipality.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.address_province.id_for_label }}">
+                            Province
+                        </label>
+                        {{ form.address_province }}
+                        {% if form.address_province.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.address_province.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Voter Registration Address -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-vote-yea mr-2 text-primary-500"></i>
+                    Voter Registration Address
+                </h2>
+                <div class="mb-3">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="same-address" class="rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-gray-700">Same as current address</span>
+                    </label>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.voter_address_barangay.id_for_label }}">
+                            Barangay
+                        </label>
+                        {{ form.voter_address_barangay }}
+                        {% if form.voter_address_barangay.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.voter_address_barangay.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.voter_address_municipality.id_for_label }}">
+                            Municipality
+                        </label>
+                        {{ form.voter_address_municipality }}
+                        {% if form.voter_address_municipality.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.voter_address_municipality.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.voter_address_province.id_for_label }}">
+                            Province
+                        </label>
+                        {{ form.voter_address_province }}
+                        {% if form.voter_address_province.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.voter_address_province.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sector and Education -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-graduation-cap mr-2 text-primary-500"></i>
+                    Sector and Education Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.sector.id_for_label }}">
+                            {{ form.sector.label }}
+                        </label>
+                        {{ form.sector }}
+                        {% if form.sector.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.sector.errors.0 }}</p>
+                        {% endif %}
+                        <p class="text-gray-500 text-xs mt-1">Select the sector that best describes you</p>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.highest_education.id_for_label }}">
+                            {{ form.highest_education.label }}
+                        </label>
+                        {{ form.highest_education }}
+                        {% if form.highest_education.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.highest_education.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.school_graduated.id_for_label }}">
+                            {{ form.school_graduated.label }} <span class="text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        {{ form.school_graduated }}
+                        {% if form.school_graduated.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.school_graduated.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.eligibility.id_for_label }}">
+                            {{ form.eligibility.label }}
+                        </label>
+                        {{ form.eligibility }}
+                        {% if form.eligibility.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.eligibility.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Volunteer Teacher Information -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-primary-700 mb-4 flex items-center">
+                    <i class="fas fa-chalkboard-teacher mr-2 text-primary-600"></i>
+                    Volunteer Teacher Information
+                </h2>
+                <div class="mb-4">
+                    <label class="inline-flex items-center">
+                        {{ form.is_volunteer_teacher }}
+                        <span class="ml-2 text-gray-700">I am a volunteer teacher</span>
+                    </label>
+                </div>
+                <div id="volunteer-fields" class="grid grid-cols-1 md:grid-cols-3 gap-4" style="display: none;">
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.volunteer_school.id_for_label }}">
+                            {{ form.volunteer_school.label }}
+                        </label>
+                        {{ form.volunteer_school }}
+                        {% if form.volunteer_school.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.volunteer_school.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-medium mb-2" for="{{ form.volunteer_service_length.id_for_label }}">
+                            Length of Service
+                        </label>
+                        {{ form.volunteer_service_length }}
+                        {% if form.volunteer_service_length.errors %}
+                            <p class="text-red-600 text-sm mt-1">{{ form.volunteer_service_length.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="bg-primary-50 rounded-lg p-6 border border-primary-200">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form.terms }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.terms.id_for_label }}" class="text-gray-700">
+                            {{ form.terms.label }}
+                        </label>
+                    </div>
+                </div>
+                {% if form.terms.errors %}
+                    <p class="text-red-600 text-sm mt-1 ml-8">{{ form.terms.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Submit Buttons -->
+            <div class="flex justify-center space-x-4">
+                {% include 'components/atoms/button.html' with variant='primary' text='Submit Registration' type='submit' icon='fas fa-user-plus' icon_position='left' size='lg' %}
+                {% include 'components/atoms/button.html' with variant='outline' text='Cancel' href='/' size='lg' %}
+            </div>
+        </form>
+    </div>
+    
+    <!-- Information Box -->
+    <div class="bg-primary-50 rounded-lg p-6 mt-6 border border-primary-100">
+        <h2 class="text-lg font-semibold text-primary-800 mb-2">Important Information</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-gray-700 mb-2">Benefits of #FahanieCares Membership:</p>
+                <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                    <li>Access to specialized programs and services</li>
+                    <li>Priority assistance for your sector's needs</li>
+                    <li>Participation in community development initiatives</li>
+                    <li>Direct communication with parliamentary office</li>
+                </ul>
+            </div>
+            <div>
+                <p class="text-gray-700 mb-2">Application Process:</p>
+                <ul class="list-disc pl-5 text-gray-700 space-y-1">
+                    <li>Complete all required fields accurately</li>
+                    <li>Your application will be reviewed within 24-48 hours</li>
+                    <li>You'll receive email notification upon approval</li>
+                    <li>Approved members can access all services immediately</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Override form widget classes */
+.form-control {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent;
+}
+
+.form-check-input {
+    @apply rounded border-gray-300 text-primary-600 shadow-sm focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Show/hide volunteer teacher fields
+    const volunteerCheckbox = document.getElementById('{{ form.is_volunteer_teacher.id_for_label }}');
+    const volunteerFields = document.getElementById('volunteer-fields');
+    
+    if (volunteerCheckbox) {
+        volunteerCheckbox.addEventListener('change', function() {
+            volunteerFields.style.display = this.checked ? 'grid' : 'none';
+        });
+    }
+    
+    // Copy current address to voter address
+    const sameAddressCheckbox = document.getElementById('same-address');
+    if (sameAddressCheckbox) {
+        sameAddressCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById('{{ form.voter_address_barangay.id_for_label }}').value = 
+                    document.getElementById('{{ form.address_barangay.id_for_label }}').value;
+                document.getElementById('{{ form.voter_address_municipality.id_for_label }}').value = 
+                    document.getElementById('{{ form.address_municipality.id_for_label }}').value;
+                document.getElementById('{{ form.voter_address_province.id_for_label }}').value = 
+                    document.getElementById('{{ form.address_province.id_for_label }}').value;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

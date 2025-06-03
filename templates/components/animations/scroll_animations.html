@@ -1,0 +1,301 @@
+<!-- Alpine.js Animation Components for Scroll-Triggered Effects -->
+<script>
+document.addEventListener('alpine:init', () => {
+    // Scroll Animation Component
+    Alpine.data('scrollAnimation', (options = {}) => ({
+        // Default options
+        delay: options.delay || 0,
+        stagger: options.stagger || 100,
+        threshold: options.threshold || 0.1,
+        animation: options.animation || 'fadeInUp',
+        duration: options.duration || 600,
+        
+        // State
+        isVisible: false,
+        observer: null,
+        
+        init() {
+            // Check for reduced motion preference
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (prefersReducedMotion) {
+                this.isVisible = true;
+                return;
+            }
+            
+            // Set up intersection observer
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            this.isVisible = true;
+                        }, this.delay);
+                        this.observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: this.threshold,
+                rootMargin: '20px'
+            });
+            
+            this.observer.observe(this.$el);
+        },
+        
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+        }
+    }));
+    
+    // Stagger Animation Component for grids
+    Alpine.data('staggerAnimation', (options = {}) => ({
+        staggerDelay: options.staggerDelay || 100,
+        threshold: options.threshold || 0.1,
+        animation: options.animation || 'fadeInUp',
+        
+        isVisible: false,
+        observer: null,
+        
+        init() {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (prefersReducedMotion) {
+                this.isVisible = true;
+                return;
+            }
+            
+            // Get all children elements
+            const children = Array.from(this.$el.children);
+            
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        // Animate children with stagger
+                        children.forEach((child, index) => {
+                            setTimeout(() => {
+                                child.classList.add('animate-in');
+                            }, index * this.staggerDelay);
+                        });
+                        this.observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: this.threshold,
+                rootMargin: '50px'
+            });
+            
+            this.observer.observe(this.$el);
+        },
+        
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+        }
+    }));
+    
+    // Hover Animation Component
+    Alpine.data('hoverAnimation', (options = {}) => ({
+        scale: options.scale || 1.02,
+        shadow: options.shadow || true,
+        transform: options.transform || 'translateY(-2px)',
+        duration: options.duration || 200,
+        
+        isHovered: false,
+        
+        mouseenter() {
+            this.isHovered = true;
+        },
+        
+        mouseleave() {
+            this.isHovered = false;
+        }
+    }));
+    
+    // Counter Animation Component
+    Alpine.data('counterAnimation', (options = {}) => ({
+        target: options.target || 0,
+        duration: options.duration || 2000,
+        
+        current: 0,
+        isVisible: false,
+        observer: null,
+        
+        init() {
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            
+            if (prefersReducedMotion) {
+                this.current = this.target;
+                return;
+            }
+            
+            this.observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && !this.isVisible) {
+                        this.animateCounter();
+                        this.observer.unobserve(entry.target);
+                    }
+                });
+            }, {
+                threshold: 0.5
+            });
+            
+            this.observer.observe(this.$el);
+        },
+        
+        animateCounter() {
+            this.isVisible = true;
+            const increment = this.target / (this.duration / 16);
+            const timer = setInterval(() => {
+                this.current += increment;
+                if (this.current >= this.target) {
+                    this.current = this.target;
+                    clearInterval(timer);
+                }
+            }, 16);
+        },
+        
+        destroy() {
+            if (this.observer) {
+                this.observer.disconnect();
+            }
+        }
+    }));
+    
+    // Loading State Animation
+    Alpine.data('loadingAnimation', () => ({
+        isLoading: false,
+        
+        startLoading() {
+            this.isLoading = true;
+        },
+        
+        stopLoading() {
+            this.isLoading = false;
+        }
+    }));
+});
+</script>
+
+<!-- Animation CSS Classes -->
+<style>
+/* Base animation styles */
+@media (prefers-reduced-motion: no-preference) {
+    /* Fade In Up Animation */
+    .animate-fade-in-up {
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .animate-fade-in-up.animate-in {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
+    /* Fade In Left Animation */
+    .animate-fade-in-left {
+        opacity: 0;
+        transform: translateX(-30px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .animate-fade-in-left.animate-in {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* Fade In Right Animation */
+    .animate-fade-in-right {
+        opacity: 0;
+        transform: translateX(30px);
+        transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .animate-fade-in-right.animate-in {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    
+    /* Scale In Animation */
+    .animate-scale-in {
+        opacity: 0;
+        transform: scale(0.9);
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .animate-scale-in.animate-in {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+    /* Hover animations */
+    .hover-lift {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-lift:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .hover-scale {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .hover-scale:hover {
+        transform: scale(1.02);
+    }
+    
+    /* Loading states */
+    .loading-pulse {
+        animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .loading-shimmer {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+    
+    /* Stagger delay utilities */
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .stagger-5 { animation-delay: 0.5s; }
+    .stagger-6 { animation-delay: 0.6s; }
+}
+
+/* Ensure animations are disabled for reduced motion users */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .animate-fade-in-up,
+    .animate-fade-in-left,
+    .animate-fade-in-right,
+    .animate-scale-in {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* Focus styles for accessibility */
+.focus-ring:focus {
+    outline: 2px solid #3B82F6;
+    outline-offset: 2px;
+}
+</style>

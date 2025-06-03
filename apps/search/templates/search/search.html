@@ -1,0 +1,207 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Search - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-suggestion {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .search-suggestion:hover {
+        background-color: #f3f4f6;
+    }
+    .result-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        transition: box-shadow 0.2s;
+    }
+    .result-item:hover {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Search #FahanieCares</h1>
+    
+    <!-- Search Form -->
+    <form method="get" action="{% url 'search:search' %}" x-data="searchComponent()">
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex gap-4">
+                <div class="flex-1">
+                    {{ form.query }}
+                    <!-- Search Suggestions -->
+                    <div x-show="suggestions.length > 0" 
+                         class="absolute z-10 w-full bg-white border border-gray-300 rounded-b-lg mt-1 max-h-48 overflow-y-auto">
+                        <template x-for="suggestion in suggestions">
+                            <div @click="selectSuggestion(suggestion)" 
+                                 class="px-4 py-2 search-suggestion">
+                                <span x-text="suggestion"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="w-48">
+                    {{ form.module }}
+                </div>
+                <button type="submit" class="btn btn-primary px-6">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+            </div>
+            
+            <div class="mt-4 flex items-center justify-between">
+                <a href="{% url 'search:advanced_search' %}" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-cog mr-1"></i>Advanced Search
+                </a>
+                {% if user.is_authenticated and query %}
+                <button type="button" @click="saveSearch()" class="text-green-600 hover:text-green-800">
+                    <i class="fas fa-save mr-1"></i>Save This Search
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+    
+    <!-- Popular Searches -->
+    {% if popular_searches %}
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold mb-3">Popular Searches</h3>
+        <div class="flex flex-wrap gap-2">
+            {% for search in popular_searches %}
+            <a href="?query={{ search }}&module={{ module }}" 
+               class="px-3 py-1 bg-gray-200 rounded-full text-sm hover:bg-gray-300">
+                {{ search }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Search Results -->
+    {% if results %}
+    <div class="mb-4">
+        <h2 class="text-2xl font-semibold mb-4">Search Results</h2>
+        
+        {% for module_name, module_results in results.items %}
+            {% if module_results %}
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4 capitalize">{{ module_name }}</h3>
+                
+                <div class="space-y-4">
+                    {% for result in module_results|slice:":5" %}
+                    <div class="result-item bg-white p-4">
+                        <h4 class="text-lg font-medium mb-2">
+                            <a href="#" class="text-blue-600 hover:text-blue-800">
+                                {{ result.display_title }}
+                            </a>
+                        </h4>
+                        <div class="text-gray-600 text-sm">
+                            {% for key, value in result.properties.items %}
+                                {% if value and key != 'title' and key != 'name' %}
+                                <span class="mr-4">
+                                    <strong>{{ key|title }}:</strong> {{ value }}
+                                </span>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="text-gray-500 text-xs mt-2">
+                            Last updated: {{ result.last_edited_time|date:"M d, Y" }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% if module_results|length > 5 %}
+                <div class="mt-4">
+                    <a href="{% url 'search:advanced_search' %}?module={{ module_name }}&query={{ query }}" 
+                       class="text-blue-600 hover:text-blue-800">
+                        View all {{ module_results|length }} results in {{ module_name }}
+                        <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        {% endfor %}
+        
+        <!-- Export Results -->
+        {% if user.is_authenticated %}
+        <div class="mt-8">
+            <a href="{% url 'search:export_results' %}?{{ request.GET.urlencode }}" 
+               class="btn btn-secondary">
+                <i class="fas fa-download mr-2"></i>Export Results
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% elif query %}
+    <div class="text-center py-12">
+        <i class="fas fa-search text-gray-400 text-5xl mb-4"></i>
+        <p class="text-xl text-gray-600">No results found for "{{ query }}"</p>
+        <p class="text-gray-500 mt-2">Try adjusting your search terms or filters</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Save Search Modal -->
+<div x-show="showSaveModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <h3 class="text-lg font-bold mb-4">Save Search</h3>
+        <form method="post" action="{% url 'search:save_search' %}">
+            {% csrf_token %}
+            <input type="hidden" name="query" value="{{ query }}">
+            <input type="hidden" name="module" value="{{ module }}">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Search Name</label>
+                <input type="text" name="name" required
+                       class="form-control w-full px-3 py-2 border rounded-lg">
+            </div>
+            <div class="mb-4">
+                <label class="flex items-center">
+                    <input type="checkbox" name="is_public" class="mr-2">
+                    <span>Make this search public</span>
+                </label>
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="btn btn-primary flex-1">Save</button>
+                <button type="button" @click="showSaveModal = false" 
+                        class="btn btn-secondary flex-1">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function searchComponent() {
+    return {
+        suggestions: [],
+        showSaveModal: false,
+        
+        async getSuggestions(query) {
+            if (query.length < 2) {
+                this.suggestions = [];
+                return;
+            }
+            
+            const response = await fetch(`{% url 'search:suggestions_api' %}?q=${query}&module={{ module }}`);
+            const data = await response.json();
+            this.suggestions = data.suggestions;
+        },
+        
+        selectSuggestion(suggestion) {
+            document.querySelector('input[name="query"]').value = suggestion;
+            this.suggestions = [];
+        },
+        
+        saveSearch() {
+            this.showSaveModal = true;
+        }
+    }
+}
+</script>
+{% endblock %}

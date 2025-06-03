@@ -1,0 +1,63 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 border border-gray-100">
+        <div class="text-center py-8">
+            <i class="fas fa-check-circle text-success-600 text-6xl mb-6"></i>
+            <h2 class="text-3xl font-bold text-primary-800 mb-4">Registration Successful!</h2>
+            <p class="text-lg text-gray-600 mb-6">
+                Thank you for registering with #FahanieCares. Your membership application has been submitted successfully.
+            </p>
+            
+            <div class="bg-info-50 border border-info-200 rounded-lg p-6 mb-8">
+                <h5 class="text-lg font-semibold text-info-800 mb-4">What happens next?</h5>
+                <ul class="text-left text-info-700 space-y-2">
+                    <li class="flex items-center">
+                        <i class="fas fa-check mr-3 text-success-600"></i>
+                        Your application will be reviewed by our team
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check mr-3 text-success-600"></i>
+                        You will receive an email notification once approved
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check mr-3 text-success-600"></i>
+                        After approval, you can access all member benefits
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="flex justify-center space-x-4">
+                {% include 'components/atoms/button.html' with variant='success' text='Return to Home' href='/' icon='fas fa-home' icon_position='left' size='lg' %}
+                {% include 'components/atoms/button.html' with variant='outline' text='Login' href='/accounts/login/' icon='fas fa-sign-in-alt' icon_position='left' size='lg' %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-sm p-6 mt-6 border border-gray-100">
+        <h5 class="text-lg font-semibold text-primary-700 mb-3">Need Help?</h5>
+        <p class="text-gray-600 mb-4">
+            If you have any questions about your application or the #FahanieCares program, 
+            please don't hesitate to contact us:
+        </p>
+        <ul class="space-y-2 text-gray-700">
+            <li class="flex items-center">
+                <i class="fas fa-envelope mr-3 text-primary-600"></i>
+                Email: info@fahaniecares.gov.ph
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-phone mr-3 text-primary-600"></i>
+                Phone: (064) XXX-XXXX
+            </li>
+            <li class="flex items-center">
+                <i class="fas fa-clock mr-3 text-primary-600"></i>
+                Office Hours: Monday-Friday, 8:00 AM - 5:00 PM
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

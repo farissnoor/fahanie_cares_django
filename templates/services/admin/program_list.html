@@ -1,0 +1,530 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Ministry Programs Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .program-card {
+        transition: all 0.3s ease;
+        border: 1px solid #e3e6f0;
+    }
+    .program-card:hover {
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        transform: translateY(-2px);
+    }
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 1rem;
+    }
+    .priority-indicator {
+        width: 4px;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        border-radius: 0.25rem 0 0 0.25rem;
+    }
+    .search-filters {
+        background: #f8f9fc;
+        border-radius: 0.35rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .bulk-actions {
+        background: #e3f2fd;
+        padding: 1rem;
+        border-radius: 0.35rem;
+        margin-bottom: 1rem;
+        display: none;
+    }
+    .table-actions {
+        min-width: 120px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-clipboard-list me-2"></i>Ministry Programs
+            </h1>
+            <p class="text-muted">Manage and monitor all ministry programs</p>
+        </div>
+        <div class="d-none d-sm-block">
+            <a href="{% url 'program_create' %}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-plus fa-sm text-white-50 me-1"></i>Add New Program
+            </a>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary shadow-sm">
+                <i class="fas fa-chart-pie fa-sm text-white-50 me-1"></i>Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="search-filters">
+        <form method="get" id="filterForm">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="search_query" class="form-label">Search Programs</label>
+                    {{ search_form.search_query }}
+                </div>
+                <div class="col-md-2">
+                    <label for="ministry" class="form-label">Ministry</label>
+                    {{ search_form.ministry }}
+                </div>
+                <div class="col-md-2">
+                    <label for="status" class="form-label">Status</label>
+                    {{ search_form.status }}
+                </div>
+                <div class="col-md-2">
+                    <label for="priority_level" class="form-label">Priority</label>
+                    {{ search_form.priority_level }}
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="budget_min" class="form-label">Min Budget</label>
+                            {{ search_form.budget_min }}
+                        </div>
+                        <div class="col-6">
+                            <label for="budget_max" class="form-label">Max Budget</label>
+                            {{ search_form.budget_max }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <div class="form-check">
+                        {{ search_form.is_featured }}
+                        <label class="form-check-label" for="is_featured">
+                            Featured Only
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-10 text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Search
+                    </button>
+                    <a href="{% url 'program_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-1"></i>Clear
+                    </a>
+                    <button type="button" class="btn btn-info" onclick="toggleView()">
+                        <i class="fas fa-th-list me-1"></i>Toggle View
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" id="bulkActions">
+        <form method="post" action="{% url 'program_bulk_action' %}" id="bulkForm">
+            {% csrf_token %}
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <select name="action" class="form-control" required>
+                        <option value="">Select Action</option>
+                        <option value="delete">Delete Selected</option>
+                        <option value="activate">Set Status to Active</option>
+                        <option value="suspend">Set Status to Suspended</option>
+                        <option value="feature">Mark as Featured</option>
+                        <option value="unfeature">Remove from Featured</option>
+                        <option value="export">Export Selected</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <span id="selectedCount">0</span> programs selected
+                </div>
+                <div class="col-md-3 text-end">
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        <i class="fas fa-bolt me-1"></i>Apply Action
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearSelection()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+            <input type="hidden" name="selected_programs" id="selectedPrograms">
+        </form>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <p class="text-muted">
+                Showing {{ programs|length }} of {{ total_count }} programs
+                {% if search_form.search_query.value %}
+                    for "{{ search_form.search_query.value }}"
+                {% endif %}
+            </p>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="btn-group" role="group">
+                <input type="checkbox" class="btn-check" id="selectAll" autocomplete="off">
+                <label class="btn btn-outline-primary btn-sm" for="selectAll">Select All</label>
+                
+                <a href="{% url 'program_export' %}?{{ request.GET.urlencode }}" class="btn btn-outline-success btn-sm">
+                    <i class="fas fa-download me-1"></i>Export Current
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Programs Grid/List View -->
+    <div id="gridView">
+        <div class="row">
+            {% for program in programs %}
+            <div class="col-xl-4 col-lg-6 col-md-6 mb-4">
+                <div class="card program-card h-100" style="position: relative;">
+                    <!-- Priority Indicator -->
+                    <div class="priority-indicator bg-{% if program.priority_level == 'high' %}danger{% elif program.priority_level == 'medium' %}warning{% else %}success{% endif %}"></div>
+                    
+                    <!-- Selection Checkbox -->
+                    <div class="position-absolute" style="top: 10px; right: 10px; z-index: 10;">
+                        <input type="checkbox" class="form-check-input program-select" 
+                               value="{{ program.id }}" id="program-{{ program.id }}">
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title text-primary font-weight-bold">
+                                {{ program.program_code }}
+                            </h6>
+                            {% if program.is_featured %}
+                                <i class="fas fa-star text-warning" title="Featured Program"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="card-subtitle mb-3">{{ program.title|truncatechars:50 }}</h5>
+                        
+                        <div class="mb-3">
+                            <span class="badge bg-info">{{ program.get_ministry_display }}</span>
+                            <span class="status-badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% elif program.status == 'suspended' %}danger{% else %}secondary{% endif %}">
+                                {{ program.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <p class="card-text text-muted small">
+                            {{ program.description|truncatechars:100 }}
+                        </p>
+                        
+                        <div class="row text-center small mb-3">
+                            <div class="col-6">
+                                <div class="font-weight-bold text-success">₱{{ program.budget_allocated|floatformat:0 }}</div>
+                                <div class="text-muted">Budget</div>
+                            </div>
+                            <div class="col-6">
+                                <div class="font-weight-bold text-info">{{ program.beneficiaries_target|default:"-" }}</div>
+                                <div class="text-muted">Beneficiaries</div>
+                            </div>
+                        </div>
+                        
+                        <div class="small text-muted mb-3">
+                            <div><i class="fas fa-calendar me-1"></i>{{ program.start_date|date:"M d, Y" }} - {{ program.end_date|date:"M d, Y" }}</div>
+                            <div><i class="fas fa-map-marker-alt me-1"></i>{{ program.location|default:"Various locations" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer bg-transparent">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'program_detail' program.id %}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'program_update' program.id %}" class="btn btn-outline-info btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button type="button" class="btn btn-outline-danger btn-sm" 
+                                    onclick="confirmDelete({{ program.id }}, '{{ program.title|escapejs }}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-clipboard-list fa-4x text-muted mb-4"></i>
+                        <h4 class="text-muted">No Programs Found</h4>
+                        <p class="text-muted">No programs match your current filters.</p>
+                        <a href="{% url 'program_create' %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Add First Program
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Table View (Initially Hidden) -->
+    <div id="tableView" style="display: none;">
+        <div class="card shadow">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="30"><input type="checkbox" id="selectAllTable"></th>
+                                <th>Code</th>
+                                <th>Title</th>
+                                <th>Ministry</th>
+                                <th>Status</th>
+                                <th>Budget</th>
+                                <th>Priority</th>
+                                <th>Start Date</th>
+                                <th class="table-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for program in programs %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input program-select-table" 
+                                           value="{{ program.id }}">
+                                </td>
+                                <td>
+                                    <span class="font-weight-bold text-primary">{{ program.program_code }}</span>
+                                    {% if program.is_featured %}
+                                        <i class="fas fa-star text-warning ms-1" title="Featured"></i>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold">{{ program.title|truncatechars:40 }}</div>
+                                    <small class="text-muted">{{ program.location|default:"Various locations" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ program.get_ministry_display }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if program.status == 'active' %}success{% elif program.status == 'completed' %}primary{% elif program.status == 'suspended' %}danger{% else %}secondary{% endif %}">
+                                        {{ program.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>₱{{ program.budget_allocated|floatformat:0 }}</td>
+                                <td>
+                                    <span class="badge bg-{% if program.priority_level == 'high' %}danger{% elif program.priority_level == 'medium' %}warning{% else %}success{% endif %}">
+                                        {{ program.get_priority_level_display }}
+                                    </span>
+                                </td>
+                                <td>{{ program.start_date|date:"M d, Y" }}</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'program_detail' program.id %}" 
+                                           class="btn btn-outline-primary btn-sm" title="View">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{% url 'program_update' program.id %}" 
+                                           class="btn btn-outline-info btn-sm" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="confirmDelete({{ program.id }}, '{{ program.title|escapejs }}')"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav aria-label="Programs pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page=1">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+            {% endif %}
+            
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the program <strong id="programTitle"></strong>?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" style="display: inline;" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Delete Program</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedPrograms = new Set();
+
+document.addEventListener('DOMContentLoaded', function() {
+    setupSelection();
+    setupBulkActions();
+});
+
+function setupSelection() {
+    // Handle individual program selection
+    document.querySelectorAll('.program-select, .program-select-table').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                selectedPrograms.add(this.value);
+            } else {
+                selectedPrograms.delete(this.value);
+            }
+            updateBulkActionsVisibility();
+        });
+    });
+
+    // Handle select all
+    document.getElementById('selectAll')?.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.program-select');
+        checkboxes.forEach(cb => {
+            cb.checked = this.checked;
+            if (this.checked) {
+                selectedPrograms.add(cb.value);
+            } else {
+                selectedPrograms.delete(cb.value);
+            }
+        });
+        updateBulkActionsVisibility();
+    });
+
+    // Handle select all table
+    document.getElementById('selectAllTable')?.addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('.program-select-table');
+        checkboxes.forEach(cb => {
+            cb.checked = this.checked;
+            if (this.checked) {
+                selectedPrograms.add(cb.value);
+            } else {
+                selectedPrograms.delete(cb.value);
+            }
+        });
+        updateBulkActionsVisibility();
+    });
+}
+
+function updateBulkActionsVisibility() {
+    const bulkActions = document.getElementById('bulkActions');
+    const selectedCount = document.getElementById('selectedCount');
+    const selectedInput = document.getElementById('selectedPrograms');
+    
+    if (selectedPrograms.size > 0) {
+        bulkActions.style.display = 'block';
+        selectedCount.textContent = selectedPrograms.size;
+        selectedInput.value = Array.from(selectedPrograms).join(',');
+    } else {
+        bulkActions.style.display = 'none';
+    }
+}
+
+function clearSelection() {
+    selectedPrograms.clear();
+    document.querySelectorAll('.program-select, .program-select-table').forEach(cb => {
+        cb.checked = false;
+    });
+    document.getElementById('selectAll').checked = false;
+    document.getElementById('selectAllTable').checked = false;
+    updateBulkActionsVisibility();
+}
+
+function setupBulkActions() {
+    document.getElementById('bulkForm')?.addEventListener('submit', function(e) {
+        const action = this.querySelector('select[name="action"]').value;
+        if (!action) {
+            e.preventDefault();
+            alert('Please select an action.');
+            return;
+        }
+        
+        if (selectedPrograms.size === 0) {
+            e.preventDefault();
+            alert('Please select at least one program.');
+            return;
+        }
+        
+        if (action === 'delete') {
+            if (!confirm(`Are you sure you want to delete ${selectedPrograms.size} programs? This action cannot be undone.`)) {
+                e.preventDefault();
+            }
+        }
+    });
+}
+
+function toggleView() {
+    const gridView = document.getElementById('gridView');
+    const tableView = document.getElementById('tableView');
+    
+    if (gridView.style.display === 'none') {
+        gridView.style.display = 'block';
+        tableView.style.display = 'none';
+    } else {
+        gridView.style.display = 'none';
+        tableView.style.display = 'block';
+    }
+}
+
+function confirmDelete(programId, programTitle) {
+    document.getElementById('programTitle').textContent = programTitle;
+    document.getElementById('deleteForm').action = `/services/admin/programs/${programId}/delete/`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Auto-submit form on filter change
+document.querySelectorAll('#filterForm select').forEach(select => {
+    select.addEventListener('change', function() {
+        document.getElementById('filterForm').submit();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends 'base/mobile_base.html' %}
+{% load static %}
+
+{% block title %}Services - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mobile-services">
+    <h1 class="text-2xl font-bold mb-4">#FahanieCares Services</h1>
+    
+    <!-- Quick Access Buttons -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <a href="{% url 'referrals' %}" class="service-quick-access bg-blue-100 p-4 rounded-lg text-center">
+            <i class="fas fa-exchange-alt text-3xl text-blue-600 mb-2"></i>
+            <p class="font-semibold">Referrals</p>
+        </a>
+        <a href="{% url 'service_program_list' %}" class="service-quick-access bg-green-100 p-4 rounded-lg text-center">
+            <i class="fas fa-hands-helping text-3xl text-green-600 mb-2"></i>
+            <p class="font-semibold">Direct Aid</p>
+        </a>
+        <a href="{% url 'chapter_list' %}" class="service-quick-access bg-purple-100 p-4 rounded-lg text-center">
+            <i class="fas fa-users text-3xl text-purple-600 mb-2"></i>
+            <p class="font-semibold">Chapters</p>
+        </a>
+        <a href="{% url 'programs' %}" class="service-quick-access bg-red-100 p-4 rounded-lg text-center">
+            <i class="fas fa-heart text-3xl text-red-600 mb-2"></i>
+            <p class="font-semibold">Programs</p>
+        </a>
+    </div>
+    
+    <!-- Recent Services -->
+    <section class="mb-6">
+        <h2 class="text-lg font-semibold mb-3 text-gray-700">Recently Accessed</h2>
+        <div class="space-y-3">
+            <div class="service-card bg-white p-4 rounded-lg shadow">
+                <h3 class="font-semibold text-gray-900">Medical Assistance</h3>
+                <p class="text-sm text-gray-600">Apply for medical aid and healthcare support</p>
+                <a href="#" class="text-primary-600 text-sm mt-2 inline-block">Apply Now →</a>
+            </div>
+            <div class="service-card bg-white p-4 rounded-lg shadow">
+                <h3 class="font-semibold text-gray-900">Legal Assistance</h3>
+                <p class="text-sm text-gray-600">Get free legal consultation and support</p>
+                <a href="#" class="text-primary-600 text-sm mt-2 inline-block">Learn More →</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- All Services -->
+    <section>
+        <h2 class="text-lg font-semibold mb-3 text-gray-700">All Services</h2>
+        <div class="bg-white rounded-lg shadow divide-y">
+            <a href="{% url 'service_category' 'health' %}" class="service-item p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-heartbeat text-red-500 mr-3 text-xl"></i>
+                    <div>
+                        <h3 class="font-medium">Healthcare Services</h3>
+                        <p class="text-sm text-gray-600">Medical assistance and health programs</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </a>
+            <a href="{% url 'service_category' 'education' %}" class="service-item p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-graduation-cap text-blue-500 mr-3 text-xl"></i>
+                    <div>
+                        <h3 class="font-medium">Educational Support</h3>
+                        <p class="text-sm text-gray-600">Scholarships and educational assistance</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </a>
+            <a href="{% url 'service_category' 'livelihood' %}" class="service-item p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-briefcase text-green-500 mr-3 text-xl"></i>
+                    <div>
+                        <h3 class="font-medium">Livelihood Programs</h3>
+                        <p class="text-sm text-gray-600">Business assistance and job training</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </a>
+            <a href="{% url 'service_category' 'emergency' %}" class="service-item p-4 flex items-center justify-between">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-orange-500 mr-3 text-xl"></i>
+                    <div>
+                        <h3 class="font-medium">Emergency Relief</h3>
+                        <p class="text-sm text-gray-600">Disaster and emergency assistance</p>
+                    </div>
+                </div>
+                <i class="fas fa-chevron-right text-gray-400"></i>
+            </a>
+        </div>
+    </section>
+</div>
+{% endblock %}

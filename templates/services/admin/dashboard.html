@@ -1,0 +1,331 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Ministry Programs Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .stats-card:hover {
+        transform: translateY(-2px);
+    }
+    .quick-actions {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 8px;
+    }
+    .recent-activity {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .ministry-filter {
+        border: 2px solid #e3f2fd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 mb-0 text-gray-800">
+                <i class="fas fa-chart-pie me-2"></i>Ministry Programs Admin Dashboard
+            </h1>
+            <p class="text-muted">Manage and monitor ministry programs across BARMM</p>
+        </div>
+    </div>
+
+    <!-- Ministry Filter -->
+    <div class="ministry-filter">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="ministry" class="form-label">Filter by Ministry</label>
+                {{ filter_form.ministry }}
+            </div>
+            <div class="col-md-3">
+                <label for="date_range" class="form-label">Date Range</label>
+                {{ filter_form.date_range }}
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-primary d-block">
+                    <i class="fas fa-filter me-1"></i>Apply Filter
+                </button>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary d-block">
+                    <i class="fas fa-times me-1"></i>Clear Filter
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Programs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_programs }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Active Programs
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.active_programs }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-play-circle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Budget
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">₱{{ stats.total_budget|floatformat:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-peso-sign fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card stats-card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Target Beneficiaries
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ stats.total_beneficiaries|floatformat:0 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Ministry Breakdown -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card quick-actions shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-white">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <a href="{% url 'program_create' %}" class="btn btn-light btn-block">
+                                <i class="fas fa-plus me-2"></i>Add Program
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'program_list' %}" class="btn btn-light btn-block">
+                                <i class="fas fa-list me-2"></i>View All
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'program_import' %}" class="btn btn-light btn-block">
+                                <i class="fas fa-upload me-2"></i>Import
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{% url 'program_export' %}" class="btn btn-light btn-block">
+                                <i class="fas fa-download me-2"></i>Export
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Programs by Ministry</h6>
+                </div>
+                <div class="card-body">
+                    {% for ministry_stat in ministry_stats %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="font-weight-bold">{{ ministry_stat.ministry }}</span>
+                            <span>{{ ministry_stat.count }} programs</span>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{{ ministry_stat.color }}" 
+                                 style="width: {{ ministry_stat.percentage }}%">
+                                ₱{{ ministry_stat.budget|floatformat:0 }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity & Featured Programs -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
+                    <a href="{% url 'program_history' %}" class="btn btn-sm btn-outline-primary">
+                        View All History
+                    </a>
+                </div>
+                <div class="card-body recent-activity">
+                    {% for activity in recent_activities %}
+                    <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                        <div class="me-3">
+                            {% if activity.action == 'created' %}
+                                <i class="fas fa-plus-circle text-success fa-lg"></i>
+                            {% elif activity.action == 'updated' %}
+                                <i class="fas fa-edit text-info fa-lg"></i>
+                            {% elif activity.action == 'deleted' %}
+                                <i class="fas fa-trash text-danger fa-lg"></i>
+                            {% else %}
+                                <i class="fas fa-info-circle text-warning fa-lg"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="font-weight-bold">{{ activity.program_title }}</div>
+                            <div class="text-muted small">
+                                {{ activity.action|title }} by {{ activity.user }} 
+                                <span class="text-muted">{{ activity.timestamp|timesince }} ago</span>
+                            </div>
+                            {% if activity.changes %}
+                            <div class="text-sm text-secondary">{{ activity.changes }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-history fa-3x mb-3"></i>
+                        <p>No recent activity found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Featured Programs</h6>
+                </div>
+                <div class="card-body">
+                    {% for program in featured_programs %}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="font-weight-bold text-dark">{{ program.title }}</div>
+                        <div class="small text-muted">{{ program.ministry }}</div>
+                        <div class="small">
+                            <strong>Budget:</strong> ₱{{ program.budget_allocated|floatformat:0 }}
+                        </div>
+                        <div class="small">
+                            <strong>Status:</strong> 
+                            <span class="badge badge-{{ program.status_color }}">{{ program.get_status_display }}</span>
+                        </div>
+                        <a href="{% url 'program_detail' program.id %}" class="btn btn-sm btn-outline-primary mt-2">
+                            View Details
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-star fa-3x mb-3"></i>
+                        <p>No featured programs.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Quick Stats</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="h5 font-weight-bold text-primary">{{ stats.programs_this_month }}</div>
+                            <div class="small text-muted">This Month</div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="h5 font-weight-bold text-success">{{ stats.completed_programs }}</div>
+                            <div class="small text-muted">Completed</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 font-weight-bold text-warning">{{ stats.high_priority }}</div>
+                            <div class="small text-muted">High Priority</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="h5 font-weight-bold text-info">{{ stats.avg_budget|floatformat:0 }}</div>
+                            <div class="small text-muted">Avg Budget</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh every 5 minutes
+    setTimeout(function() {
+        location.reload();
+    }, 300000);
+    
+    // Add hover effects to cards
+    document.querySelectorAll('.stats-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% comment %}
+Gradient Card Component - Showcasing New Gradient System
+Atomic Design Level: Molecule
+
+Usage Examples:
+{% include 'components/molecules/gradient_card.html' with gradient='hero' title='Welcome' description='Get started' %}
+{% include 'components/molecules/gradient_card.html' with gradient='success' title='Approved' icon='fas fa-check' %}
+
+Parameters:
+- gradient: 'primary', 'hero', 'success', 'warning', 'info' (required)
+- title: Card title (required)
+- description: Card description (optional)
+- icon: Font Awesome icon class (optional)
+- cta_text: Call-to-action button text (optional)
+- cta_href: Call-to-action button link (optional)
+- text_color: 'light', 'dark' (optional, default: auto-detected based on gradient)
+- size: 'sm', 'md', 'lg' (optional, default: 'md')
+- extra_classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% comment %} Set defaults {% endcomment %}
+{% with 
+    gradient=gradient|default:'primary'
+    size=size|default:'md'
+%}
+
+{% comment %} Determine size and gradient classes {% endcomment %}
+{% if size == 'sm' %}
+    {% if gradient == 'primary' %}
+        <div class="bg-gradient-primary p-4 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+             x-data="hoverAnimation()"
+             role="article"
+             tabindex="0">
+             
+            <div class="flex flex-col items-center text-center text-white">
+                {% if icon %}
+                <div class="mb-4 opacity-90 transition-transform duration-300" 
+                     :class="{ 'scale-110': isHovered }"
+                     @mouseenter="mouseenter()"
+                     @mouseleave="mouseleave()">
+                    <i class="{{ icon }} text-2xl"></i>
+                </div>
+                {% endif %}
+                
+                {% if title %}
+                <h3 class="font-bold text-lg mb-3 text-white/90">{{ title }}</h3>
+                {% endif %}
+                
+                {% if description %}
+                <p class="text-sm mb-6 text-white/80 max-w-sm">{{ description }}</p>
+                {% endif %}
+                
+                {% if cta_text %}
+                <div class="mt-4">
+                    <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-primary-600 hover:bg-gray-100 focus:ring-white">
+                        {{ cta_text }}
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if custom_content %}
+                    {{ custom_content|safe }}
+                {% endif %}
+            </div>
+        </div>
+    {% elif gradient == 'hero' %}
+        <div class="bg-gradient-hero p-4 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+             x-data="hoverAnimation()"
+             role="article"
+             tabindex="0">
+             
+            <div class="flex flex-col items-center text-center text-white">
+                {% if icon %}
+                <div class="mb-4 opacity-90 transition-transform duration-300" 
+                     :class="{ 'scale-110': isHovered }"
+                     @mouseenter="mouseenter()"
+                     @mouseleave="mouseleave()">
+                    <i class="{{ icon }} text-2xl"></i>
+                </div>
+                {% endif %}
+                
+                {% if title %}
+                <h3 class="font-bold text-lg mb-3 text-white/90">{{ title }}</h3>
+                {% endif %}
+                
+                {% if description %}
+                <p class="text-sm mb-6 text-white/80 max-w-sm">{{ description }}</p>
+                {% endif %}
+                
+                {% if cta_text %}
+                <div class="mt-4">
+                    <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-primary-600 hover:bg-gray-100 focus:ring-white">
+                        {{ cta_text }}
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if custom_content %}
+                    {{ custom_content|safe }}
+                {% endif %}
+            </div>
+        </div>
+    {% elif gradient == 'success' %}
+        <div class="bg-gradient-success p-4 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+             x-data="hoverAnimation()"
+             role="article"
+             tabindex="0">
+             
+            <div class="flex flex-col items-center text-center text-white">
+                {% if icon %}
+                <div class="mb-4 opacity-90 transition-transform duration-300" 
+                     :class="{ 'scale-110': isHovered }"
+                     @mouseenter="mouseenter()"
+                     @mouseleave="mouseleave()">
+                    <i class="{{ icon }} text-2xl"></i>
+                </div>
+                {% endif %}
+                
+                {% if title %}
+                <h3 class="font-bold text-lg mb-3 text-white/90">{{ title }}</h3>
+                {% endif %}
+                
+                {% if description %}
+                <p class="text-sm mb-6 text-white/80 max-w-sm">{{ description }}</p>
+                {% endif %}
+                
+                {% if cta_text %}
+                <div class="mt-4">
+                    <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-success-600 hover:bg-gray-100 focus:ring-white">
+                        {{ cta_text }}
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if custom_content %}
+                    {{ custom_content|safe }}
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <div class="bg-gradient-primary p-4 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+             x-data="hoverAnimation()"
+             role="article"
+             tabindex="0">
+             
+            <div class="flex flex-col items-center text-center text-white">
+                {% if icon %}
+                <div class="mb-4 opacity-90 transition-transform duration-300" 
+                     :class="{ 'scale-110': isHovered }"
+                     @mouseenter="mouseenter()"
+                     @mouseleave="mouseleave()">
+                    <i class="{{ icon }} text-2xl"></i>
+                </div>
+                {% endif %}
+                
+                {% if title %}
+                <h3 class="font-bold text-lg mb-3 text-white/90">{{ title }}</h3>
+                {% endif %}
+                
+                {% if description %}
+                <p class="text-sm mb-6 text-white/80 max-w-sm">{{ description }}</p>
+                {% endif %}
+                
+                {% if cta_text %}
+                <div class="mt-4">
+                    <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-primary-600 hover:bg-gray-100 focus:ring-white">
+                        {{ cta_text }}
+                    </a>
+                </div>
+                {% endif %}
+                
+                {% if custom_content %}
+                    {{ custom_content|safe }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+{% elif size == 'lg' %}
+    {% comment %} Large size variants - similar structure {% endcomment %}
+    <div class="{% if gradient == 'hero' %}bg-gradient-hero{% elif gradient == 'success' %}bg-gradient-success{% else %}bg-gradient-primary{% endif %} p-8 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+         x-data="hoverAnimation()"
+         role="article"
+         tabindex="0">
+         
+        <div class="flex flex-col items-center text-center text-white">
+            {% if icon %}
+            <div class="mb-4 opacity-90 transition-transform duration-300" 
+                 :class="{ 'scale-110': isHovered }"
+                 @mouseenter="mouseenter()"
+                 @mouseleave="mouseleave()">
+                <i class="{{ icon }} text-4xl"></i>
+            </div>
+            {% endif %}
+            
+            {% if title %}
+            <h3 class="font-bold text-2xl md:text-3xl mb-3 text-white/90">{{ title }}</h3>
+            {% endif %}
+            
+            {% if description %}
+            <p class="text-lg mb-6 text-white/80 max-w-sm">{{ description }}</p>
+            {% endif %}
+            
+            {% if cta_text %}
+            <div class="mt-4">
+                <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-primary-600 hover:bg-gray-100 focus:ring-white">
+                    {{ cta_text }}
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if custom_content %}
+                {{ custom_content|safe }}
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    {% comment %} Medium size (default) {% endcomment %}
+    <div class="{% if gradient == 'hero' %}bg-gradient-hero{% elif gradient == 'success' %}bg-gradient-success{% else %}bg-gradient-primary{% endif %} p-6 rounded-lg shadow-lg border border-white/10 {{ extra_classes }}" 
+         x-data="hoverAnimation()"
+         role="article"
+         tabindex="0">
+         
+        <div class="flex flex-col items-center text-center text-white">
+            {% if icon %}
+            <div class="mb-4 opacity-90 transition-transform duration-300" 
+                 :class="{ 'scale-110': isHovered }"
+                 @mouseenter="mouseenter()"
+                 @mouseleave="mouseleave()">
+                <i class="{{ icon }} text-3xl"></i>
+            </div>
+            {% endif %}
+            
+            {% if title %}
+            <h3 class="font-bold text-xl mb-3 text-white/90">{{ title }}</h3>
+            {% endif %}
+            
+            {% if description %}
+            <p class="text-base mb-6 text-white/80 max-w-sm">{{ description }}</p>
+            {% endif %}
+            
+            {% if cta_text %}
+            <div class="mt-4">
+                <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base bg-white text-primary-600 hover:bg-gray-100 focus:ring-white">
+                    {{ cta_text }}
+                </a>
+            </div>
+            {% endif %}
+            
+            {% if custom_content %}
+                {{ custom_content|safe }}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+{% endwith %}{% comment %} defaults {% endcomment %}

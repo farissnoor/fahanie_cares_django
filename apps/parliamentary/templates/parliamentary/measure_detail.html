@@ -1,0 +1,197 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ measure.number }}: {{ measure.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ measure.number }}: {{ measure.title }}</h1>
+            
+            <div class="mb-4">
+                <span class="badge bg-{{ measure.status|default:'draft' }}">
+                    {{ measure.get_status_display }}
+                </span>
+                <span class="badge bg-{{ measure.priority|default:'normal' }}">
+                    {{ measure.get_priority_display }}
+                </span>
+                <span class="badge bg-secondary">
+                    {{ measure.get_measure_type_display }}
+                </span>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Abstract</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ measure.abstract }}</p>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Legislative Actions</h5>
+                </div>
+                <div class="card-body">
+                    {% if actions %}
+                    <div class="timeline">
+                        {% for action in actions %}
+                        <div class="timeline-item">
+                            <div class="timeline-date">{{ action.action_date|date:"M d, Y" }}</div>
+                            <div class="timeline-content">
+                                <h6>{{ action.get_action_type_display }}</h6>
+                                <p>{{ action.description }}</p>
+                                {% if action.vote_yes or action.vote_no %}
+                                <small>
+                                    Votes: Yes ({{ action.vote_yes }}), No ({{ action.vote_no }}), Abstain ({{ action.vote_abstain }})
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No actions recorded yet.</p>
+                    {% endif %}
+                    
+                    {% if can_edit %}
+                    <a href="{% url 'parliamentary:record_action' measure.id %}" class="btn btn-primary mt-3">
+                        Record Action
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if related_speeches %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Related Speeches</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for speech in related_speeches %}
+                        <li class="mb-2">
+                            <strong>{{ speech.speaker.get_full_name }}</strong> - 
+                            {{ speech.title }} 
+                            <small class="text-muted">({{ speech.plenary_session.session_date|date:"M d, Y" }})</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Details</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-5">Session:</dt>
+                        <dd class="col-sm-7">{{ measure.session }}</dd>
+                        
+                        <dt class="col-sm-5">Filed Date:</dt>
+                        <dd class="col-sm-7">{{ measure.filed_date|date:"M d, Y"|default:"-" }}</dd>
+                        
+                        <dt class="col-sm-5">Last Action:</dt>
+                        <dd class="col-sm-7">{{ measure.last_action_date|date:"M d, Y"|default:"-" }}</dd>
+                        
+                        {% if measure.days_since_filing %}
+                        <dt class="col-sm-5">Days Since Filing:</dt>
+                        <dd class="col-sm-7">{{ measure.days_since_filing }}</dd>
+                        {% endif %}
+                        
+                        <dt class="col-sm-5">Primary Committee:</dt>
+                        <dd class="col-sm-7">{{ measure.primary_committee|default:"-" }}</dd>
+                        
+                        {% if measure.estimated_budget %}
+                        <dt class="col-sm-5">Estimated Budget:</dt>
+                        <dd class="col-sm-7">₱{{ measure.estimated_budget|floatformat:2|intcomma }}</dd>
+                        {% endif %}
+                    </dl>
+                    
+                    {% if measure.full_text_url %}
+                    <a href="{{ measure.full_text_url }}" target="_blank" class="btn btn-outline-primary w-100">
+                        View Full Text
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Authors</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Principal Author</h6>
+                    <p>{{ measure.principal_author.get_full_name|default:measure.principal_author.username }}</p>
+                    
+                    {% if measure.co_authors.exists %}
+                    <h6>Co-Authors</h6>
+                    <ul class="list-unstyled">
+                        {% for author in measure.co_authors.all %}
+                        <li>{{ author.get_full_name|default:author.username }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if related_measures %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Related Measures</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for related in related_measures %}
+                        <li>
+                            <a href="{% url 'parliamentary:measure_detail' related.pk %}">
+                                {{ related.number }}: {{ related.title|truncatewords:5 }}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if voting_records %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Voting Records</h5>
+                </div>
+                <div class="card-body">
+                    <div class="vote-summary mb-3">
+                        <span class="badge bg-success">Yes: {{ voting_records|filter:"vote=yes"|length }}</span>
+                        <span class="badge bg-danger">No: {{ voting_records|filter:"vote=no"|length }}</span>
+                        <span class="badge bg-warning">Abstain: {{ voting_records|filter:"vote=abstain"|length }}</span>
+                    </div>
+                    
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#votingDetails">
+                        View Details
+                    </button>
+                    
+                    <div class="collapse mt-3" id="votingDetails">
+                        <ul class="list-unstyled">
+                            {% for vote in voting_records %}
+                            <li>
+                                {{ vote.member.get_full_name }}: 
+                                <span class="badge bg-{{ vote.vote|yesno:'success,danger,warning' }}">
+                                    {{ vote.get_vote_display }}
+                                </span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

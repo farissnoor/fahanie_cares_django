@@ -1,0 +1,444 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Referral {{ referral.reference_number }} - Staff View{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">Referral {{ referral.reference_number }}</h1>
+                    <p class="text-lg text-white/90">{{ referral.service.name }}</p>
+                </div>
+                <div class="mt-4 md:mt-0">
+                    <a href="{% url 'staff_referral_update' referral.reference_number %}" class="bg-white text-primary-600 px-4 py-2 rounded-md font-medium hover:bg-gray-100 transition">
+                        Edit Referral
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_dashboard' %}" class="hover:text-primary-600 transition">Staff Dashboard</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">{{ referral.reference_number }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2">
+            <!-- Referral Overview -->
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+                <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-6">
+                    <div>
+                        <div class="flex items-center mb-4">
+                            <div class="{% if referral.status == 'completed' %}bg-green-100 text-green-800{% elif referral.status == 'denied' %}bg-red-100 text-red-800{% elif referral.status == 'draft' %}bg-gray-100 text-gray-800{% elif referral.status == 'submitted' %}bg-blue-100 text-blue-800{% elif referral.status == 'processing' or referral.status == 'reviewing' %}bg-yellow-100 text-yellow-800{% elif referral.status == 'referred' %}bg-orange-100 text-orange-800{% else %}bg-gray-100 text-gray-800{% endif %} px-3 py-1 rounded-full text-sm font-medium">
+                                {{ referral.get_status_display }}
+                            </div>
+                            <div class="ml-4 flex items-center text-sm">
+                                <span class="h-2 w-2 rounded-full mr-2
+                                    {% if referral.priority == 'urgent' %}
+                                        bg-red-500
+                                    {% elif referral.priority == 'high' %}
+                                        bg-orange-500
+                                    {% elif referral.priority == 'medium' %}
+                                        bg-yellow-500
+                                    {% elif referral.priority == 'low' %}
+                                        bg-green-500
+                                    {% endif %}
+                                "></span>
+                                {{ referral.get_priority_display }} Priority
+                            </div>
+                        </div>
+                        <h2 class="text-2xl font-bold text-slate-800 mb-1">{{ referral.service.name }}</h2>
+                        <p class="text-gray-600">{{ referral.service.agency.name }}</p>
+                    </div>
+                    <div class="mt-4 md:mt-0">
+                        {% if not referral.assigned_to %}
+                        <form method="post" action="{% url 'staff_assign_to_me' referral.reference_number %}">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition">
+                                Assign to Me
+                            </button>
+                        </form>
+                        {% elif referral.assigned_to == request.user %}
+                        <div class="text-sm text-gray-600 font-medium">
+                            <i class="fas fa-user-check text-primary-600 mr-1"></i>
+                            Assigned to You
+                        </div>
+                        {% else %}
+                        <div class="text-sm text-gray-600 font-medium">
+                            <i class="fas fa-user-check text-gray-500 mr-1"></i>
+                            Assigned to {{ referral.assigned_to.get_full_name }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <p class="text-sm text-gray-600">Reference Number:</p>
+                        <p class="font-medium">{{ referral.reference_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Submitted:</p>
+                        <p class="font-medium">{{ referral.submitted_at|default:"Not submitted yet" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Last Updated:</p>
+                        <p class="font-medium">{{ referral.updated_at }}</p>
+                    </div>
+                    {% if referral.referred_at %}
+                    <div>
+                        <p class="text-sm text-gray-600">Referred to Agency:</p>
+                        <p class="font-medium">{{ referral.referred_at }}</p>
+                    </div>
+                    {% endif %}
+                    {% if referral.agency_reference %}
+                    <div>
+                        <p class="text-sm text-gray-600">Agency Reference:</p>
+                        <p class="font-medium">{{ referral.agency_reference }}</p>
+                    </div>
+                    {% endif %}
+                    {% if referral.follow_up_date %}
+                    <div>
+                        <p class="text-sm text-gray-600">Follow-up Date:</p>
+                        <p class="font-medium">{{ referral.follow_up_date }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="font-medium text-slate-800 mb-2">Description:</h3>
+                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <p class="text-gray-700 whitespace-pre-line">{{ referral.description }}</p>
+                    </div>
+                </div>
+                
+                {% if referral.supporting_documents %}
+                <div class="mb-6">
+                    <h3 class="font-medium text-slate-800 mb-2">Supporting Documents:</h3>
+                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <p class="text-gray-700 whitespace-pre-line">{{ referral.supporting_documents }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if referral.staff_notes %}
+                <div class="mb-6">
+                    <h3 class="font-medium text-slate-800 mb-2">Staff Notes:</h3>
+                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <p class="text-gray-700 whitespace-pre-line">{{ referral.staff_notes }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if referral.agency_notes %}
+                <div>
+                    <h3 class="font-medium text-slate-800 mb-2">Agency Notes:</h3>
+                    <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                        <p class="text-gray-700 whitespace-pre-line">{{ referral.agency_notes }}</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <a href="{% url 'staff_referral_update' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        <i class="fas fa-edit mr-1"></i> Edit Referral
+                    </a>
+                    <a href="{% url 'staff_referral_update_create' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        <i class="fas fa-comment-dots mr-1"></i> Add Status Update
+                    </a>
+                    <a href="{% url 'staff_document_upload' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        <i class="fas fa-file-upload mr-1"></i> Upload Document
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Status Updates -->
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Status Updates</h2>
+                    <a href="{% url 'staff_referral_update_create' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        <i class="fas fa-plus mr-1"></i> Add Update
+                    </a>
+                </div>
+                
+                {% if updates %}
+                <div class="relative">
+                    <!-- Status Line -->
+                    <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                    
+                    <div class="space-y-6 relative">
+                        {% for update in updates %}
+                        <div class="flex">
+                            <div class="relative z-10">
+                                <div class="h-8 w-8 rounded-full flex items-center justify-center {% if update.created_by.is_staff_or_above %}bg-primary-600{% else %}bg-gray-500{% endif %} text-white">
+                                    <i class="{% if update.created_by.is_staff_or_above %}fas fa-user-tie{% else %}fas fa-user{% endif %}"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow ml-4 bg-gray-50 p-4 rounded-md border border-gray-200">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div class="font-medium text-gray-800">
+                                        {{ update.created_by.get_full_name }}
+                                        <span class="text-sm font-normal text-gray-500 ml-2">
+                                            {% if update.created_by.user_type == 'staff' or update.created_by.user_type == 'mp' %}
+                                            (Staff)
+                                            {% else %}
+                                            ({{ update.created_by.get_user_type_display }})
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                    <div class="text-sm text-gray-500">{{ update.created_at }}</div>
+                                </div>
+                                <div class="flex items-center mb-2">
+                                    <div class="{% if update.status == 'completed' %}bg-green-100 text-green-800{% elif update.status == 'denied' %}bg-red-100 text-red-800{% elif update.status == 'draft' %}bg-gray-100 text-gray-800{% elif update.status == 'submitted' %}bg-blue-100 text-blue-800{% elif update.status == 'processing' or update.status == 'reviewing' %}bg-yellow-100 text-yellow-800{% elif update.status == 'referred' %}bg-orange-100 text-orange-800{% else %}bg-gray-100 text-gray-800{% endif %} text-xs font-medium px-2 py-0.5 rounded">
+                                        {{ update.get_status_display }}
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 whitespace-pre-line">{{ update.notes }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200 text-center">
+                    <p class="text-gray-500">No updates have been added to this referral yet.</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Documents -->
+            <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-slate-800">Documents</h2>
+                    <a href="{% url 'staff_document_upload' referral.reference_number %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        <i class="fas fa-upload mr-1"></i> Upload Document
+                    </a>
+                </div>
+                
+                {% if documents %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Document Name
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Uploaded By
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for document in documents %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                    {{ document.name }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ document.uploaded_by.get_full_name }}
+                                    <span class="text-xs text-gray-500 ml-1">
+                                        {% if document.uploaded_by.user_type == 'staff' or document.uploaded_by.user_type == 'mp' %}
+                                        (Staff)
+                                        {% else %}
+                                        ({{ document.uploaded_by.get_user_type_display }})
+                                        {% endif %}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ document.created_at|date:"M d, Y" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="{{ document.file.url }}" target="_blank" class="text-primary-600 hover:text-primary-800">
+                                        <i class="fas fa-download mr-1"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="bg-gray-50 p-4 rounded-md border border-gray-200 text-center">
+                    <p class="text-gray-500">No documents have been uploaded yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="lg:col-span-1">
+            <!-- Constituent Information -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Constituent Information</h2>
+                
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-800 mb-2">{{ referral.constituent.get_full_name }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ referral.constituent.get_user_type_display }}</p>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-envelope w-5 text-gray-400"></i>
+                            <a href="mailto:{{ referral.constituent.email }}" class="text-primary-600 hover:text-primary-800">
+                                {{ referral.constituent.email }}
+                            </a>
+                        </div>
+                        
+                        {% if referral.constituent.phone_number %}
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-phone w-5 text-gray-400"></i>
+                            <a href="tel:{{ referral.constituent.phone_number }}" class="text-primary-600 hover:text-primary-800">
+                                {{ referral.constituent.phone_number }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if referral.constituent.address %}
+                        <div class="flex items-start text-sm">
+                            <i class="fas fa-map-marker-alt w-5 mt-1 text-gray-400"></i>
+                            <span class="text-gray-700">{{ referral.constituent.address }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if referral.constituent.municipality %}
+                        <div class="flex items-center text-sm">
+                            <i class="fas fa-city w-5 text-gray-400"></i>
+                            <span class="text-gray-700">{{ referral.constituent.municipality }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <a href="#" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
+                    <i class="fas fa-user mr-1"></i> View Full Profile
+                </a>
+            </div>
+            
+            <!-- Service Information -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Service Details</h2>
+                
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-800 mb-1">{{ referral.service.name }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ referral.service.category.name }}</p>
+                    
+                    <p class="text-gray-700 text-sm mb-4">{{ referral.service.description|truncatewords:30 }}</p>
+                    
+                    <div class="flex items-center text-sm mb-2">
+                        <i class="fas fa-building w-5 text-gray-400"></i>
+                        <span class="text-gray-700">{{ referral.service.agency.name }}</span>
+                    </div>
+                </div>
+                
+                <a href="{% url 'service_detail' referral.service.slug %}" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
+                    <i class="fas fa-info-circle mr-1"></i> View Full Service Details
+                </a>
+            </div>
+            
+            <!-- Agency Information -->
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+                <h2 class="text-xl font-semibold text-slate-800 mb-4">Agency Information</h2>
+                
+                <div class="mb-4">
+                    <h3 class="font-medium text-gray-800 mb-1">{{ referral.service.agency.name }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">{{ referral.service.agency.ministry }}</p>
+                    
+                    {% if referral.service.agency.contact_person %}
+                    <div class="flex items-center text-sm mb-2">
+                        <i class="fas fa-user w-5 text-gray-400"></i>
+                        <span class="text-gray-700">{{ referral.service.agency.contact_person }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if referral.service.agency.contact_email %}
+                    <div class="flex items-center text-sm mb-2">
+                        <i class="fas fa-envelope w-5 text-gray-400"></i>
+                        <a href="mailto:{{ referral.service.agency.contact_email }}" class="text-primary-600 hover:text-primary-800">
+                            {{ referral.service.agency.contact_email }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if referral.service.agency.contact_phone %}
+                    <div class="flex items-center text-sm mb-2">
+                        <i class="fas fa-phone w-5 text-gray-400"></i>
+                        <a href="tel:{{ referral.service.agency.contact_phone }}" class="text-primary-600 hover:text-primary-800">
+                            {{ referral.service.agency.contact_phone }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if referral.agency_contact %}
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <h4 class="font-medium text-gray-800 mb-2">Agency Contact for this Referral:</h4>
+                        <p class="text-gray-700 text-sm">{{ referral.agency_contact }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                {% if referral.service.agency.website %}
+                <a href="{{ referral.service.agency.website }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-sm font-medium flex items-center">
+                    <i class="fas fa-external-link-alt mr-1"></i> Visit Agency Website
+                </a>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="bg-primary-50 rounded-lg p-6 border border-primary-100">
+                <h2 class="text-lg font-semibold text-primary-800 mb-4">Quick Actions</h2>
+                
+                <div class="space-y-3">
+                    <a href="{% url 'staff_referral_update' referral.reference_number %}" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                        <i class="fas fa-edit mr-2"></i>
+                        Edit Referral
+                    </a>
+                    <a href="{% url 'staff_referral_update_create' referral.reference_number %}" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                        <i class="fas fa-comment-dots mr-2"></i>
+                        Add Status Update
+                    </a>
+                    <a href="{% url 'staff_document_upload' referral.reference_number %}" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                        <i class="fas fa-file-upload mr-2"></i>
+                        Upload Document
+                    </a>
+                    
+                    {% if not referral.assigned_to %}
+                    <form method="post" action="{% url 'staff_assign_to_me' referral.reference_number %}">
+                        {% csrf_token %}
+                        <button type="submit" class="flex items-center text-primary-600 hover:text-primary-800 font-medium">
+                            <i class="fas fa-user-check mr-2"></i>
+                            Assign to Me
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Staff Views -->
+{% endblock %}

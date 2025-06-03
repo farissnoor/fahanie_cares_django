@@ -1,0 +1,96 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Document - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">{{ action }} Document</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" enctype="multipart/form-data" id="documentForm">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">File</label>
+                    {{ form.file }}
+                    <p class="text-sm text-gray-500 mt-1">Maximum file size: 10MB. Allowed types: PDF, DOC, DOCX, JPG, PNG, XLS, XLSX</p>
+                    {% if form.file.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.file.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    {{ form.category }}
+                    {% if form.category.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.category.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="{{ form.tags.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+                    {{ form.tags }}
+                    <p class="text-sm text-gray-500 mt-1">Separate multiple tags with commas</p>
+                    {% if form.tags.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.tags.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="flex items-center">
+                        {{ form.is_public }}
+                        <span class="ml-2 text-sm font-medium text-gray-700">Make this document publicly accessible</span>
+                    </label>
+                    {% if form.is_public.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.is_public.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-save mr-2"></i>{{ action }} Document
+                    </button>
+                    <a href="{% url 'documents:document_list' %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// File validation
+document.getElementById('documentForm').addEventListener('submit', function(e) {
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        if (file.size > maxSize) {
+            e.preventDefault();
+            alert('File size exceeds 10MB limit');
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}

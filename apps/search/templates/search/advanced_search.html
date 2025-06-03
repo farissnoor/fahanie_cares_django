@@ -1,0 +1,225 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Advanced Search - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-section {
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold mb-8">Advanced Search</h1>
+    
+    <form method="get" action="{% url 'search:advanced_search' %}" x-data="advancedSearchComponent()">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <!-- Main Search -->
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Search Query</label>
+                {{ form.query }}
+            </div>
+            
+            <!-- Module Selection -->
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-bold mb-2">Search In</label>
+                {{ form.module }}
+            </div>
+            
+            <!-- Dynamic Filters Based on Module -->
+            <div x-show="selectedModule === 'constituents'" class="filter-section">
+                <h3 class="text-lg font-semibold mb-4">Constituent Filters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Municipality</label>
+                        {{ form.municipality }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Barangay</label>
+                        {{ form.barangay }}
+                    </div>
+                    <div>
+                        <label class="flex items-center">
+                            {{ form.chapter_member }}
+                            <span class="ml-2">Chapter Members Only</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div x-show="selectedModule === 'referrals'" class="filter-section">
+                <h3 class="text-lg font-semibold mb-4">Referral Filters</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
+                        {{ form.status }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Priority</label>
+                        {{ form.priority }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date Range Filters -->
+            <div class="filter-section">
+                <h3 class="text-lg font-semibold mb-4">Date Range</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">From Date</label>
+                        {{ form.date_from }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">To Date</label>
+                        {{ form.date_to }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sort Options -->
+            <div class="filter-section">
+                <h3 class="text-lg font-semibold mb-4">Sort Options</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Sort By</label>
+                        {{ form.sort_by }}
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Sort Order</label>
+                        {{ form.sort_order }}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-3 mt-6">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search mr-2"></i>Search
+                </button>
+                <button type="reset" class="btn btn-secondary" @click="resetForm()">
+                    <i class="fas fa-undo mr-2"></i>Reset
+                </button>
+                {% if user.is_authenticated %}
+                <button type="button" class="btn btn-green" @click="saveSearch()">
+                    <i class="fas fa-save mr-2"></i>Save Search
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+    
+    <!-- Search Results -->
+    {% if results %}
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4">Search Results ({{ results.paginator.count }})</h2>
+        
+        <div class="space-y-4">
+            {% for result in results %}
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-lg font-medium mb-2">
+                    <a href="#" class="text-blue-600 hover:text-blue-800">
+                        {{ result.display_title }}
+                    </a>
+                </h3>
+                <div class="text-gray-600 text-sm grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {% for key, value in result.properties.items %}
+                        {% if value and key != 'title' and key != 'name' %}
+                        <div>
+                            <strong>{{ key|title }}:</strong> {{ value }}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="text-gray-500 text-xs mt-2">
+                    Last updated: {{ result.last_edited_time|date:"M d, Y" }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if results.has_other_pages %}
+        <div class="mt-6 flex justify-center">
+            <nav class="flex items-center space-x-2">
+                {% if results.has_previous %}
+                <a href="?{{ request.GET.urlencode }}&page={{ results.previous_page_number }}" 
+                   class="px-3 py-2 rounded border hover:bg-gray-100">
+                    Previous
+                </a>
+                {% endif %}
+                
+                <span class="px-3 py-2">
+                    Page {{ results.number }} of {{ results.paginator.num_pages }}
+                </span>
+                
+                {% if results.has_next %}
+                <a href="?{{ request.GET.urlencode }}&page={{ results.next_page_number }}" 
+                   class="px-3 py-2 rounded border hover:bg-gray-100">
+                    Next
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+        
+        <!-- Export Results -->
+        {% if user.is_authenticated %}
+        <div class="mt-6">
+            <a href="{% url 'search:export_results' %}?{{ request.GET.urlencode }}" 
+               class="btn btn-secondary">
+                <i class="fas fa-download mr-2"></i>Export Results
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% elif request.GET %}
+    <div class="text-center py-12">
+        <i class="fas fa-search text-gray-400 text-5xl mb-4"></i>
+        <p class="text-xl text-gray-600">No results found</p>
+        <p class="text-gray-500 mt-2">Try adjusting your search criteria</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function advancedSearchComponent() {
+    return {
+        selectedModule: '{{ form.module.value|default:"constituents" }}',
+        
+        init() {
+            // Watch for module changes
+            document.querySelector('select[name="module"]').addEventListener('change', (e) => {
+                this.selectedModule = e.target.value;
+            });
+        },
+        
+        resetForm() {
+            this.selectedModule = 'constituents';
+        },
+        
+        saveSearch() {
+            const form = document.querySelector('form');
+            const formData = new FormData(form);
+            
+            // Add save action to form data
+            formData.append('save', 'true');
+            
+            // Show save modal or handle save logic
+            alert('Save search functionality - implement modal here');
+        }
+    }
+}
+</script>
+{% endblock %}

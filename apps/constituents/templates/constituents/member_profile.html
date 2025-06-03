@@ -1,0 +1,170 @@
+{% extends 'base/base.html' %}
+
+{% block title %}My Profile - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8 border border-gray-100">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-primary-800">My #FahanieCares Profile</h1>
+            {% include 'components/atoms/button.html' with variant='primary' text='Edit Profile' href='/member/update/' icon='fas fa-edit' icon_position='left' %}
+        </div>
+        
+        {% if not member %}
+            <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-lg mb-6">
+                <p class="flex items-center">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    You haven't completed your #FahanieCares member registration yet.
+                    <a href="{% url 'member_register' %}" class="ml-2 text-yellow-900 underline font-semibold">Complete Registration</a>
+                </p>
+            </div>
+        {% else %}
+            <!-- Approval Status -->
+            {% if not member.is_approved %}
+                <div class="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-lg mb-6">
+                    <p class="flex items-center">
+                        <i class="fas fa-clock mr-2"></i>
+                        Your membership application is pending approval. You'll receive an email once approved.
+                    </p>
+                </div>
+            {% else %}
+                <div class="bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg mb-6">
+                    <p class="flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Your membership has been approved on {{ member.approved_date|date:"F d, Y" }}.
+                    </p>
+                </div>
+            {% endif %}
+            
+            <!-- Personal Information -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-user mr-2 text-primary-500"></i>
+                    Personal Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Full Name</p>
+                        <p class="font-medium">{{ member.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Contact Number</p>
+                        <p class="font-medium">{{ member.contact_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Email Address</p>
+                        <p class="font-medium">{{ member.email }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Age / Sex</p>
+                        <p class="font-medium">{{ member.age }} / {{ member.get_sex_display }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Address Information -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-home mr-2 text-primary-500"></i>
+                    Address Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Current Address</p>
+                        <p class="font-medium">{{ member.get_full_address }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Voter Registration Address</p>
+                        <p class="font-medium">{{ member.get_voter_address }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Sector and Education -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-graduation-cap mr-2 text-primary-500"></i>
+                    Sector and Education
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Sector</p>
+                        <p class="font-medium">{{ member.get_sector_display }}</p>
+                        <p class="text-xs text-gray-500">{{ member.get_sector_display_category }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Highest Education</p>
+                        <p class="font-medium">{{ member.get_highest_education_display }}</p>
+                        {% if member.school_graduated %}
+                            <p class="text-sm text-gray-600 mt-1">{{ member.school_graduated }}</p>
+                        {% endif %}
+                    </div>
+                    {% if member.eligibility != 'none' %}
+                    <div>
+                        <p class="text-sm text-gray-600">Eligibility</p>
+                        <p class="font-medium">{{ member.get_eligibility_display }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Volunteer Teacher Information -->
+            {% if member.is_volunteer_teacher %}
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-chalkboard-teacher mr-2 text-primary-500"></i>
+                    Volunteer Teacher Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">School</p>
+                        <p class="font-medium">{{ member.volunteer_school }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Length of Service</p>
+                        <p class="font-medium">{{ member.volunteer_service_length }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Application Information -->
+            <div class="bg-gray-50 rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-secondary-700 mb-4 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-primary-500"></i>
+                    Application Information
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Date of Application</p>
+                        <p class="font-medium">{{ member.date_of_application|date:"F d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Member ID</p>
+                        <p class="font-medium">#FC{{ member.id|stringformat:"06d" }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-md p-6 mt-6 border border-gray-100">
+        <h2 class="text-lg font-semibold text-secondary-700 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'service_list' %}" class="flex items-center justify-center bg-primary-600 text-white px-4 py-3 rounded-md hover:bg-primary-700 transition-colors">
+                <i class="fas fa-plus-circle mr-2"></i>
+                Request Service
+            </a>
+            <a href="{% url 'referral_list' %}" class="flex items-center justify-center bg-secondary-600 text-white px-4 py-3 rounded-md hover:bg-secondary-700 transition-colors">
+                <i class="fas fa-list mr-2"></i>
+                My Requests
+            </a>
+            <a href="{% url 'chapter_list' %}" class="flex items-center justify-center bg-accent-600 text-white px-4 py-3 rounded-md hover:bg-accent-700 transition-colors">
+                <i class="fas fa-users mr-2"></i>
+                Find Chapter
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

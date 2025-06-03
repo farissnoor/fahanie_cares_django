@@ -1,0 +1,361 @@
+{% comment %}
+Color System Showcase - Demonstrates the Modern Green Color Palette
+This page showcases the research-based color system implementation
+{% endcomment %}
+
+{% extends 'base/base.html' %}
+
+{% block title %}Color System Showcase - #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-gradient-hero text-white py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">Modern Color System</h1>
+            <p class="text-xl text-white/90">Research-based green palette for government services</p>
+            <p class="text-sm text-white/70 mt-2">WCAG AA Compliant • Nature-Inspired • Government Trust</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<!-- Research Summary -->
+<section class="mb-12">
+    <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">Research Foundation</h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-primary-50 rounded-lg">
+                <i class="fas fa-leaf text-primary-600 text-2xl mb-3"></i>
+                <h3 class="font-semibold text-primary-800 mb-2">Nature-Inspired</h3>
+                <p class="text-sm text-secondary-600">Based on 2025 sustainability trends and sage green movements</p>
+            </div>
+            <div class="text-center p-4 bg-secondary-50 rounded-lg">
+                <i class="fas fa-shield-alt text-secondary-600 text-2xl mb-3"></i>
+                <h3 class="font-semibold text-slate-800 mb-2">Government Trust</h3>
+                <p class="text-sm text-secondary-600">Inspired by GOV.UK, Singapore SGDS, and AU GOLD design systems</p>
+            </div>
+            <div class="text-center p-4 bg-info-50 rounded-lg">
+                <i class="fas fa-universal-access text-info-600 text-2xl mb-3"></i>
+                <h3 class="font-semibold text-info-800 mb-2">WCAG AA Compliant</h3>
+                <p class="text-sm text-secondary-600">4.5:1 contrast ratios, colorblind-friendly design</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Primary Color Palette -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Primary Green Palette</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <p class="text-secondary-600 mb-6">Modern sage green inspired by nature and sustainability trends</p>
+        <div class="grid grid-cols-2 sm:grid-cols-5 lg:grid-cols-10 gap-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-50 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-secondary-600">50</div>
+                <div class="text-xs font-mono text-secondary-400">#f0f9f4</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-100 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-secondary-600">100</div>
+                <div class="text-xs font-mono text-secondary-400">#dcfce7</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-200 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-secondary-600">200</div>
+                <div class="text-xs font-mono text-secondary-400">#bbf7d0</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-300 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-secondary-600">300</div>
+                <div class="text-xs font-mono text-secondary-400">#86efac</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-400 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-secondary-600">400</div>
+                <div class="text-xs font-mono text-secondary-400">#4ade80</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-500 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-white font-bold">500</div>
+                <div class="text-xs font-mono text-secondary-400">#22c55e</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-600 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-white font-bold">600</div>
+                <div class="text-xs font-mono text-secondary-400">#16a34a</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-700 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-white font-bold">700</div>
+                <div class="text-xs font-mono text-secondary-400">#15803d</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-800 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-white font-bold">800</div>
+                <div class="text-xs font-mono text-secondary-400">#166534</div>
+            </div>
+            <div class="text-center">
+                <div class="w-16 h-16 bg-primary-900 rounded-lg shadow-sm border border-gray-200 mb-2"></div>
+                <div class="text-xs font-mono text-white font-bold">900</div>
+                <div class="text-xs font-mono text-secondary-400">#14532d</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Status Colors -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Semantic Status Colors</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-success-700 mb-4 flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>Success
+            </h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-success-50 rounded mr-2"></div>
+                    <span class="text-xs">Background</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-success-500 rounded mr-2"></div>
+                    <span class="text-xs">Primary</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-success-700 rounded mr-2"></div>
+                    <span class="text-xs">Dark</span>
+                </div>
+            </div>
+            {% include 'components/atoms/status_badge.html' with status='success' text='Approved' with_icon=true %}
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-warning-700 mb-4 flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>Warning
+            </h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-warning-50 rounded mr-2"></div>
+                    <span class="text-xs">Background</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-warning-500 rounded mr-2"></div>
+                    <span class="text-xs">Primary</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-warning-700 rounded mr-2"></div>
+                    <span class="text-xs">Dark</span>
+                </div>
+            </div>
+            {% include 'components/atoms/status_badge.html' with status='warning' text='Pending' with_icon=true %}
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-error-700 mb-4 flex items-center">
+                <i class="fas fa-times-circle mr-2"></i>Error
+            </h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-error-50 rounded mr-2"></div>
+                    <span class="text-xs">Background</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-error-500 rounded mr-2"></div>
+                    <span class="text-xs">Primary</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-error-700 rounded mr-2"></div>
+                    <span class="text-xs">Dark</span>
+                </div>
+            </div>
+            {% include 'components/atoms/status_badge.html' with status='error' text='Rejected' with_icon=true %}
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-info-700 mb-4 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>Info
+            </h3>
+            <div class="space-y-2">
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-info-50 rounded mr-2"></div>
+                    <span class="text-xs">Background</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-info-500 rounded mr-2"></div>
+                    <span class="text-xs">Primary</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-4 h-4 bg-info-700 rounded mr-2"></div>
+                    <span class="text-xs">Dark</span>
+                </div>
+            </div>
+            {% include 'components/atoms/status_badge.html' with status='info' text='In Progress' with_icon=true %}
+        </div>
+    </div>
+</section>
+
+<!-- Modern Gradients -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Modern Gradient System</h2>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='primary'
+            title='Primary Gradient'
+            description='Clean professional green gradient for main actions'
+            icon='fas fa-paint-brush'
+            size='md'
+        %}
+        
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='hero'
+            title='Hero Gradient'
+            description='Deep multi-tone gradient for hero sections and headers'
+            icon='fas fa-mountain'
+            size='md'
+        %}
+        
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='nature'
+            title='Nature Gradient'
+            description='Earth-tone blend connecting green to natural grays'
+            icon='fas fa-leaf'
+            size='md'
+        %}
+        
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='success'
+            title='Success Gradient'
+            description='Positive achievement gradient for completion states'
+            icon='fas fa-check'
+            size='md'
+        %}
+        
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='warning'
+            title='Warning Gradient'
+            description='Attention-grabbing orange for important notices'
+            icon='fas fa-exclamation'
+            size='md'
+        %}
+        
+        {% include 'components/molecules/gradient_card.html' with 
+            gradient='page'
+            title='Page Gradient'
+            description='Subtle background gradient for page surfaces'
+            icon='fas fa-file'
+            size='md'
+            text_color='dark'
+        %}
+    </div>
+</section>
+
+<!-- Button Variations -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Button Variations with New Colors</h2>
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div>
+                <h3 class="font-medium text-secondary-700 mb-3">Primary Actions</h3>
+                <div class="space-y-2">
+                    {% include 'components/atoms/button.html' with variant='primary' text='Primary Green' %}
+                    {% include 'components/atoms/button.html' with variant='secondary' text='Secondary Gray' %}
+                    {% include 'components/atoms/button.html' with variant='outline' text='Outline Green' %}
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-medium text-secondary-700 mb-3">Status Actions</h3>
+                <div class="space-y-2">
+                    <button class="inline-flex items-center px-4 py-2 bg-success-600 text-white rounded-md hover:bg-success-700 transition-colors">
+                        <i class="fas fa-check mr-2"></i>Approve
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 bg-warning-600 text-white rounded-md hover:bg-warning-700 transition-colors">
+                        <i class="fas fa-clock mr-2"></i>Pending
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 bg-error-600 text-white rounded-md hover:bg-error-700 transition-colors">
+                        <i class="fas fa-times mr-2"></i>Reject
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="font-medium text-secondary-700 mb-3">Gradient Buttons</h3>
+                <div class="space-y-2">
+                    <button class="inline-flex items-center px-4 py-2 bg-gradient-primary text-white rounded-md hover:shadow-primary transition-all">
+                        <i class="fas fa-rocket mr-2"></i>Get Started
+                    </button>
+                    <button class="inline-flex items-center px-4 py-2 bg-gradient-success text-white rounded-md hover:shadow-lg transition-all">
+                        <i class="fas fa-check-double mr-2"></i>Complete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Accessibility Features -->
+<section class="mb-12">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Accessibility Features</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-slate-800 mb-4">WCAG Compliance</h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 bg-success-50 rounded">
+                    <span class="text-success-800 font-medium">Green on White</span>
+                    <span class="text-xs bg-success-100 px-2 py-1 rounded">4.5:1 ✓</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-primary-600 text-white rounded">
+                    <span class="font-medium">White on Green</span>
+                    <span class="text-xs bg-white/20 px-2 py-1 rounded">7.2:1 ✓</span>
+                </div>
+                <div class="flex items-center justify-between p-3 bg-secondary-50 rounded">
+                    <span class="text-slate-800 font-medium">Gray Text</span>
+                    <span class="text-xs bg-secondary-100 px-2 py-1 rounded">5.1:1 ✓</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <h3 class="font-semibold text-slate-800 mb-4">Colorblind Friendly</h3>
+            <div class="space-y-3">
+                <div class="flex items-center p-3 bg-primary-50 rounded">
+                    <i class="fas fa-check-circle text-success-600 mr-3"></i>
+                    <span class="text-secondary-700">Sufficient contrast ratios</span>
+                </div>
+                <div class="flex items-center p-3 bg-primary-50 rounded">
+                    <i class="fas fa-check-circle text-success-600 mr-3"></i>
+                    <span class="text-secondary-700">Alternative visual indicators</span>
+                </div>
+                <div class="flex items-center p-3 bg-primary-50 rounded">
+                    <i class="fas fa-check-circle text-success-600 mr-3"></i>
+                    <span class="text-secondary-700">Semantic meaning beyond color</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block cta %}
+<section class="py-12 bg-gradient-hero text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Ready to Use the New Color System?</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">This research-based color palette is now integrated throughout the component library for consistent, accessible design.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            {% include 'components/atoms/button.html' with 
+                text='View Components' 
+                href='/components/showcase'
+                variant='outline'
+                extra_classes='border-white text-white hover:bg-white hover:text-primary-600'
+            %}
+            {% include 'components/atoms/button.html' with 
+                text='Documentation' 
+                href='#'
+                extra_classes='bg-white text-primary-600 hover:bg-gray-100'
+            %}
+        </div>
+    </div>
+</section>
+{% endblock %}

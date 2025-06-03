@@ -1,0 +1,455 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Register - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-input {
+        transition: all 0.3s ease;
+    }
+    .form-input:focus {
+        transform: translateY(-1px);
+    }
+    .progress-step {
+        transition: all 0.3s ease;
+    }
+    .progress-step.active {
+        background: var(--tw-gradient-to);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Progress Indicator -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
+                    1
+                </div>
+                <span class="ml-3 text-primary-600 font-medium">Account Information</span>
+            </div>
+            <div class="flex-1 mx-4">
+                <div class="h-1 bg-gray-200 rounded">
+                    <div class="h-1 bg-primary-600 rounded w-1/2"></div>
+                </div>
+            </div>
+            <div class="flex items-center">
+                <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-semibold">
+                    2
+                </div>
+                <span class="ml-3 text-gray-500">Verification</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-primary-600 to-primary-700 px-8 py-6 text-white">
+            <div class="text-center">
+                <i class="fas fa-hand-holding-heart text-4xl mb-3 opacity-90"></i>
+                <h1 class="text-3xl font-bold mb-2">Join #FahanieCares</h1>
+                <p class="text-primary-100">Create your account to access our services</p>
+            </div>
+        </div>
+        
+        <div class="p-8">
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-circle text-red-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            {% for error in form.non_field_errors %}
+                                <p class="text-sm">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Personal Information Section -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-user-circle text-primary-600 mr-2"></i>
+                    Personal Information
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_first_name">
+                            First Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" name="first_name" id="id_first_name" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="Enter your first name"
+                                value="{{ form.first_name.value|default:'' }}"
+                                required>
+                        </div>
+                        {% if form.first_name.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.first_name.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_last_name">
+                            Last Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" name="last_name" id="id_last_name" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="Enter your last name"
+                                value="{{ form.last_name.value|default:'' }}"
+                                required>
+                        </div>
+                        {% if form.last_name.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.last_name.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information Section -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-envelope text-primary-600 mr-2"></i>
+                    Contact Information
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_email">
+                            Email Address <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <input type="email" name="email" id="id_email" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="your.email@example.com"
+                                value="{{ form.email.value|default:'' }}"
+                                required>
+                        </div>
+                        {% if form.email.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.email.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_phone_number">
+                            Phone Number <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-phone text-gray-400"></i>
+                            </div>
+                            <input type="tel" name="phone_number" id="id_phone_number" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="+63 9XX XXX XXXX"
+                                value="{{ form.phone_number.value|default:'' }}"
+                                required>
+                        </div>
+                        {% if form.phone_number.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.phone_number.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Location Information Section -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt text-primary-600 mr-2"></i>
+                    Location Information
+                </h2>
+                
+                <div class="space-y-5">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_address">
+                            Complete Address <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute top-3 left-3 pointer-events-none">
+                                <i class="fas fa-home text-gray-400"></i>
+                            </div>
+                            <textarea name="address" id="id_address" rows="3" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="House/Unit Number, Street, Barangay"
+                                required>{{ form.address.value|default:'' }}</textarea>
+                        </div>
+                        {% if form.address.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.address.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_municipality">
+                            Municipality <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-building text-gray-400"></i>
+                            </div>
+                            <select name="municipality" id="id_municipality" 
+                                class="form-input w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent text-gray-700 appearance-none cursor-pointer" 
+                                required>
+                                <option value="" class="text-gray-400">Select your municipality</option>
+                                <optgroup label="Maguindanao del Sur">
+                                    <option value="Ampatuan">Ampatuan</option>
+                                    <option value="Buluan">Buluan</option>
+                                    <option value="Datu Abdullah Sangki">Datu Abdullah Sangki</option>
+                                    <option value="Datu Anggal Midtimbang">Datu Anggal Midtimbang</option>
+                                    <option value="Datu Blah T. Sinsuat">Datu Blah T. Sinsuat</option>
+                                    <option value="Datu Hoffer Ampatuan">Datu Hoffer Ampatuan</option>
+                                    <option value="Datu Odin Sinsuat">Datu Odin Sinsuat</option>
+                                    <option value="Datu Paglas">Datu Paglas</option>
+                                    <option value="Datu Piang">Datu Piang</option>
+                                    <option value="Datu Salibo">Datu Salibo</option>
+                                    <option value="Datu Saudi-Ampatuan">Datu Saudi-Ampatuan</option>
+                                    <option value="Datu Unsay">Datu Unsay</option>
+                                    <option value="General Salipada K. Pendatun">General Salipada K. Pendatun</option>
+                                    <option value="Guindulungan">Guindulungan</option>
+                                    <option value="Mamasapano">Mamasapano</option>
+                                    <option value="Mangudadatu">Mangudadatu</option>
+                                    <option value="Pagalungan">Pagalungan</option>
+                                    <option value="Paglat">Paglat</option>
+                                    <option value="Pandag">Pandag</option>
+                                    <option value="Rajah Buayan">Rajah Buayan</option>
+                                    <option value="Shariff Aguak">Shariff Aguak</option>
+                                    <option value="Shariff Saydona Mustapha">Shariff Saydona Mustapha</option>
+                                    <option value="South Upi">South Upi</option>
+                                    <option value="Sultan Kudarat">Sultan Kudarat</option>
+                                    <option value="Sultan Mastura">Sultan Mastura</option>
+                                    <option value="Sultan sa Barongis">Sultan sa Barongis</option>
+                                    <option value="Talayan">Talayan</option>
+                                    <option value="Talitay">Talitay</option>
+                                </optgroup>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <i class="fas fa-chevron-down text-gray-400"></i>
+                            </div>
+                        </div>
+                        {% if form.municipality.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.municipality.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Security Section -->
+            <div class="pb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-lock text-primary-600 mr-2"></i>
+                    Create Your Password
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_password1">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-key text-gray-400"></i>
+                            </div>
+                            <input type="password" name="password1" id="id_password1" 
+                                class="form-input w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="Enter a strong password"
+                                required>
+                            <button type="button" onclick="togglePassword('id_password1')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye" id="toggle-id_password1"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.password1.errors.0 }}
+                            </p>
+                        {% endif %}
+                        <p class="text-xs text-gray-500 mt-1">At least 8 characters with letters and numbers</p>
+                    </div>
+                    
+                    <div class="relative">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="id_password2">
+                            Confirm Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-key text-gray-400"></i>
+                            </div>
+                            <input type="password" name="password2" id="id_password2" 
+                                class="form-input w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder-gray-400" 
+                                placeholder="Re-enter your password"
+                                required>
+                            <button type="button" onclick="togglePassword('id_password2')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-eye" id="toggle-id_password2"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                            <p class="text-red-600 text-sm mt-1 flex items-center">
+                                <i class="fas fa-exclamation-circle mr-1"></i>
+                                {{ form.password2.errors.0 }}
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Terms and Submit -->
+            <div class="space-y-6">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5 mt-0.5">
+                            <input id="id_terms" name="terms" type="checkbox" 
+                                class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-2 focus:ring-primary-500 transition-colors cursor-pointer" 
+                                required>
+                        </div>
+                        <div class="ml-3">
+                            <label for="id_terms" class="text-sm text-gray-700 cursor-pointer">
+                                I agree to the <a href="#" class="text-primary-600 hover:text-primary-700 underline font-medium">Terms of Service</a> and <a href="#" class="text-primary-600 hover:text-primary-700 underline font-medium">Privacy Policy</a>
+                            </label>
+                            <p class="text-xs text-gray-500 mt-1">By registering, you consent to the collection and use of your information as described in our policies.</p>
+                        </div>
+                    </div>
+                    {% if form.terms.errors %}
+                        <p class="text-red-600 text-sm mt-2 ml-7 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-1"></i>
+                            {{ form.terms.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-semibold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-[1.02]">
+                        <i class="fas fa-user-plus mr-2"></i>
+                        Create Account
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="text-center mt-8 pt-6 border-t border-gray-200">
+            <p class="text-sm text-gray-600">
+                Already have an account?
+                <a href="{% url 'login' %}" class="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
+                    Sign in here
+                </a>
+            </p>
+        </div>
+        </div>
+    </div>
+    
+    <!-- Benefits Section -->
+    <div class="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl p-8 mt-8 border border-primary-200">
+        <div class="text-center mb-6">
+            <i class="fas fa-star text-primary-600 text-3xl mb-3"></i>
+            <h2 class="text-xl font-bold text-primary-900">Why Join #FahanieCares?</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-hand-holding-heart text-primary-600 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Access Programs & Services</h3>
+                    <p class="text-sm text-gray-600">Get priority access to all our community programs</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-users text-primary-600 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Join Local Chapters</h3>
+                    <p class="text-sm text-gray-600">Connect with your community and participate in activities</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-file-alt text-primary-600 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Track Applications</h3>
+                    <p class="text-sm text-gray-600">Monitor your assistance requests in real-time</p>
+                </div>
+            </div>
+            
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-bell text-primary-600 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Stay Updated</h3>
+                    <p class="text-sm text-gray-600">Receive important announcements and updates</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-white bg-opacity-60 rounded-lg p-4 text-center">
+            <p class="text-sm text-gray-700">
+                <i class="fas fa-shield-alt text-primary-600 mr-2"></i>
+                Your information is protected with enterprise-grade security and will only be used for #FahanieCares services.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const toggle = document.getElementById('toggle-' + fieldId);
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            toggle.classList.remove('fa-eye');
+            toggle.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            toggle.classList.remove('fa-eye-slash');
+            toggle.classList.add('fa-eye');
+        }
+    }
+    
+    // Real-time password match validation
+    document.getElementById('id_password2').addEventListener('input', function() {
+        const password1 = document.getElementById('id_password1').value;
+        const password2 = this.value;
+        
+        if (password2 && password1 !== password2) {
+            this.classList.add('border-red-500');
+        } else {
+            this.classList.remove('border-red-500');
+        }
+    });
+</script>
+{% endblock %}

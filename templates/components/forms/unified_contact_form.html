@@ -1,0 +1,114 @@
+{% comment %}
+Unified Contact Form Component - Consistent across all pages
+Usage: {% include 'components/forms/unified_contact_form.html' with title="Contact Us" subtitle="Get in touch" default_subject="feedback" %}
+
+Parameters:
+- title: Form title (optional, default: "Contact Us")
+- subtitle: Form subtitle/description (optional)
+- default_subject: Pre-select a subject option (optional)
+- form_action: Custom form action URL (optional, defaults to current page)
+{% endcomment %}
+
+{% if message %}
+<div class="mb-6 p-4 rounded-md {% if message_type == 'success' %}bg-success-50 text-success-700 border border-success-200{% else %}bg-error-50 text-error-700 border border-error-200{% endif %}">
+    {{ message }}
+</div>
+{% endif %}
+
+<div class="bg-white rounded-lg shadow-md p-6 {% if not full_width %}mb-6{% endif %} flex-1 flex flex-col">
+    <h2 class="text-2xl font-semibold mb-4 text-primary-700">{{ title|default:"Contact Us" }}</h2>
+    <p class="mb-6 text-gray-700">
+        {{ subtitle|default:"Have questions, concerns, or need assistance? We're here to help. Fill out the form below, and our team will get back to you as soon as possible." }}
+    </p>
+    
+    <form method="post" action="{{ form_action|default:'' }}" class="flex-1 flex flex-col">
+        {% csrf_token %}
+        
+        <div class="flex-1">
+        <!-- Name Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div>
+                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.first_name.label }}
+                    <span class="text-error-600">*</span>
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <p class="text-error-600 text-sm mt-1">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.middle_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.middle_name.label }}
+                </label>
+                {{ form.middle_name }}
+                {% if form.middle_name.errors %}
+                    <p class="text-error-600 text-sm mt-1">{{ form.middle_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.last_name.label }}
+                    <span class="text-error-600">*</span>
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <p class="text-error-600 text-sm mt-1">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Contact Information -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.email.label }}
+                    <span class="text-error-600">*</span>
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-error-600 text-sm mt-1">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ form.phone_number.label }}
+                </label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                    <p class="text-error-600 text-sm mt-1">{{ form.phone_number.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Subject -->
+        <div class="mb-4">
+            <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                {{ form.subject.label }}
+                <span class="text-error-600">*</span>
+            </label>
+            {{ form.subject }}
+            {% if form.subject.errors %}
+                <p class="text-error-600 text-sm mt-1">{{ form.subject.errors.0 }}</p>
+            {% endif %}
+        </div>
+        
+        <!-- Message -->
+        <div class="mb-6">
+            <label for="{{ form.message.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                {{ form.message.label }}
+                <span class="text-error-600">*</span>
+            </label>
+            {{ form.message }}
+            {% if form.message.errors %}
+                <p class="text-error-600 text-sm mt-1">{{ form.message.errors.0 }}</p>
+            {% endif %}
+        </div>
+        </div>
+        
+        <!-- Submit Button -->
+        <div class="mt-auto">
+            {% include 'components/atoms/button.html' with variant='primary' text='Send Message' type='submit' full_width=True %}
+        </div>
+    </form>
+</div>

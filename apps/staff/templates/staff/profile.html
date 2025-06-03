@@ -1,0 +1,509 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}My Staff Profile - #FahanieCares{% endblock %}
+
+{% block extra_css %}
+<style>
+    .staff-profile-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        margin-bottom: 1rem;
+        object-fit: cover;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+    
+    .staff-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin: 0.25rem 0.25rem 0.25rem 0;
+        backdrop-filter: blur(10px);
+    }
+    
+    .developer-badge {
+        background: linear-gradient(45deg, #ff6b6b, #feca57);
+        color: white;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 107, 107, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0); }
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #667eea;
+    }
+    
+    .info-card h3 {
+        color: #2d3748;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        min-width: 120px;
+    }
+    
+    .info-value {
+        color: #2d3748;
+        flex: 1;
+        text-align: right;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: #c6f6d5;
+        color: #2f855a;
+    }
+    
+    .status-contractual {
+        background: #bee3f8;
+        color: #2b6cb0;
+    }
+    
+    .status-coterminous {
+        background: #fbd38d;
+        color: #c05621;
+    }
+    
+    .duties-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .duties-content {
+        background: #f7fafc;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #4299e1;
+        white-space: pre-line;
+        line-height: 1.6;
+    }
+    
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-top: 3px solid #667eea;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: transform 0.2s;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-secondary {
+        background: #e2e8f0;
+        color: #4a5568;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: transform 0.2s;
+    }
+    
+    .btn-secondary:hover {
+        transform: translateY(-2px);
+        color: #4a5568;
+        text-decoration: none;
+        background: #cbd5e0;
+    }
+    
+    .attendance-list, .evaluation-list {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .attendance-item, .evaluation-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem;
+        border-bottom: 1px solid #e2e8f0;
+        transition: background 0.2s;
+    }
+    
+    .attendance-item:hover, .evaluation-item:hover {
+        background: #f7fafc;
+    }
+    
+    @media (max-width: 768px) {
+        .staff-profile-container {
+            padding: 1rem;
+        }
+        
+        .profile-header {
+            text-align: center;
+        }
+        
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .quick-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .action-buttons {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="staff-profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="d-flex align-items-center flex-wrap">
+            <div class="profile-avatar me-4">
+                {% if staff.profile_image %}
+                    <img src="{{ staff.profile_image.url }}" alt="{{ staff.full_name }}" class="profile-avatar">
+                {% else %}
+                    {{ staff.full_name|first }}
+                {% endif %}
+            </div>
+            <div class="flex-grow-1">
+                <h1 class="mb-2">{{ staff.full_name }}</h1>
+                <h3 class="mb-3 opacity-75">{{ staff.position|default:"Staff Member" }}</h3>
+                
+                <div class="d-flex flex-wrap">
+                    <span class="staff-badge">{{ staff.get_division_display|default:"No Division" }}</span>
+                    <span class="staff-badge">{{ staff.get_office_display|default:"No Office" }}</span>
+                    {% if staff.get_employment_status_display %}
+                        <span class="staff-badge status-{{ staff.employment_status }}">{{ staff.get_employment_status_display }}</span>
+                    {% endif %}
+                    {% if is_developer %}
+                        <span class="staff-badge developer-badge">🔧 DEVELOPER/SUPERUSER</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ recent_attendance|length }}</div>
+            <div class="stat-label">Recent Attendance Records</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ recent_evaluations|length }}</div>
+            <div class="stat-label">Performance Reviews</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ supervised_staff|length }}</div>
+            <div class="stat-label">Team Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ user_permissions|length }}</div>
+            <div class="stat-label">System Permissions</div>
+        </div>
+    </div>
+
+    <!-- Main Information Grid -->
+    <div class="info-grid">
+        <!-- Contact Information -->
+        <div class="info-card">
+            <h3>📞 Contact Information</h3>
+            <div class="info-row">
+                <span class="info-label">Email:</span>
+                <span class="info-value">{{ staff.email|default:"Not provided" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Phone:</span>
+                <span class="info-value">{{ staff.phone_number|default:"Not provided" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Address:</span>
+                <span class="info-value">{{ staff.address|default:"Not provided" }}</span>
+            </div>
+        </div>
+
+        <!-- Employment Details -->
+        <div class="info-card">
+            <h3>💼 Employment Details</h3>
+            <div class="info-row">
+                <span class="info-label">Position:</span>
+                <span class="info-value">{{ staff.position|default:"Not specified" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Division:</span>
+                <span class="info-value">{{ staff.get_division_display|default:"Not assigned" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Office:</span>
+                <span class="info-value">{{ staff.get_office_display|default:"Not assigned" }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status:</span>
+                <span class="info-value">
+                    <span class="status-badge status-{{ staff.employment_status }}">
+                        {{ staff.get_employment_status_display|default:"Not specified" }}
+                    </span>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date Hired:</span>
+                <span class="info-value">{{ staff.date_hired|default:"Not specified" }}</span>
+            </div>
+        </div>
+
+        <!-- System Access -->
+        {% if is_developer %}
+        <div class="info-card">
+            <h3>🔧 System Access</h3>
+            <div class="info-row">
+                <span class="info-label">User Level:</span>
+                <span class="info-value">
+                    <span class="status-badge developer-badge">SUPERUSER</span>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Admin Access:</span>
+                <span class="info-value">✅ Full Django Admin</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Permissions:</span>
+                <span class="info-value">{{ user_permissions|length }} permissions</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Developer Role:</span>
+                <span class="info-value">System Developer</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Supervisor & Team -->
+        {% if supervisor or supervised_staff %}
+        <div class="info-card">
+            <h3>👥 Team Structure</h3>
+            {% if supervisor %}
+            <div class="info-row">
+                <span class="info-label">Supervisor:</span>
+                <span class="info-value">{{ supervisor.full_name }}</span>
+            </div>
+            {% endif %}
+            {% if supervised_staff %}
+            <div class="info-row">
+                <span class="info-label">Team Size:</span>
+                <span class="info-value">{{ supervised_staff|length }} member{{ supervised_staff|length|pluralize }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Duties and Responsibilities -->
+    {% if staff.duties_responsibilities %}
+    <div class="duties-section">
+        <h3>📋 Duties and Responsibilities</h3>
+        <div class="duties-content">{{ staff.duties_responsibilities }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Staff Workflow -->
+    {% if staff.staff_workflow %}
+    <div class="duties-section">
+        <h3>⚙️ Daily Workflow</h3>
+        <div class="duties-content">{{ staff.staff_workflow }}</div>
+    </div>
+    {% endif %}
+
+    <!-- Recent Activity Grid -->
+    <div class="info-grid">
+        <!-- Recent Attendance -->
+        <div class="info-card">
+            <h3>📅 Recent Attendance</h3>
+            {% if recent_attendance %}
+                <div class="attendance-list">
+                    {% for attendance in recent_attendance %}
+                    <div class="attendance-item">
+                        <span>{{ attendance.date }}</span>
+                        <span class="status-badge status-{{ attendance.status }}">
+                            {{ attendance.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No recent attendance records.</p>
+            {% endif %}
+        </div>
+
+        <!-- Performance Reviews -->
+        <div class="info-card">
+            <h3>⭐ Performance Reviews</h3>
+            {% if recent_evaluations %}
+                <div class="evaluation-list">
+                    {% for evaluation in recent_evaluations %}
+                    <div class="evaluation-item">
+                        <span>{{ evaluation.evaluation_date }}</span>
+                        <span class="status-badge status-active">
+                            {{ evaluation.overall_rating }}/10
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">No performance reviews yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'staff:edit_profile' %}" class="btn-primary">
+            ✏️ Edit Profile
+        </a>
+        <a href="{% url 'staff:directory' %}" class="btn-secondary">
+            📖 Staff Directory
+        </a>
+        <a href="{% url 'staff:dashboard' %}" class="btn-secondary">
+            🏠 Staff Dashboard
+        </a>
+        {% if is_developer %}
+        <a href="/admin/" class="btn-primary" target="_blank">
+            🔧 Django Admin
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Bio Section -->
+    {% if staff.bio %}
+    <div class="duties-section">
+        <h3>👋 About Me</h3>
+        <div class="duties-content">{{ staff.bio }}</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Add some interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stat numbers on page load
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach(function(stat) {
+            const finalValue = parseInt(stat.textContent);
+            let currentValue = 0;
+            const increment = Math.ceil(finalValue / 20);
+            
+            function updateCounter() {
+                if (currentValue < finalValue) {
+                    currentValue += increment;
+                    if (currentValue > finalValue) currentValue = finalValue;
+                    stat.textContent = currentValue;
+                    setTimeout(updateCounter, 50);
+                }
+            }
+            
+            setTimeout(updateCounter, 500);
+        });
+    });
+</script>
+{% endblock %}

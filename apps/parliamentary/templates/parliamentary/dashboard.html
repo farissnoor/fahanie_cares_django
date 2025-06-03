@@ -1,0 +1,114 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Parliamentary Work{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Parliamentary Dashboard</h1>
+    
+    {% if current_session %}
+    <div class="alert alert-info">
+        <strong>Current Session:</strong> {{ current_session }}
+    </div>
+    {% endif %}
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">My Measures</h5>
+                    <p class="card-text display-6">{{ my_measures_count }}</p>
+                    <p class="text-muted">Active: {{ my_active_measures }}</p>
+                    <a href="{% url 'parliamentary:measure_list' %}?my_measures=true" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Committee Memberships</h5>
+                    <p class="card-text display-6">{{ my_committees.count }}</p>
+                    <a href="{% url 'parliamentary:committee_list' %}" class="btn btn-primary btn-sm">View Committees</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Oversight Activities</h5>
+                    <p class="card-text display-6">{{ my_oversight.count }}</p>
+                    <a href="{% url 'parliamentary:oversight_list' %}" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Recent Speeches</h5>
+                    <p class="card-text display-6">{{ recent_speeches.count }}</p>
+                    <a href="{% url 'parliamentary:speech_list' %}?my_speeches=true" class="btn btn-primary btn-sm">View All</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-md-6">
+            <h3>Recent Legislative Measures</h3>
+            {% if recent_measures %}
+            <div class="list-group">
+                {% for measure in recent_measures %}
+                <a href="{% url 'parliamentary:measure_detail' measure.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ measure.number }}: {{ measure.title|truncatewords:10 }}</h6>
+                        <small>{{ measure.last_action_date|default:measure.created_at|date:"M d, Y" }}</small>
+                    </div>
+                    <p class="mb-1">
+                        <span class="badge bg-{{ measure.priority|default:'normal' }}">{{ measure.get_priority_display }}</span>
+                        <span class="badge bg-secondary">{{ measure.get_status_display }}</span>
+                    </p>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No recent measures</p>
+            {% endif %}
+        </div>
+        
+        <div class="col-md-6">
+            <h3>Upcoming Committee Hearings</h3>
+            {% if upcoming_hearings %}
+            <div class="list-group">
+                {% for hearing in upcoming_hearings %}
+                <a href="{% url 'parliamentary:hearing_detail' hearing.pk %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">{{ hearing.title }}</h6>
+                        <small>{{ hearing.scheduled_date|date:"M d, Y" }}</small>
+                    </div>
+                    <p class="mb-1">{{ hearing.committee.acronym|default:hearing.committee.name }}</p>
+                    <small>{{ hearing.get_hearing_type_display }}</small>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No upcoming hearings</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Quick Actions</h3>
+            <div class="btn-group" role="group">
+                <a href="{% url 'parliamentary:measure_create' %}" class="btn btn-outline-primary">File New Measure</a>
+                <a href="{% url 'parliamentary:speech_list' %}" class="btn btn-outline-primary">Record Speech</a>
+                <a href="{% url 'parliamentary:oversight_list' %}" class="btn btn-outline-primary">New Oversight Activity</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

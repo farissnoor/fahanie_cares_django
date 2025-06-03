@@ -1,0 +1,251 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ service.name }} - #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">{{ service.name }}</h1>
+            <p class="text-xl text-white/90">{{ service.agency.name }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'service_list' %}" class="hover:text-primary-600 transition">Services</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'service_list_by_category' service.category.slug %}" class="hover:text-primary-600 transition">{{ service.category.name }}</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">{{ service.name }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Main Content -->
+    <div class="lg:col-span-2">
+        <!-- Overview -->
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+            <div class="flex justify-between items-start mb-6">
+                <h2 class="text-2xl font-bold text-slate-800">Service Overview</h2>
+                <div class="bg-primary-100 p-3 rounded-lg text-primary-600 text-xl">
+                    <i class="{% if service.category.icon %}{{ service.category.icon }}{% else %}fas fa-file-alt{% endif %}"></i>
+                </div>
+            </div>
+            
+            <div class="prose max-w-none text-gray-700">
+                <p>{{ service.description }}</p>
+            </div>
+            
+            <div class="mt-8 flex justify-between">
+                <div>
+                    <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded font-medium">{{ service.category.name }}</span>
+                    <span class="inline-block bg-primary-50 text-primary-800 text-xs px-2 py-1 rounded font-medium ml-2">{{ service.agency.abbreviation|default:service.agency.name }}</span>
+                </div>
+                <a href="{% url 'referral_create' service.slug %}" class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition">Request Referral</a>
+            </div>
+        </div>
+        
+        <!-- Eligibility -->
+        {% if service.eligibility_criteria %}
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Eligibility Criteria</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p>{{ service.eligibility_criteria|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Required Documents -->
+        {% if service.required_documents %}
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Required Documents</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p>{{ service.required_documents|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Application Process -->
+        {% if service.application_process %}
+        <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+            <h2 class="text-xl font-bold text-slate-800 mb-4">Application Process</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p>{{ service.application_process|linebreaks }}</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Processing Time and Fees -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {% if service.processing_time %}
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                <div class="flex items-start">
+                    <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-2">Processing Time</h3>
+                        <p class="text-gray-600">{{ service.processing_time }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if service.fees %}
+            <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+                <div class="flex items-start">
+                    <div class="bg-primary-100 p-3 rounded-lg text-primary-600 mr-4">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-800 mb-2">Fees</h3>
+                        <p class="text-gray-600">{{ service.fees }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="lg:col-span-1">
+        <!-- Agency Information -->
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Provider Information</h2>
+            
+            <div class="flex items-center mb-6">
+                {% if service.agency.logo %}
+                <img src="{{ service.agency.logo.url }}" alt="{{ service.agency.name }}" class="h-12 w-12 object-contain mr-3">
+                {% else %}
+                <div class="bg-gray-100 h-12 w-12 flex items-center justify-center rounded-full mr-3">
+                    <i class="fas fa-building text-gray-400"></i>
+                </div>
+                {% endif %}
+                <div>
+                    <h3 class="font-medium text-slate-800">{{ service.agency.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ service.agency.ministry }}</p>
+                </div>
+            </div>
+            
+            {% if service.contact_info or service.agency.contact_person or service.agency.contact_email or service.agency.contact_phone %}
+            <div class="mb-4">
+                <h3 class="text-gray-800 font-medium mb-2">Contact Information</h3>
+                
+                {% if service.contact_info %}
+                <p class="text-gray-600 text-sm mb-2">{{ service.contact_info|linebreaks }}</p>
+                {% endif %}
+                
+                {% if service.agency.contact_person %}
+                <div class="flex items-center text-sm text-gray-600 mb-1">
+                    <i class="fas fa-user w-5 text-gray-400"></i>
+                    <span>{{ service.agency.contact_person }}</span>
+                </div>
+                {% endif %}
+                
+                {% if service.agency.contact_email %}
+                <div class="flex items-center text-sm text-gray-600 mb-1">
+                    <i class="fas fa-envelope w-5 text-gray-400"></i>
+                    <a href="mailto:{{ service.agency.contact_email }}" class="hover:text-primary-600 transition">{{ service.agency.contact_email }}</a>
+                </div>
+                {% endif %}
+                
+                {% if service.agency.contact_phone %}
+                <div class="flex items-center text-sm text-gray-600 mb-1">
+                    <i class="fas fa-phone w-5 text-gray-400"></i>
+                    <a href="tel:{{ service.agency.contact_phone }}" class="hover:text-primary-600 transition">{{ service.agency.contact_phone }}</a>
+                </div>
+                {% endif %}
+                
+                {% if service.agency.address %}
+                <div class="flex items-start text-sm text-gray-600 mb-1">
+                    <i class="fas fa-map-marker-alt w-5 mt-1 text-gray-400"></i>
+                    <span>{{ service.agency.address }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% if service.website_link or service.form_link or service.agency.website %}
+            <div>
+                <h3 class="text-gray-800 font-medium mb-2">Links</h3>
+                
+                {% if service.agency.website %}
+                <a href="{{ service.agency.website }}" target="_blank" rel="noopener" class="flex items-center text-sm text-primary-600 hover:text-primary-800 transition mb-2">
+                    <i class="fas fa-globe w-5"></i>
+                    <span>Agency Website</span>
+                </a>
+                {% endif %}
+                
+                {% if service.website_link %}
+                <a href="{{ service.website_link }}" target="_blank" rel="noopener" class="flex items-center text-sm text-primary-600 hover:text-primary-800 transition mb-2">
+                    <i class="fas fa-link w-5"></i>
+                    <span>Service Website</span>
+                </a>
+                {% endif %}
+                
+                {% if service.form_link %}
+                <a href="{{ service.form_link }}" target="_blank" rel="noopener" class="flex items-center text-sm text-primary-600 hover:text-primary-800 transition mb-2">
+                    <i class="fas fa-file-alt w-5"></i>
+                    <span>Application Form</span>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Related Services -->
+        {% if related_services %}
+        <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 mb-6">
+            <h2 class="text-xl font-semibold text-slate-800 mb-4">Related Services</h2>
+            
+            <div class="space-y-4">
+                {% for related in related_services %}
+                <div class="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+                    <h3 class="font-medium text-slate-800 mb-1">{{ related.name }}</h3>
+                    <p class="text-sm text-gray-600 mb-2">{{ related.description|truncatewords:10 }}</p>
+                    <a href="{% url 'service_detail' related.slug %}" class="text-sm text-primary-600 hover:text-primary-800 transition">View Details</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Request Referral CTA -->
+        <div class="bg-primary-50 rounded-lg p-6 border border-primary-100">
+            <div class="text-center mb-4">
+                <div class="bg-primary-100 h-16 w-16 rounded-full flex items-center justify-center text-primary-600 text-2xl mx-auto mb-3">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-primary-800 mb-2">Need help with this service?</h3>
+                <p class="text-gray-600 mb-4">Let #FahanieCares assist you with navigating this service and facilitate your application process.</p>
+                <a href="{% url 'referral_create' service.slug %}" class="block w-full bg-primary-600 text-white py-3 rounded-md font-medium hover:bg-primary-700 transition text-center">
+                    Request Referral
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<section class="py-12 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Not sure if this service is right for you?</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">Our team can help you navigate the available services and find the best options for your needs.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#" class="bg-white text-primary-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition inline-block">Schedule a Consultation</a>
+            <a href="{% url 'service_list' %}" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-md font-medium hover:bg-white/10 transition inline-block">View All Services</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

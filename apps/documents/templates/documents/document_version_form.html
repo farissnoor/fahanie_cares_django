@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Upload New Version - #FahanieCares{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6">Upload New Version</h1>
+        
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Current Document</h2>
+            <div class="text-sm text-gray-600">
+                <p><strong>Title:</strong> {{ document.title }}</p>
+                <p><strong>Current Version:</strong> {{ document.version }}</p>
+                <p><strong>File Type:</strong> {{ document.file_type|upper }}</p>
+                <p><strong>New Version Will Be:</strong> {{ document.version|add:1 }}</p>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="mb-4">
+                    <label for="{{ form.file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">New File</label>
+                    {{ form.file }}
+                    <p class="text-sm text-gray-500 mt-1">Upload the new version of the document</p>
+                    {% if form.file.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.file.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">Version Notes</label>
+                    {{ form.description }}
+                    <p class="text-sm text-gray-500 mt-1">Describe what changed in this version</p>
+                    {% if form.description.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="flex gap-4">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700">
+                        <i class="fas fa-upload mr-2"></i>Upload New Version
+                    </button>
+                    <a href="{% url 'documents:document_detail' document.pk %}" class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

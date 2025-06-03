@@ -1,0 +1,193 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Government Service Categories - #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">Government Service Categories</h1>
+            <p class="text-xl text-white/90">Browse services by category to find the assistance you need</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Service Categories</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Categories Overview -->
+    <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100 mb-8">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">Service Categories</h2>
+        <p class="text-gray-600 mb-8">Browse government services by category to find the assistance you need. #FahanieCares can help you navigate these services and connect you with the right agency.</p>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in categories %}
+            <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition border border-gray-100 overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-xl font-semibold text-slate-800">{{ category.name }}</h3>
+                        {% if category.icon %}
+                        <div class="bg-primary-100 h-10 w-10 rounded-full flex items-center justify-center text-primary-600">
+                            <i class="{{ category.icon }}"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    {% if category.subcategories.exists %}
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 font-medium mb-2">Subcategories:</p>
+                        <ul class="space-y-1">
+                            {% for subcategory in category.subcategories.all %}
+                            <li>
+                                <a href="{% url 'service_list_by_category' subcategory.slug %}" class="text-gray-600 hover:text-primary-600 transition text-sm">
+                                    {{ subcategory.name }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'service_list_by_category' category.slug %}" class="text-primary-600 hover:text-primary-800 font-medium flex items-center">
+                        Browse Services <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center text-gray-500">
+                No service categories available at the moment.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Getting Started -->
+    <div class="bg-primary-50 rounded-lg p-8 border border-primary-100 mb-8">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-2/3">
+                <h2 class="text-2xl font-bold text-primary-800 mb-2">How to Request a Service Referral</h2>
+                <p class="text-gray-700 mb-4">Let #FahanieCares help you navigate government services and connect you with the right agency.</p>
+                
+                <ol class="list-decimal list-inside text-gray-700 space-y-2 mb-6">
+                    <li>Browse services by category or use the search function</li>
+                    <li>Select the service you need assistance with</li>
+                    <li>Review the service details and eligibility requirements</li>
+                    <li>Click "Request Referral" to submit your application</li>
+                    <li>Track your referral status in your account dashboard</li>
+                </ol>
+                
+                <a href="{% url 'service_list' %}" class="bg-primary-600 text-white px-6 py-3 rounded-md font-medium hover:bg-primary-700 transition inline-block">
+                    View All Services
+                </a>
+            </div>
+            <div class="md:w-1/3 mt-6 md:mt-0 flex justify-center">
+                <div class="text-primary-400 text-8xl">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ -->
+    <div class="bg-white rounded-lg shadow-sm p-8 border border-gray-100">
+        <h2 class="text-2xl font-bold text-slate-800 mb-6">Frequently Asked Questions</h2>
+        
+        <div class="space-y-4">
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full text-left px-6 py-4 font-medium flex justify-between items-center focus:outline-none">
+                    <span>What is a service referral?</span>
+                    <i class="fas fa-chevron-down text-gray-400"></i>
+                </button>
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <p class="text-gray-600">A service referral is a formal connection between you and a government agency or service provider. #FahanieCares helps facilitate this connection by providing information, assistance with applications, and following up on your behalf.</p>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full text-left px-6 py-4 font-medium flex justify-between items-center focus:outline-none">
+                    <span>Do I need to be a member to request a referral?</span>
+                    <i class="fas fa-chevron-down text-gray-400"></i>
+                </button>
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <p class="text-gray-600">Yes, you need to be a registered #FahanieCares member to request service referrals. Registration is free and open to all constituents. If you're not yet a member, you can register on our website.</p>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full text-left px-6 py-4 font-medium flex justify-between items-center focus:outline-none">
+                    <span>How long does the referral process take?</span>
+                    <i class="fas fa-chevron-down text-gray-400"></i>
+                </button>
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <p class="text-gray-600">The referral process time varies depending on the service and agency involved. #FahanieCares typically reviews and processes referral requests within 1-2 business days. The complete process, including agency response time, can take anywhere from a few days to several weeks, depending on the complexity of your request.</p>
+                </div>
+            </div>
+            
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full text-left px-6 py-4 font-medium flex justify-between items-center focus:outline-none">
+                    <span>What if my service isn't listed?</span>
+                    <i class="fas fa-chevron-down text-gray-400"></i>
+                </button>
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <p class="text-gray-600">If you can't find the specific service you need, please contact our support team. We can help identify the appropriate service or agency for your needs, even if it's not currently listed in our directory.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block cta %}
+<section class="py-12 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-2xl font-bold mb-4">Need Personalized Assistance?</h2>
+        <p class="text-white/80 max-w-2xl mx-auto mb-8">Our team can help you navigate government services and find the right solutions for your needs.</p>
+        <a href="#" class="bg-white text-primary-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100 transition inline-block">
+            Contact Our Team
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const faqButtons = document.querySelectorAll('.border.border-gray-200.rounded-lg button');
+        
+        faqButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.fas');
+                
+                // Toggle visibility
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                }
+            });
+        });
+        
+        // Initialize - hide all content
+        document.querySelectorAll('.border.border-gray-200.rounded-lg > div').forEach(div => {
+            div.style.maxHeight = null;
+        });
+    });
+</script>
+{% endblock %}

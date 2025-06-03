@@ -1,0 +1,121 @@
+{% comment %}
+Empty State Component - Atomic Design Level: Molecule
+
+Usage Examples:
+{% include 'components/molecules/empty_state.html' with icon='fas fa-search' title='No Results Found' %}
+{% include 'components/molecules/empty_state.html' with icon='fas fa-inbox' title='No Messages' description='You have no messages at this time.' %}
+
+Parameters:
+- icon: Font Awesome icon class (required)
+- title: Empty state title (required)  
+- description: Empty state description (optional)
+- cta_text: Call-to-action button text (optional)
+- cta_href: Call-to-action button link (optional)
+- cta_variant: CTA button variant (optional, default: 'primary')
+- size: 'sm', 'md', 'lg' (optional, default: 'md')
+- extra_classes: Additional CSS classes (optional)
+{% endcomment %}
+
+{% comment %} Set defaults {% endcomment %}
+{% with 
+    cta_variant=cta_variant|default:'primary'
+    size=size|default:'md'
+%}
+
+{% comment %} Determine size classes {% endcomment %}
+{% if size == 'sm' %}
+    {% with 
+        icon_size='text-4xl'
+        title_size='text-lg'
+        description_size='text-sm'
+        padding='p-6'
+    %}
+    <div class="text-center {{ padding }} {{ extra_classes }}">
+        {% comment %} Icon {% endcomment %}
+        <div class="text-gray-400 {{ icon_size }} mb-4">
+            <i class="{{ icon }}"></i>
+        </div>
+        
+        {% comment %} Title {% endcomment %}
+        <h3 class="font-semibold text-slate-800 {{ title_size }} mb-2">{{ title }}</h3>
+        
+        {% comment %} Description {% endcomment %}
+        {% if description %}
+        <p class="text-gray-600 {{ description_size }} mb-4 max-w-md mx-auto">{{ description }}</p>
+        {% endif %}
+        
+        {% comment %} Call-to-action {% endcomment %}
+        {% if cta_text %}
+        <div class="mt-6">
+            <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base {% if cta_variant == 'primary' %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% else %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% endif %}">
+                {{ cta_text }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endwith %}
+{% elif size == 'lg' %}
+    {% with 
+        icon_size='text-7xl'
+        title_size='text-2xl'
+        description_size='text-lg'
+        padding='p-12'
+    %}
+    <div class="text-center {{ padding }} {{ extra_classes }}">
+        {% comment %} Icon {% endcomment %}
+        <div class="text-gray-400 {{ icon_size }} mb-4">
+            <i class="{{ icon }}"></i>
+        </div>
+        
+        {% comment %} Title {% endcomment %}
+        <h3 class="font-semibold text-slate-800 {{ title_size }} mb-2">{{ title }}</h3>
+        
+        {% comment %} Description {% endcomment %}
+        {% if description %}
+        <p class="text-gray-600 {{ description_size }} mb-4 max-w-md mx-auto">{{ description }}</p>
+        {% endif %}
+        
+        {% comment %} Call-to-action {% endcomment %}
+        {% if cta_text %}
+        <div class="mt-6">
+            <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base {% if cta_variant == 'primary' %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% else %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% endif %}">
+                {{ cta_text }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endwith %}
+{% else %}
+    {% with 
+        icon_size='text-5xl'
+        title_size='text-xl'
+        description_size='text-base'
+        padding='p-8'
+    %}
+    <div class="text-center {{ padding }} {{ extra_classes }}">
+        {% comment %} Icon {% endcomment %}
+        <div class="text-gray-400 {{ icon_size }} mb-4">
+            <i class="{{ icon }}"></i>
+        </div>
+        
+        {% comment %} Title {% endcomment %}
+        <h3 class="font-semibold text-slate-800 {{ title_size }} mb-2">{{ title }}</h3>
+        
+        {% comment %} Description {% endcomment %}
+        {% if description %}
+        <p class="text-gray-600 {{ description_size }} mb-4 max-w-md mx-auto">{{ description }}</p>
+        {% endif %}
+        
+        {% comment %} Call-to-action {% endcomment %}
+        {% if cta_text %}
+        <div class="mt-6">
+            <a href="{% if cta_href %}{{ cta_href }}{% else %}#{% endif %}" class="inline-flex items-center justify-center font-medium rounded-md transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 px-4 py-2 text-base {% if cta_variant == 'primary' %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% else %}bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500{% endif %}">
+                {{ cta_text }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endwith %}
+{% endif %}
+
+{% endwith %}{% comment %} with defaults {% endcomment %}

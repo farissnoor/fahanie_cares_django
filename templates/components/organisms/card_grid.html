@@ -1,0 +1,110 @@
+{% comment %}
+Card Grid Component - Atomic Design Level: Organism
+
+Usage Examples:
+{% include 'components/organisms/card_grid.html' with items=services grid_cols='md:grid-cols-2' %}
+{% include 'components/organisms/card_grid.html' with items=programs grid_cols='md:grid-cols-3' stagger_delay=150 %}
+
+Parameters:
+- items: List of items to display (required)
+- grid_cols: Tailwind grid column classes (optional, default: 'md:grid-cols-3')
+- gap: Grid gap classes (optional, default: 'gap-6')
+- stagger_delay: Animation stagger delay in ms (optional, default: 150)
+- animation_type: 'fade-in-up', 'fade-in-left', 'fade-in-right', 'scale-in' (optional, default: 'fade-in-up')
+- enable_animations: Enable/disable animations (optional, default: true)
+- extra_classes: Additional CSS classes (optional)
+- card_template: Custom card template path (optional, default: 'components/molecules/card.html')
+{% endcomment %}
+
+{% with 
+    grid_cols=grid_cols|default:'md:grid-cols-3'
+    gap=gap|default:'gap-6'
+    stagger_delay=stagger_delay|default:150
+    animation_type=animation_type|default:'fade-in-up'
+    enable_animations=enable_animations|default:true
+    card_template=card_template|default:'components/molecules/card.html'
+%}
+
+{% comment %} Base grid classes {% endcomment %}
+{% with base_classes='grid grid-cols-1' %}
+
+{% comment %} Combine all classes {% endcomment %}
+{% with all_classes=base_classes|add:' '|add:grid_cols|add:' '|add:gap|add:' '|add:extra_classes %}
+
+<div class="{{ all_classes }}" 
+     {% if enable_animations %}x-data="staggerAnimation({staggerDelay: {{ stagger_delay }}})"{% endif %}>
+     
+    {% for item in items %}
+        {% comment %} Individual card wrapper {% endcomment %}
+        <div class="{% if enable_animations %}animate-{{ animation_type }}{% endif %}">
+            
+            {% comment %} Service card - customize based on item type {% endcomment %}
+            {% if item.agency %}
+                {% comment %} Service item {% endcomment %}
+                {% include card_template with 
+                    title=item.name
+                    description=item.description|truncatewords:20
+                    badge_text=item.category.name
+                    badge_variant='primary'
+                    href=item.get_absolute_url
+                    cta_text='Request Referral'
+                    cta_href=item.get_referral_url
+                    icon=item.category.icon
+                    alpine_data='hoverAnimation()'
+                    extra_classes='focus-ring'
+                %}
+                
+            {% elif item.category %}
+                {% comment %} Program item {% endcomment %}
+                {% include card_template with 
+                    title=item.title
+                    description=item.description
+                    image_placeholder=item.title|add:' Image'
+                    badge_text=item.category
+                    badge_variant='primary'
+                    cta_text='Apply Now'
+                    cta_href='#'
+                    alpine_data='hoverAnimation()'
+                    extra_classes='focus-ring'
+                    card_content=item.custom_content
+                %}
+                
+            {% elif item.title %}
+                {% comment %} Announcement item {% endcomment %}
+                {% include card_template with 
+                    title=item.title
+                    description=item.excerpt
+                    image_placeholder='Announcement Image'
+                    badge_text=item.category
+                    badge_variant=item.category_variant|default:'primary'
+                    href='#'
+                    cta_text='Read More'
+                    alpine_data='hoverAnimation()'
+                    extra_classes='focus-ring'
+                %}
+                
+            {% else %}
+                {% comment %} Generic item - fallback {% endcomment %}
+                {% include card_template with 
+                    title=item.name|default:item.title
+                    description=item.description|default:item.content
+                    alpine_data='hoverAnimation()'
+                    extra_classes='focus-ring'
+                %}
+            {% endif %}
+        </div>
+    {% empty %}
+        {% comment %} Empty state {% endcomment %}
+        <div class="col-span-full">
+            {% include 'components/molecules/empty_state.html' with 
+                icon='fas fa-search'
+                title='No Items Found'
+                description='There are no items to display at the moment.'
+            %}
+        </div>
+    {% endfor %}
+</div>
+
+{% endwith %}{% comment %} all_classes {% endcomment %}
+{% endwith %}{% comment %} base_classes {% endcomment %}
+{% endwith %}{% comment %} with defaults {% endcomment %}

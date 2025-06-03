@@ -1,0 +1,355 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} | #FahanieCares{% endblock %}
+
+{% block hero %}
+<div class="bg-primary-600 text-white py-10">
+    <div class="container mx-auto px-4">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-bold mb-3">{{ title }}</h1>
+                    <p class="text-lg text-white/90">
+                        {% if object.pk %}
+                        Update information for {{ object.user.get_full_name }}
+                        {% else %}
+                        Create a new constituent profile
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="bg-white border-b">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center text-sm text-gray-600">
+            <a href="{% url 'home' %}" class="hover:text-primary-600 transition">Home</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <a href="{% url 'staff_constituent_dashboard' %}" class="hover:text-primary-600 transition">Constituents</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            {% if object.pk %}
+            <a href="{% url 'staff_constituent_detail' object.pk %}" class="hover:text-primary-600 transition">{{ object.user.get_full_name }}</a>
+            <i class="fas fa-chevron-right text-xs mx-2"></i>
+            <span class="text-gray-800 font-medium">Update</span>
+            {% else %}
+            <span class="text-gray-800 font-medium">Add New</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <!-- User Information (used on both create and update) -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">User Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                        <input type="text" name="first_name" id="first_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            {% if user_data %}value="{{ user_data.first_name }}"{% endif %}>
+                    </div>
+                    
+                    <div>
+                        <label for="last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                        <input type="text" name="last_name" id="last_name" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            {% if user_data %}value="{{ user_data.last_name }}"{% endif %}>
+                    </div>
+                    
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                        <input type="email" name="email" id="email" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            {% if user_data %}value="{{ user_data.email }}"{% endif %}>
+                    </div>
+                    
+                    <div>
+                        <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" name="phone_number" id="phone_number" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            {% if user_data %}value="{{ user_data.phone_number }}"{% endif %}>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <div class="flex items-center">
+                        <input type="checkbox" name="is_member" id="is_member" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                            {% if user_data.user_type == 'member' or user_data.user_type == 'chapter_member' %}checked{% endif %}>
+                        <label for="is_member" class="ml-2 block text-sm text-gray-700">
+                            Register as a member (not just a constituent)
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Personal Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Personal Information</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_birth_date" class="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
+                        {{ form.birth_date }}
+                        {% if form.birth_date.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.birth_date.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_gender" class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.gender.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_education_level" class="block text-sm font-medium text-gray-700 mb-1">Education Level</label>
+                        {{ form.education_level }}
+                        {% if form.education_level.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.education_level.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_occupation" class="block text-sm font-medium text-gray-700 mb-1">Occupation</label>
+                        {{ form.occupation }}
+                        {% if form.occupation.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.occupation.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_occupation_type" class="block text-sm font-medium text-gray-700 mb-1">Occupation Type</label>
+                        {{ form.occupation_type }}
+                        {% if form.occupation_type.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.occupation_type.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_household_size" class="block text-sm font-medium text-gray-700 mb-1">Household Size</label>
+                        {{ form.household_size }}
+                        {% if form.household_size.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.household_size.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_language_preference" class="block text-sm font-medium text-gray-700 mb-1">Language Preference</label>
+                        {{ form.language_preference }}
+                        {% if form.language_preference.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.language_preference.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_alternate_contact" class="block text-sm font-medium text-gray-700 mb-1">Alternate Contact</label>
+                        {{ form.alternate_contact }}
+                        <p class="text-gray-500 text-xs mt-1">Emergency contact or alternative contact method</p>
+                        {% if form.alternate_contact.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.alternate_contact.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <label for="id_bio" class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.bio.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <label for="id_profile_image" class="block text-sm font-medium text-gray-700 mb-1">Profile Image</label>
+                    {{ form.profile_image }}
+                    {% if form.profile_image.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.profile_image.errors.0 }}</p>
+                    {% endif %}
+                    {% if form.instance.profile_image %}
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500">Current image: {{ form.instance.profile_image.url }}</p>
+                        <img src="{{ form.instance.profile_image.url }}" alt="Current profile image" class="mt-2 h-20 w-20 object-cover rounded-full">
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Voter Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Voter Information</h3>
+                
+                <div class="mb-4">
+                    <div class="flex items-center">
+                        {{ form.is_voter }}
+                        <label for="id_is_voter" class="ml-2 block text-sm text-gray-700">
+                            Is registered voter
+                        </label>
+                    </div>
+                    {% if form.is_voter.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.is_voter.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="id_voter_id" class="block text-sm font-medium text-gray-700 mb-1">Voter ID</label>
+                        {{ form.voter_id }}
+                        {% if form.voter_id.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.voter_id.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="id_voting_center" class="block text-sm font-medium text-gray-700 mb-1">Voting Center</label>
+                        {{ form.voting_center }}
+                        {% if form.voting_center.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.voting_center.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Volunteer Information -->
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Volunteer Information</h3>
+                
+                <div class="mb-4">
+                    <div class="flex items-center">
+                        {{ form.is_volunteer }}
+                        <label for="id_is_volunteer" class="ml-2 block text-sm text-gray-700">
+                            Is volunteer
+                        </label>
+                    </div>
+                    {% if form.is_volunteer.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.is_volunteer.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="id_volunteer_interests" class="block text-sm font-medium text-gray-700 mb-1">Volunteer Interests</label>
+                    {{ form.volunteer_interests }}
+                    <p class="text-gray-500 text-xs mt-1">Areas of interest for volunteer work</p>
+                    {% if form.volunteer_interests.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.volunteer_interests.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Engagement Information (shown only for updates) -->
+            {% if object.pk %}
+            <div class="border-b border-gray-200 pb-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Engagement Information</h3>
+                
+                <div>
+                    <label for="id_engagement_level" class="block text-sm font-medium text-gray-700 mb-1">Engagement Level (1-10)</label>
+                    {{ form.engagement_level }}
+                    <p class="text-gray-500 text-xs mt-1">1 = Rarely engaged, 10 = Highly engaged</p>
+                    {% if form.engagement_level.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.engagement_level.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4">
+                    <label for="id_interests" class="block text-sm font-medium text-gray-700 mb-1">Interests & Concerns</label>
+                    {{ form.interests }}
+                    <p class="text-gray-500 text-xs mt-1">What issues or topics is this constituent interested in?</p>
+                    {% if form.interests.errors %}
+                    <p class="text-red-500 text-xs mt-1">{{ form.interests.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Notes -->
+            <div>
+                <label for="id_notes" class="block text-sm font-medium text-gray-700 mb-1">Staff Notes</label>
+                {{ form.notes }}
+                <p class="text-gray-500 text-xs mt-1">Internal notes for staff use only</p>
+                {% if form.notes.errors %}
+                <p class="text-red-500 text-xs mt-1">{{ form.notes.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Form Buttons -->
+            <div class="flex justify-end space-x-3 pt-6">
+                {% if object.pk %}
+                <a href="{% url 'staff_constituent_detail' object.pk %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                {% else %}
+                <a href="{% url 'staff_constituent_dashboard' %}" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    Cancel
+                </a>
+                {% endif %}
+                
+                <button type="submit" class="px-4 py-2 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    {{ submit_text }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add required classes to form fields
+        const formControls = document.querySelectorAll('input, select, textarea');
+        formControls.forEach(control => {
+            if (!control.classList.contains('form-check-input')) {
+                control.classList.add('w-full', 'px-3', 'py-2', 'border', 'border-gray-300', 'rounded-md', 'focus:outline-none', 'focus:ring-2', 'focus:ring-primary-500', 'focus:border-transparent');
+            }
+        });
+        
+        // Style textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.style.minHeight = '100px';
+        });
+        
+        // Dynamic field toggling
+        const isVoterCheckbox = document.getElementById('id_is_voter');
+        const voterFields = document.getElementById('id_voter_id').closest('.grid');
+        
+        const isVolunteerCheckbox = document.getElementById('id_is_volunteer');
+        const volunteerInterestsField = document.getElementById('id_volunteer_interests').closest('div');
+        
+        function updateFieldVisibility() {
+            // Toggle voter fields based on is_voter checkbox
+            if (isVoterCheckbox && voterFields) {
+                voterFields.style.display = isVoterCheckbox.checked ? 'grid' : 'none';
+            }
+            
+            // Toggle volunteer interests based on is_volunteer checkbox
+            if (isVolunteerCheckbox && volunteerInterestsField) {
+                volunteerInterestsField.style.display = isVolunteerCheckbox.checked ? 'block' : 'none';
+            }
+        }
+        
+        // Initialize visibility
+        updateFieldVisibility();
+        
+        // Add event listeners
+        if (isVoterCheckbox) {
+            isVoterCheckbox.addEventListener('change', updateFieldVisibility);
+        }
+        
+        if (isVolunteerCheckbox) {
+            isVolunteerCheckbox.addEventListener('change', updateFieldVisibility);
+        }
+    });
+</script>
+{% endblock %}
+
+{% block cta %}
+<!-- No CTA Section for Form Pages -->
+{% endblock %}
