@@ -1,0 +1,16 @@
+{
+    "name": "fahanie-cares-django",
+    "version": "1.0.0",
+    "description": "The official website and constituent management system for MP Atty. Sittie Fahanie S. Uy-Oyod's public service initiative.",
+    "main": "index.js",
+    "scripts": {
+        "build:css": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --minify",
+        "watch:css": "tailwindcss -i ./static/css/input.css -o ./static/css/style.css --watch"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "devDependencies": {
+        "tailwindcss": "^3.0.0"
+    }
+}
